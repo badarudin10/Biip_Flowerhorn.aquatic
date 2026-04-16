@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biipsite Aquatic | Premium Fish Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), 
+                        url('https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?auto=format&fit=crop&q=80&w=2000');
+            background-attachment: fixed;
+            background-size: cover;
+            color: white;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .fish-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <nav class="fixed w-full z-50 glass-card px-6 py-4 flex justify-between items-center">
+        <div class="text-2xl font-black tracking-tighter italic text-blue-400">BIIPSITE<span class="text-white font-light">.AQUA</span></div>
+        <div class="hidden md:flex gap-8 text-sm font-bold uppercase tracking-widest">
+            <a href="#" class="hover:text-blue-400 transition">Home</a>
+            <a href="#produk" class="hover:text-blue-400 transition">Katalog Ikan</a>
+            <a href="#" class="hover:text-blue-400 transition">Tentang Kami</a>
+        </div>
+        <button onclick="toggleAdmin()" class="bg-blue-600 p-2 px-4 rounded-full text-xs font-bold hover:scale-110 transition">
+            <i class="fas fa-user-shield mr-2"></i>ADMIN
+        </button>
+    </nav>
+
+    <section class="h-screen flex flex-col justify-center items-center text-center px-4">
+        <h1 class="text-5xl md:text-8xl font-black mb-6 animate-pulse">NATURAL BEAUTY.</h1>
+        <p class="text-lg md:text-2xl text-slate-400 max-w-2xl font-light leading-relaxed">
+            Menghadirkan keindahan alam liar langsung ke dalam akuarium Anda. Ikan hias kualitas kontes dengan pengiriman bergaransi.
+        </p>
+        <div class="mt-10 flex gap-4">
+            <a href="#produk" class="fish-gradient px-8 py-4 rounded-full font-bold shadow-lg shadow-blue-500/30">Mulai Belanja</a>
+            <button class="bg-white/10 px-8 py-4 rounded-full font-bold hover:bg-white/20 transition">Info Toko</button>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-6 py-20" id="produk">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-3xl font-bold">Ikan Terbaru</h2>
+                <p class="text-slate-500">Koleksi pilihan bulan April 2026</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="px-4 py-1 rounded-full border border-slate-700 text-xs">Cupang</span>
+                <span class="px-4 py-1 rounded-full border border-slate-700 text-xs">Channa</span>
+                <span class="px-4 py-1 rounded-full border border-slate-700 text-xs">Discus</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="fishGallery">
+            </div>
+    </main>
+
+    <div id="checkoutModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80">
+        <div class="bg-slate-900 w-full max-w-md p-8 rounded-3xl border border-blue-500/30">
+            <h3 class="text-2xl font-bold mb-6">Konfirmasi Pesanan</h3>
+            <div class="space-y-4">
+                <div id="selectedProduct" class="bg-blue-900/20 p-4 rounded-2xl border border-blue-500/20 text-blue-300"></div>
+                <input type="text" id="buyerName" placeholder="Nama Lengkap" class="w-full p-4 rounded-xl bg-slate-800 border-none outline-none focus:ring-2 focus:ring-blue-500 text-white">
+                
+                <label class="block text-xs font-bold text-slate-500 uppercase mt-4">Pilih Jasa Pengiriman</label>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button class="courier-btn border border-slate-700 p-2 rounded-lg text-xs hover:border-blue-500" onclick="setCourier('JNE')">JNE Express</button>
+                    <button class="courier-btn border border-slate-700 p-2 rounded-lg text-xs hover:border-blue-500" onclick="setCourier('TIKI')">TIKI</button>
+                    <button class="courier-btn border border-slate-700 p-2 rounded-lg text-xs hover:border-blue-500" onclick="setCourier('Paxel')">Paxel</button>
+                    <button class="courier-btn border border-slate-700 p-2 rounded-lg text-xs hover:border-blue-500" onclick="setCourier('Gojek Instan')">Gojek Instan</button>
+                </div>
+
+                <button onclick="submitOrder()" class="w-full fish-gradient py-4 rounded-xl font-bold mt-6 shadow-xl shadow-blue-500/20">Beli Sekarang</button>
+                <button onclick="closeCheckout()" class="w-full py-2 text-slate-500 text-sm">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "URL_APPS_SCRIPT_ANDA"; // Ganti dengan URL /exec Anda
+        let selectedFish = "";
+        let selectedCourier = "";
+
+        async function loadFish() {
+            const container = document.getElementById('fishGallery');
+            try {
+                const res = await fetch(API_URL + "?p=data");
+                const data = await res.json();
+                
+                container.innerHTML = data.map(fish => `
+                    <div class="glass-card rounded-[2.5rem] p-4 flex flex-col h-full">
+                        <img src="${fish[3]}" class="w-full h-48 object-cover rounded-[2rem] mb-4" alt="${fish[0]}">
+                        <div class="px-2">
+                            <h3 class="text-xl font-bold">${fish[0]}</h3>
+                            <p class="text-blue-400 font-bold mt-1 text-lg">Rp ${Number(fish[1]).toLocaleString('id-ID')}</p>
+                            <p class="text-slate-400 text-xs mt-2 line-clamp-2">${fish[2]}</p>
+                            <div class="mt-4 flex justify-between items-center italic text-[10px] text-slate-500 uppercase tracking-tighter">
+                                <span>Tersisa: ${fish[4]} Ekor</span>
+                                <span class="${fish[4] > 0 ? 'text-green-400' : 'text-red-500'} font-bold">${fish[4] > 0 ? 'Ready' : 'Sold Out'}</span>
+                            </div>
+                        </div>
+                        <button onclick="openCheckout('${fish[0]}')" ${fish[4] <= 0 ? 'disabled' : ''} 
+                                class="mt-6 w-full py-3 rounded-2xl font-bold text-sm ${fish[4] > 0 ? 'fish-gradient' : 'bg-slate-700 cursor-not-allowed'}">
+                            ${fish[4] > 0 ? 'Adopsi Sekarang' : 'Stok Habis'}
+                        </button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error("Gagal memuat katalog");
+            }
+        }
+
+        function openCheckout(name) {
+            selectedFish = name;
+            document.getElementById('selectedProduct').innerText = "Produk: " + name;
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function setCourier(name) {
+            selectedCourier = name;
+            document.querySelectorAll('.courier-btn').forEach(btn => btn.classList.remove('bg-blue-600', 'border-blue-600'));
+            event.target.classList.add('bg-blue-600', 'border-blue-600');
+        }
+
+        async function submitOrder() {
+            const name = document.getElementById('buyerName').value;
+            if(!name || !selectedCourier) return alert("Lengkapi data!");
+
+            const payload = JSON.stringify({
+                nama_pembeli: name,
+                ikan_dipesan: selectedFish,
+                kurir: selectedCourier,
+                alamat: "Data Alamat Contoh"
+            });
+
+            await fetch(API_URL, { method: 'POST', body: payload });
+            alert("Pesanan Terkirim! Admin akan menghubungi Anda.");
+            location.reload();
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        window.onload = loadFish;
+    </script>
+</body>
+</html>
+
