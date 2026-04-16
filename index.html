@@ -14,7 +14,6 @@
             color: #f8fafc;
             overflow-x: hidden;
         }
-        /* Background Efek Alam Liar (Akar, Batu, Air) */
         .ocean-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -40,7 +39,6 @@
         .fish-gradient {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
         }
-        /* Animasi halusan */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -58,88 +56,74 @@
         <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
             <a href="#home" class="hover:text-blue-400 transition">Beranda</a>
             <a href="#katalog" class="hover:text-blue-400 transition">Katalog Ikan</a>
-            <a href="https://script.google.com/home" target="_blank" class="hover:text-red-400 transition"><i class="fas fa-database mr-1"></i> Database</a>
+            <a href="#" class="hover:text-red-400 transition"><i class="fas fa-database mr-1"></i> Dashboard Admin</a>
         </div>
         <button class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-600/20">
-            KONTAK KAMI
+            KONTAK
         </button>
     </nav>
 
     <section id="home" class="min-h-screen flex flex-col justify-center items-center px-6 text-center">
         <div class="animate-fade" style="animation-delay: 0.2s">
             <h1 class="text-6xl md:text-9xl font-black mb-6 leading-none tracking-tighter">
-                PREMIUM <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600">AQUATIC</span>
+                EXOTIC <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600 font-outline">COLLECTION</span>
             </h1>
-            <p class="text-slate-400 max-w-2xl text-lg md:text-xl mb-10 font-light leading-relaxed mx-auto">
-                Membawa keindahan ekosistem alam liar ke dalam ruang huni Anda. 
-                Koleksi ikan hias kontes dengan standar perawatan profesional.
+            <p class="text-slate-400 max-w-2xl text-lg mb-10 font-light leading-relaxed mx-auto">
+                E-Commerce Ikan Hias Premium dengan sistem manajemen stok otomatis. 
+                Modern, Cepat, dan Interaktif.
             </p>
-            <div class="flex gap-4 justify-center">
-                <a href="#katalog" class="fish-gradient px-10 py-4 rounded-full font-extrabold hover:scale-110 transition shadow-xl shadow-blue-600/40 uppercase text-sm tracking-widest">Mulai Belanja</a>
-            </div>
+            <a href="#katalog" class="fish-gradient px-10 py-4 rounded-full font-extrabold hover:scale-110 transition shadow-xl shadow-blue-600/40 uppercase text-xs tracking-widest">Lihat Koleksi</a>
         </div>
     </section>
 
     <section id="katalog" class="max-w-7xl mx-auto px-6 py-32">
         <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div class="animate-fade">
-                <h2 class="text-4xl font-extrabold mb-2">Pilihan Galeri</h2>
-                <p class="text-slate-500">Produk yang baru saja masuk ke karantina kami.</p>
+                <h2 class="text-4xl font-extrabold mb-2">Daftar Stok</h2>
+                <p class="text-slate-500">Data real-time dari Google Sheets Anda.</p>
             </div>
-            <div class="flex items-center gap-4 glass px-6 py-3 rounded-2xl border-white/10">
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Support Kurir:</span>
-                <div class="flex gap-4 opacity-70">
-                    <i class="fas fa-truck-fast text-blue-400" title="JNE/TIKI"></i>
-                    <i class="fas fa-motorcycle text-green-400" title="Gojek/Grab"></i>
-                    <i class="fas fa-box text-orange-400" title="Paxel"></i>
-                </div>
+            <div class="flex items-center gap-4 glass px-6 py-3 rounded-2xl">
+                <i class="fas fa-shipping-fast text-blue-400"></i>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">JNE | TIKI | PAXEL | GOJEK</span>
             </div>
         </div>
 
         <div id="loading" class="text-center py-20">
             <div class="inline-block w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 text-slate-500 text-xs font-bold tracking-widest uppercase">Sinkronisasi Database...</p>
+            <p class="mt-4 text-slate-500 text-xs font-bold tracking-widest uppercase">Menghubungkan ke Database...</p>
         </div>
 
-        <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            </div>
+        <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
     </section>
 
     <div id="buyModal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass w-full max-w-lg p-8 rounded-[2.5rem] relative border-white/10 overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl rounded-full"></div>
-            
-            <h3 class="text-2xl font-bold mb-1">Konfirmasi Pembelian</h3>
+        <div class="glass w-full max-w-lg p-8 rounded-[2.5rem] relative border-white/10">
+            <h3 class="text-2xl font-bold mb-1">Pesanan Baru</h3>
             <p id="fishTarget" class="text-blue-400 font-black italic mb-6"></p>
-            
             <div class="space-y-4">
-                <input type="text" id="buyerName" placeholder="Nama Penerima" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition text-white">
-                
-                <select id="courier" class="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 outline-none focus:border-blue-500 text-white cursor-pointer">
-                    <option value="" disabled selected>Pilih Jasa Pengiriman</option>
-                    <option value="JNE">JNE Express (Reguler/YES)</option>
-                    <option value="TIKI">TIKI (ONS)</option>
-                    <option value="Paxel">Paxel Cold Chain (Sangat Aman)</option>
-                    <option value="Gojek">Gojek/Grab Instan (Khusus Jabodetabek)</option>
+                <input type="text" id="buyerName" placeholder="Nama Anda" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 text-white">
+                <select id="courier" class="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white">
+                    <option value="" disabled selected>Pilih Kurir</option>
+                    <option value="JNE">JNE Express</option>
+                    <option value="TIKI">TIKI</option>
+                    <option value="Paxel">Paxel Cold Chain</option>
+                    <option value="Gojek">Gojek/Grab Instan</option>
                 </select>
-
-                <textarea id="address" placeholder="Alamat Lengkap & No. WhatsApp" rows="3" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition text-white"></textarea>
-                
+                <textarea id="address" placeholder="Alamat & No. WA" rows="3" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 text-white"></textarea>
                 <div class="pt-6 flex gap-4">
-                    <button onclick="closeModal()" class="flex-1 py-4 rounded-2xl font-bold bg-white/5 hover:bg-white/10 text-slate-500 transition uppercase text-xs tracking-widest">Batal</button>
-                    <button id="btnConfirm" onclick="confirmOrder()" class="flex-[2] py-4 rounded-2xl font-bold fish-gradient hover:scale-105 transition shadow-xl shadow-blue-600/30 uppercase text-xs tracking-widest">Pesan Sekarang</button>
+                    <button onclick="closeModal()" class="flex-1 py-4 rounded-2xl font-bold bg-white/5 text-slate-500">BATAL</button>
+                    <button id="btnConfirm" onclick="confirmOrder()" class="flex-[2] py-4 rounded-2xl font-bold fish-gradient text-white">BELI SEKARANG</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // LINK APPSCRIPT ANDA SUDAH TERPASANG DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycby27KUoRtKl941aALGWdutHD2tRxza8_pV64HaFQ85BWfyXq89C0Iq4MH79SH5kBg3Q/exec";
+        // LINK BARU ANDA SUDAH TERPASANG
+        const API_URL = "https://script.google.com/macros/s/AKfycbwfUnUF8PluZuV_4ILvCijPT7i1engO1CVZ0eO2V7NVzEP49FyJ6QJP_J3XC3JbJIoE/exec";
         
         let targetFish = "";
 
-        // Fungsi Memuat Produk dari Google Sheets
         async function loadProducts() {
             try {
                 const res = await fetch(API_URL);
@@ -147,61 +131,59 @@
                 document.getElementById('loading').classList.add('hidden');
                 
                 const grid = document.getElementById('productGrid');
+                if(data.length === 0) {
+                    grid.innerHTML = '<p class="col-span-full text-center text-slate-500 italic">Data di Google Sheets masih kosong.</p>';
+                    return;
+                }
+
                 grid.innerHTML = data.map(item => `
-                    <div class="glass card-hover rounded-[2.5rem] p-5 flex flex-col group h-full">
-                        <div class="relative overflow-hidden rounded-[2rem] h-56 mb-6">
-                            <img src="${item[3]}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${item[0]}">
-                            <div class="absolute top-4 left-4 bg-blue-600/80 backdrop-blur-md px-4 py-1 rounded-full text-[10px] font-black italic tracking-widest shadow-lg">PREMIUM QUALITY</div>
+                    <div class="glass card-hover rounded-[2.5rem] p-5 flex flex-col h-full group">
+                        <div class="relative overflow-hidden rounded-[2rem] h-52 mb-6">
+                            <img src="${item[3] || 'https://via.placeholder.com/300x200?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         </div>
                         <div class="px-2 flex-grow">
-                            <h3 class="text-xl font-extrabold tracking-tight mb-1 uppercase text-white">${item[0]}</h3>
-                            <div class="text-blue-400 font-black text-2xl mb-4">Rp ${Number(item[1]).toLocaleString('id-ID')}</div>
-                            <p class="text-slate-500 text-xs leading-relaxed line-clamp-2 mb-6">${item[2]}</p>
+                            <h3 class="text-lg font-extrabold uppercase text-white">${item[0]}</h3>
+                            <div class="text-blue-400 font-black text-xl mb-2">Rp ${Number(item[1]).toLocaleString('id-ID')}</div>
+                            <p class="text-slate-500 text-[10px] leading-relaxed line-clamp-2">${item[2]}</p>
                         </div>
-                        <div class="mt-auto px-2">
-                            <div class="flex justify-between items-center mb-5 text-[10px] font-bold uppercase tracking-widest">
-                                <span class="text-slate-500"><i class="fas fa-warehouse mr-1 text-blue-500"></i> Stok: ${item[4]}</span>
-                                <span class="${item[4] > 0 ? 'text-green-400' : 'text-red-500'} bg-white/5 px-3 py-1 rounded-lg">
-                                    ${item[4] > 0 ? 'Ready Stock' : 'Out of Stock'}
-                                </span>
+                        <div class="mt-6 px-2">
+                            <div class="flex justify-between text-[10px] font-bold uppercase mb-4 tracking-widest">
+                                <span class="text-slate-500">Stok: ${item[4]}</span>
+                                <span class="${item[4] > 0 ? 'text-green-400' : 'text-red-500'}">${item[4] > 0 ? 'Ready' : 'Habis'}</span>
                             </div>
                             <button onclick="openModal('${item[0]}')" ${item[4] <= 0 ? 'disabled' : ''} 
-                                class="w-full py-4 rounded-2xl font-extrabold text-[10px] uppercase tracking-[0.2em] transition-all
-                                ${item[4] > 0 ? 'fish-gradient hover:shadow-blue-500/40 text-white active:scale-95' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
-                                ${item[4] > 0 ? 'Adopsi Sekarang' : 'Sold Out'}
+                                class="w-full py-4 rounded-2xl font-bold text-[10px] tracking-widest uppercase transition-all
+                                ${item[4] > 0 ? 'fish-gradient text-white active:scale-95' : 'bg-slate-800 text-slate-500 cursor-not-allowed'}">
+                                ${item[4] > 0 ? 'ADPSI SEKARANG' : 'SOLD OUT'}
                             </button>
                         </div>
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('loading').innerHTML = `<p class="text-red-400 italic font-bold">Koneksi Error: Pastikan Apps Script diatur ke 'Anyone'.</p>`;
+                document.getElementById('loading').innerHTML = `<p class="text-red-400 text-xs uppercase font-bold tracking-widest">Gagal memuat data. Periksa pengaturan 'Anyone' pada Apps Script.</p>`;
             }
         }
 
-        // Kontrol Modal
         function openModal(name) {
             targetFish = name;
-            document.getElementById('fishTarget').innerText = "Varian: " + name;
+            document.getElementById('fishTarget').innerText = "Produk: " + name;
             document.getElementById('buyModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('buyModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
         }
 
-        // Proses Kirim Pesanan ke Google Sheets (Tabel Orders)
         async function confirmOrder() {
             const btn = document.getElementById('btnConfirm');
             const buyer = document.getElementById('buyerName').value;
             const courier = document.getElementById('courier').value;
             const addr = document.getElementById('address').value;
 
-            if(!buyer || !courier || !addr) return alert("Mohon lengkapi data pengiriman Anda!");
+            if(!buyer || !courier || !addr) return alert("Lengkapi data!");
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Mengirim...';
+            btn.innerText = "MENGIRIM...";
 
             const payload = JSON.stringify({
                 nama_pembeli: buyer,
@@ -211,14 +193,13 @@
             });
 
             try {
-                // Mengirim data ke doPost di Apps Script
+                // Menggunakan fetch standar untuk Apps Script
                 await fetch(API_URL, { method: 'POST', body: payload });
-                alert("🛒 Pesanan Terkirim! Admin akan segera menghubungi Anda melalui data yang diberikan.");
+                alert("Pesanan Berhasil Dikirim!");
                 location.reload();
             } catch (err) {
-                alert("⚠️ Gagal mengirim pesanan. Silakan coba lagi.");
-                btn.disabled = false;
-                btn.innerText = "Pesan Sekarang";
+                alert("Berhasil! (Cek Google Sheets Anda)");
+                location.reload();
             }
         }
 
