@@ -12,7 +12,6 @@
         .sidebar { transition: transform 0.3s ease-in-out; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .slider-content { transition: opacity 1s ease-in-out; }
-        .active-link { color: #3b82f6; border-left: 4px solid #3b82f6; padding-left: 12px; }
         .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
     </style>
 </head>
@@ -31,7 +30,6 @@
                     <h1 class="font-extrabold tracking-tighter text-lg uppercase hidden sm:block">Biip Flowerhorn</h1>
                 </div>
             </div>
-            
             <div class="flex items-center gap-5">
                 <div class="relative cursor-pointer group">
                     <i class="fas fa-shopping-cart text-2xl group-hover:scale-110 transition"></i>
@@ -49,15 +47,13 @@
             </div>
             <button onclick="toggleMenu()" class="text-slate-400 hover:text-red-500 transition text-xl"><i class="fas fa-times"></i></button>
         </div>
-        
         <nav class="p-4 space-y-1">
             <div class="px-4 py-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" placeholder="Cari ikan kesukaanmu..." class="w-full pl-12 pr-4 py-3 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                    <input type="text" placeholder="Cari ikan..." class="w-full pl-12 pr-4 py-3 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-400 text-sm">
                 </div>
             </div>
-            
             <a href="#home" onclick="toggleMenu()" class="flex items-center gap-4 p-4 hover:bg-blue-50 rounded-2xl transition font-semibold group">
                 <i class="fas fa-home text-blue-500 group-hover:scale-110 transition"></i> Beranda
             </a>
@@ -68,13 +64,13 @@
                 <i class="fas fa-graduation-cap text-blue-500 group-hover:scale-110 transition"></i> Informasi Perikanan
             </a>
             <a href="#tentang" onclick="toggleMenu()" class="flex items-center gap-4 p-4 hover:bg-blue-50 rounded-2xl transition font-semibold group">
-                <i class="fas fa-info-circle text-blue-500 group-hover:scale-110 transition"></i> Tentang Biip Flowerhorn
+                <i class="fas fa-info-circle text-blue-500 group-hover:scale-110 transition"></i> Tentang Kami
             </a>
             <a href="#kontak" onclick="toggleMenu()" class="flex items-center gap-4 p-4 hover:bg-blue-50 rounded-2xl transition font-semibold group">
                 <i class="fas fa-headset text-blue-500 group-hover:scale-110 transition"></i> Kontak
             </a>
             <div class="pt-6">
-                <a href="#auth" onclick="toggleMenu()" class="flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">
+                <a href="#auth" onclick="toggleMenu()" class="flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200">
                     <i class="fas fa-user-circle text-xl"></i> LOGIN / DAFTAR
                 </a>
             </div>
@@ -82,195 +78,105 @@
     </aside>
 
     <main class="mt-16">
-        
         <section id="home" class="relative h-[450px] md:h-[650px] overflow-hidden bg-slate-100">
             <div id="slide1" class="slider-content absolute inset-0 flex items-center justify-center opacity-100 z-10">
                 <img src="https://images.unsplash.com/photo-1524704654690-b56c05c78a00?q=80&w=1800" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-[2px]"></div>
-                <div class="relative text-center px-6">
-                    <h2 class="text-white text-4xl md:text-7xl font-black leading-tight drop-shadow-2xl">BELANJA ONLINE<br>TIDAK PERLU CEMAS</h2>
-                    <p class="text-blue-100 mt-4 text-lg font-light tracking-widest">Kualitas Terjamin & Bergaransi</p>
-                </div>
+                <div class="absolute inset-0 bg-blue-900/40"></div>
+                <h2 class="relative text-white text-4xl md:text-7xl font-black text-center px-6">BELANJA ONLINE<br>TIDAK PERLU CEMAS</h2>
             </div>
             <div id="slide2" class="slider-content absolute inset-0 flex items-center justify-center opacity-0 z-0">
                 <img src="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=1800" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
-                <div class="relative text-center px-6">
-                    <h2 class="text-white text-4xl md:text-7xl font-black leading-tight drop-shadow-2xl">BELANJA IKAN HIAS<br>SEMUDAH INI</h2>
-                    <p class="text-blue-100 mt-4 text-lg font-light tracking-widest">Pesan Sekarang, Kirim Hari Ini</p>
-                </div>
+                <div class="absolute inset-0 bg-black/40"></div>
+                <h2 class="relative text-white text-4xl md:text-7xl font-black text-center px-6">BELANJA IKAN HIAS<br>SEMUDAH INI</h2>
             </div>
         </section>
 
         <section class="max-w-7xl mx-auto px-6 py-12">
-            <h3 class="font-bold text-slate-400 text-xs uppercase tracking-[0.3em] mb-6">Pilih Kategori</h3>
             <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                <button class="flex-none px-10 py-4 bg-blue-500 text-white rounded-2xl font-bold shadow-xl shadow-blue-200">Ikan A</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan B</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan C</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan D</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan E</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan F</button>
-                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold hover:bg-blue-50 transition">Ikan G</button>
+                <button class="flex-none px-10 py-4 bg-blue-500 text-white rounded-2xl font-bold">Ikan A</button>
+                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold">Ikan B</button>
+                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold">Ikan C</button>
+                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold">Ikan D</button>
+                <button class="flex-none px-10 py-4 bg-white border border-slate-200 rounded-2xl font-bold">Ikan E</button>
             </div>
         </section>
 
         <section id="produk" class="max-w-7xl mx-auto px-6 py-12">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-                <h2 class="text-3xl font-black text-slate-800 uppercase">Koleksi Ikan</h2>
-                <div id="loading" class="hidden items-center gap-2 text-blue-500 font-bold italic">
-                    <i class="fas fa-spinner animate-spin"></i> Menghubungkan database...
-                </div>
+            <h2 class="text-3xl font-black mb-10 uppercase">Koleksi Produk</h2>
+            <div id="loading" class="hidden items-center gap-2 text-blue-500 font-bold italic mb-6">
+                <i class="fas fa-spinner animate-spin"></i> Menghubungkan database...
             </div>
-            
-            <div id="productGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                </div>
-        </section>
-
-        <section id="edukasi" class="bg-blue-50/50 py-24">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-black mb-4">Informasi Perikanan</h2>
-                    <p class="text-slate-500">Tips dan trik merawat Flowerhorn agar sehat dan bermental juara.</p>
-                </div>
-                <div id="articleGrid" class="grid md:grid-cols-3 gap-10">
-                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
-                        <img src="https://images.unsplash.com/photo-1535591273668-578e31182c4f?q=80&w=600" class="w-full h-48 object-cover">
-                        <div class="p-8">
-                            <h4 class="font-bold text-xl mb-3">Cara Menaikkan Warna Ikan</h4>
-                            <p class="text-slate-500 text-sm leading-relaxed mb-6">Pemberian pakan berkualitas tinggi dan pencahayaan yang tepat sangat mempengaruhi...</p>
-                            <a href="#" class="text-blue-600 font-bold uppercase text-[10px] tracking-widest">Baca Selengkapnya</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="auth" class="max-w-7xl mx-auto px-6 py-24">
-            <div class="max-w-md mx-auto bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100">
-                <h2 class="text-2xl font-black text-center mb-8">Login / Daftar Pelanggan</h2>
-                <div class="space-y-4">
-                    <input type="text" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="email" placeholder="Email Aktif" class="w-full p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 transition uppercase tracking-widest">Masuk Sekarang</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="max-w-7xl mx-auto px-6 py-24 text-center">
-            <h2 class="text-3xl font-black mb-12">Apa Kata Mereka?</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-blue-50 p-8 rounded-[2.5rem]">
-                    <div class="flex justify-center text-yellow-400 mb-4 gap-1">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-slate-600 italic">"Ikan yang dikirim sangat sehat, warna langsung muncul setelah adaptasi 1 jam. Seller sangat ramah!"</p>
-                    <p class="mt-4 font-bold text-blue-600">- Bpk. Rahmat (Jakarta)</p>
-                </div>
-                <div class="bg-blue-50 p-8 rounded-[2.5rem]">
-                    <div class="flex justify-center text-yellow-400 mb-4 gap-1">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-slate-600 italic">"Packing kayu sangat rapi dan aman. Pengiriman TIKI ONS sampai tepat waktu ke Pandeglang."</p>
-                    <p class="mt-4 font-bold text-blue-600">- Siska (Banten)</p>
-                </div>
-            </div>
+            <div id="productGrid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
         </section>
 
         <section id="tentang" class="bg-slate-900 text-white py-24">
             <div class="max-w-4xl mx-auto px-6 text-center">
-                <h2 class="text-4xl font-black mb-8">TENTANG BIIP FLOWERHORN AQUATIC</h2>
-                <div class="p-10 border-2 border-dashed border-blue-500 rounded-[3rem] bg-blue-500/5">
-                    <p class="text-slate-400 leading-loose">
-                        Kami adalah spesialis budidaya ikan Flowerhorn berkualitas tinggi yang berfokus pada kesehatan dan standar kontes. 
-                        [Silakan ganti teks ini dengan informasi detail perusahaan Anda nanti melalui editor HTML].
+                <h2 class="text-4xl font-black mb-8 uppercase">Tentang Biip Flowerhorn</h2>
+                <div class="p-10 border-2 border-dashed border-blue-500 rounded-[3rem]">
+                    <p class="text-slate-400 leading-relaxed">
+                        Kami adalah spesialis budidaya ikan Flowerhorn berkualitas tinggi yang berfokus pada kesehatan dan standar kontes.
                     </p>
                 </div>
             </div>
         </section>
-
     </main>
 
     <footer id="kontak" class="bg-white border-t pt-24 pb-12">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-16 mb-20">
-                <div class="col-span-1">
-                    <h3 class="text-xl font-black mb-6 uppercase tracking-tighter">Biip Flowerhorn Aquatic</h3>
-                    <p class="text-slate-500 mb-6 leading-relaxed">Bergerak dalam bidang perikanan air tawar (budidaya, edukasi dan penjualan).</p>
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-map-marker-alt text-blue-500 mt-1"></i>
-                        <p class="text-sm text-slate-500">Kp. Rocek barat RT 012 RW 004 Kel. Rocek Kec. Cimanuk, Kabupaten Pandeglang, Banten</p>
-                    </div>
-                </div>
-                
+            <div class="grid md:grid-cols-3 gap-16 mb-16">
                 <div>
-                    <h4 class="font-bold text-slate-800 mb-6 uppercase tracking-widest text-xs">Pusat Bantuan</h4>
-                    <ul class="space-y-4 text-sm text-slate-500 font-medium">
-                        <li><a href="#" class="hover:text-blue-500 transition">Panduan Pemesanan</a></li>
-                        <li><a href="#" class="hover:text-blue-500 transition">Kebijakan dan Standar Pengiriman</a></li>
-                        <li><a href="#" class="hover:text-blue-500 transition">Pertanyaan yang Sering Ditanyakan (FAQs)</a></li>
-                        <li><a href="#" class="hover:text-blue-500 transition">Garansi Ikan Hidup</a></li>
+                    <h3 class="text-xl font-black mb-6 uppercase">Biip Flowerhorn Aquatic</h3>
+                    <p class="text-sm text-slate-500">Kp. Rocek barat RT 012 RW 004 Kel. Rocek Kec. Cimanuk, Kabupaten Pandeglang, Banten</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6 text-xs uppercase tracking-widest">Pusat Bantuan</h4>
+                    <ul class="text-sm text-slate-500 space-y-3">
+                        <li>Panduan Pemesanan</li>
+                        <li>Kebijakan Pengiriman</li>
+                        <li>FAQs</li>
+                        <li>Garansi</li>
                     </ul>
                 </div>
-
                 <div>
-                    <h4 class="font-bold text-slate-800 mb-6 uppercase tracking-widest text-xs">Pembayaran & Pengiriman</h4>
-                    <div class="mb-8">
-                        <p class="text-[10px] text-slate-400 mb-3">METODE PEMBAYARAN:</p>
-                        <div class="flex gap-4 text-2xl text-blue-600">
-                            <i class="fas fa-university" title="BCA"></i>
-                            <i class="fas fa-wallet" title="DANA"></i>
-                        </div>
+                    <h4 class="font-bold mb-6 text-xs uppercase tracking-widest">Pembayaran & Kurir</h4>
+                    <div class="flex gap-4 text-2xl text-blue-500 mb-4">
+                        <i class="fas fa-university"></i> <i class="fas fa-wallet"></i>
                     </div>
-                    <div>
-                        <p class="text-[10px] text-slate-400 mb-3">METODE PENGIRIMAN:</p>
-                        <div class="flex flex-wrap gap-2 text-[9px] font-bold text-slate-600">
-                            <span class="bg-slate-100 px-3 py-1 rounded-full uppercase">JNE</span>
-                            <span class="bg-slate-100 px-3 py-1 rounded-full uppercase">TIKI</span>
-                            <span class="bg-slate-100 px-3 py-1 rounded-full uppercase">PAXEL</span>
-                            <span class="bg-slate-100 px-3 py-1 rounded-full uppercase">GOJEK</span>
-                        </div>
+                    <div class="flex flex-wrap gap-2 text-[10px] font-bold">
+                        <span class="bg-slate-100 px-2 py-1 rounded">JNE</span>
+                        <span class="bg-slate-100 px-2 py-1 rounded">TIKI</span>
+                        <span class="bg-slate-100 px-2 py-1 rounded">PAXEL</span>
+                        <span class="bg-slate-100 px-2 py-1 rounded">GOJEK</span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="text-center pt-12 border-t border-slate-100">
-                <p class="text-[10px] text-slate-400 tracking-[0.4em] uppercase">© 2026 BIIP FLOWERHORN AQUATIC • ALL RIGHTS RESERVED</p>
             </div>
         </div>
     </footer>
 
-    <a href="https://wa.me/6285716842806" target="_blank" class="fixed bottom-8 right-8 w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:scale-110 active:scale-95 transition-all z-50">
+    <a href="https://wa.me/6285716842806" target="_blank" class="fixed bottom-8 right-8 w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:scale-110 transition z-50">
         <i class="fab fa-whatsapp"></i>
     </a>
 
     <script>
-        // MASUKKAN LINK APPSCRIPT ANDA DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbxNf1NigWl7MkTn7kMlAqkuu3D4qQspH3r5nYzNVjnXvBGIt0yE5ApQUrSDFybRJErmrA/exec";
+        // LINK APPSCRIPT BARU ANDA
+        const API_URL = "https://script.google.com/macros/s/AKfycbyAQBi1E5ToijDp0NBnmXn_HCESPeHl4V_QKdZNGvS7F5f8HJ2DpxcOef4dR5YYsmd60A/exec";
 
-        // Fungsi Slider Foto Bergeser Otomatis
+        // Slider Logic
         let currentSlide = 1;
         setInterval(() => {
             const s1 = document.getElementById('slide1');
             const s2 = document.getElementById('slide2');
             if(currentSlide === 1) {
-                s1.style.opacity = '0'; s1.style.zIndex = '0';
-                s2.style.opacity = '1'; s2.style.zIndex = '10';
-                currentSlide = 2;
+                s1.style.opacity = '0'; s2.style.opacity = '1'; currentSlide = 2;
             } else {
-                s1.style.opacity = '1'; s1.style.zIndex = '10';
-                s2.style.opacity = '0'; s2.style.zIndex = '0';
-                currentSlide = 1;
+                s1.style.opacity = '1'; s2.style.opacity = '0'; currentSlide = 1;
             }
         }, 5000);
 
-        // Kontrol Sidebar
         function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
 
-        // Memuat Produk Dari Google Sheets
         async function loadProducts() {
             const loader = document.getElementById('loading');
             loader.classList.remove('hidden');
@@ -283,25 +189,22 @@
                 
                 const grid = document.getElementById('productGrid');
                 grid.innerHTML = data.map(item => `
-                    <div class="bg-white rounded-[2rem] p-4 shadow-sm border border-slate-100 product-card transition-all group">
-                        <div class="relative overflow-hidden rounded-[1.5rem] h-44 mb-6">
+                    <div class="bg-white rounded-[2rem] p-4 shadow-sm border border-slate-100 product-card transition group">
+                        <div class="relative overflow-hidden rounded-[1.5rem] h-40 mb-4">
                             <img src="${item[4] || 'https://via.placeholder.com/400x300'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         </div>
-                        <div class="px-2">
-                            <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mb-1">${item[2]}</p>
-                            <h4 class="font-bold text-slate-800 text-sm mb-1 uppercase">${item[0]}</h4>
-                            <div class="text-slate-900 font-black text-lg mb-4">Rp ${Number(item[3]).toLocaleString('id-ID')}</div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[9px] font-bold text-slate-400">STOK: ${item[5] || '0'}</span>
-                                <button class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition shadow-sm">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
+                        <h4 class="font-bold text-slate-800 text-sm uppercase">${item[0]}</h4>
+                        <p class="text-[10px] text-blue-500 font-bold mb-2 uppercase">${item[2]}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-black text-slate-900">Rp ${Number(item[3]).toLocaleString('id-ID')}</span>
+                            <button class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-600 hover:text-white transition">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                     </div>
                 `).join('');
             } catch (e) {
-                loader.innerHTML = "<span class='text-red-500'>Gagal memuat data ikan.</span>";
+                loader.innerHTML = "<span class='text-red-500'>Gagal memuat data.</span>";
             }
         }
 
