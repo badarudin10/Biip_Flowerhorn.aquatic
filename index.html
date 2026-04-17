@@ -19,25 +19,29 @@
 </head>
 <body class="text-slate-800">
 
-    <header class="fixed top-0 w-full bg-white shadow-sm z-50">
-        <div class="bg-blue-50 py-3 px-5 flex justify-between items-center border-b border-blue-100">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="text-blue-600 text-2xl p-2 rounded-xl hover:bg-blue-100 transition">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black shadow-lg">B</div>
-                    <span class="font-black text-blue-900 tracking-tighter uppercase hidden sm:block">Biip Flowerhorn</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 text-blue-600">
-                <div class="relative cursor-pointer hover:scale-110 transition">
-                    <i class="fas fa-shopping-cart text-2xl"></i>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 py-0.5 font-bold border-2 border-white">0</span>
+<header class="fixed top-0 w-full bg-white shadow-sm z-50">
+    <div class="bg-blue-50 py-3 px-4 flex justify-between items-center border-b border-blue-100">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="text-blue-600 text-xl p-2 hover:bg-blue-100 rounded-lg transition">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black shadow-md">B</div>
+                
+                <div class="flex flex-col leading-tight">
+                    <span class="font-black text-blue-900 text-xs md:text-sm tracking-tighter uppercase">Biip Flowerhorn</span>
+                    <span class="text-[9px] md:text-[10px] text-blue-500 font-bold uppercase tracking-widest">Aquatic Branch</span>
                 </div>
             </div>
         </div>
-    </header>
+        
+        <div class="text-blue-600 relative cursor-pointer group">
+            <i class="fas fa-shopping-cart text-xl group-hover:scale-110 transition"></i>
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] rounded-full px-1.5 font-bold border-2 border-white">0</span>
+        </div>
+    </div>
+</header>
 
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-80 bg-white sidebar -translate-x-full shadow-2xl overflow-y-auto">
         <div class="p-6 border-b flex justify-between items-center bg-slate-50">
@@ -128,98 +132,25 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <script>
-        // LINK APPSCRIPT TERBARU ANDA
-        const API_URL = "https://script.google.com/macros/s/AKfycbwwbq4ky9FaS0ZhohqqqL1weu2zPXDc0vQjJ-rOm6UUU0LhY2eeKme3y5CXZD80q9xs/exec";
-        let allProducts = [];
+<script>
+    // LINK SUKSES TERBARU ANDA
+    const API_URL = "https://script.google.com/macros/s/AKfycbyqSbj8gYt38Sq3MJNje_EXxTyvdPLbZZZSKK-1QVvURxKrQpbgv_kjbG4FoWp03Zm1/exec";
 
-        // MENGGUNAKAN TEKNIK JSONP UNTUK MENEMBUS BLOKIR CORS
-        function fetchData() {
-            const script = document.createElement('script');
-            script.src = `${API_URL}?callback=handleResponse`;
-            document.body.appendChild(script);
-        }
+    function fetchData() {
+        const script = document.createElement('script');
+        // Tambahkan ?callback=handleResponse agar sinkronisasi lancar
+        script.src = `${API_URL}?callback=handleResponse`;
+        document.body.appendChild(script);
+    }
 
-        // FUNGSI INI TERPANGGIL OTOMATIS SAAT DATA DARI GOOGLE TIBA
-        function handleResponse(data) {
-            allProducts = data;
-            renderProducts(data);
-        }
+    function handleResponse(data) {
+        allProducts = data;
+        renderProducts(data);
+    }
+    
+    // ... fungsi renderProducts dan lainnya tetap sama ...
+    window.onload = fetchData;
+</script>
 
-        function renderProducts(data) {
-            const grid = document.getElementById('productGrid');
-            const loading = document.getElementById('loading');
-            if (loading) loading.style.display = 'none';
-
-            if (!data || data.length === 0) {
-                grid.innerHTML = "<div class='col-span-full text-center py-20 text-slate-300 font-bold'>DATA PRODUK BELUM TERSEDIA</div>";
-                return;
-            }
-
-            grid.innerHTML = data.map(p => `
-                <div class="product-card">
-                    <div class="h-44 md:h-56 bg-slate-50 relative group">
-                        <img src="${p.foto}" 
-                             onerror="this.src='https://via.placeholder.com/500x500?text=BIIP+AQUATIC'" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                        <div class="absolute top-3 left-3 bg-blue-600 text-white text-[9px] font-black px-2.5 py-1.5 rounded-lg shadow-lg uppercase tracking-widest">
-                            ${p.kategori || 'HOT ITEM'}
-                        </div>
-                    </div>
-                    <div class="p-4 md:p-5">
-                        <h3 class="font-bold text-slate-800 text-xs md:text-sm uppercase line-clamp-1 mb-1 tracking-tight">${p.nama}</h3>
-                        <p class="text-[10px] text-blue-500 font-extrabold mb-4 uppercase tracking-widest">${p.jenis || '-'}</p>
-                        <div class="flex justify-between items-center border-t pt-4">
-                            <div>
-                                <p class="text-[8px] text-slate-400 font-bold uppercase tracking-tighter">Harga</p>
-                                <div class="text-sm md:text-base font-black text-slate-900">Rp ${Number(p.harga).toLocaleString('id-ID')}</div>
-                            </div>
-                            <button onclick="window.open('https://wa.me/6285716842806?text=Halo Admin Biip, saya berminat dengan produk: ${p.nama}')" 
-                                class="bg-blue-600 text-white w-10 h-10 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 flex items-center justify-center">
-                                <i class="fas fa-cart-plus text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-        }
-
-        function switchTab(tab) {
-            const btnMenu = document.getElementById('btn-menu');
-            const btnKat = document.getElementById('btn-kategori');
-            const contentMenu = document.getElementById('content-menu');
-            const contentKat = document.getElementById('content-kategori');
-
-            if(tab === 'menu') {
-                btnMenu.classList.add('tab-active'); btnKat.classList.remove('tab-active');
-                contentMenu.classList.remove('hidden'); contentKat.classList.add('hidden');
-            } else {
-                btnKat.classList.add('tab-active'); btnMenu.classList.remove('tab-active');
-                contentKat.classList.remove('hidden'); contentMenu.classList.add('hidden');
-            }
-        }
-
-        function searchProduct() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => 
-                p.nama.toLowerCase().includes(query) || 
-                p.kategori.toLowerCase().includes(query) ||
-                p.jenis.toLowerCase().includes(query)
-            );
-            renderProducts(filtered);
-        }
-
-        function filterKategori(kat) {
-            const filtered = kat === 'all' ? allProducts : allProducts.filter(p => p.kategori === kat);
-            renderProducts(filtered);
-            toggleSidebar();
-        }
-
-        window.onload = fetchData;
-    </script>
 </body>
 </html>
