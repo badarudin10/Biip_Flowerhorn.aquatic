@@ -246,18 +246,29 @@
     </div>
 
     <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white z-[600] translate-x-full transition-transform shadow-2xl flex flex-col">
-    </div>
-        <div id="cartItems" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/50"></div>
-        <div class="p-8 border-t bg-white">
-            <div class="flex justify-between items-center mb-8 font-black uppercase">
-                <span class="text-slate-400 text-[10px] tracking-widest">Total Tagihan</span>
-                <span id="cartTotal" class="text-blue-600 text-xl">Rp 0</span>
-            </div>
-            <button onclick="checkoutWhatsApp()" class="w-full py-6 bg-green-500 text-white rounded-3xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-4 shadow-xl shadow-green-100 hover:translate-y-[-2px] transition">
-                <i class="fab fa-whatsapp text-xl"></i> Kirim Pesanan Sekarang
-            </button>
+    <div class="p-8 bg-slate-900 text-white flex justify-between items-center">
+        <div>
+            <h3 class="font-black uppercase tracking-widest text-xs mb-1">Daftar Belanja</h3>
+            <p class="text-[9px] font-bold text-slate-400 uppercase">Periksa kembali detail pesanan Anda</p>
         </div>
+        <button onclick="toggleCart()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
+
+    <div id="cartItems" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/50">
+        </div>
+
+    <div class="p-8 border-t bg-white">
+        <div class="flex justify-between items-center mb-8 font-black uppercase">
+            <span class="text-slate-400 text-[10px] tracking-widest">Total Tagihan</span>
+            <span id="cartTotal" class="text-blue-600 text-xl">Rp 0</span>
+        </div>
+        <button onclick="checkoutWhatsApp()" class="w-full py-6 bg-green-500 text-white rounded-3xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-4 shadow-xl shadow-green-100 hover:translate-y-[-2px] transition">
+            <i class="fab fa-whatsapp text-xl"></i> Kirim Pesanan Sekarang
+        </button>
+    </div>
+</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzmwqGzWZdQNn6PNx0fzjzvkHcn_zmgPQKzhNji_IIWsk348hZz_wPywGvSo3YflSuoTg/exec";
