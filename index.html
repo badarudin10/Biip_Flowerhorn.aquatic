@@ -63,6 +63,8 @@
             <button onclick="setView('home')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-xs flex items-center gap-4 transition text-slate-600 hover:text-blue-600"><i class="fas fa-home"></i> BERANDA</button>
             <button onclick="setView('katalog')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-xs flex items-center gap-4 transition text-slate-600 hover:text-blue-600"><i class="fas fa-fish"></i> KATALOG PRODUK</button>
             <button onclick="setView('artikel')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-xs flex items-center gap-4 transition text-slate-600 hover:text-blue-600"><i class="fas fa-newspaper"></i> EDUKASI & INFO</button>
+            <button onclick="setView('about')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-xs flex items-center gap-4 transition text-slate-600 hover:text-blue-600"><i class="fas fa-info-circle"></i> TENTANG KAMI</button>
+            <button onclick="setView('kontak')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-xs flex items-center gap-4 transition text-slate-600 hover:text-blue-600"><i class="fas fa-phone"></i> HUBUNGI KAMI</button>
             <div class="pt-6 pb-2 px-4"><span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Filter Kategori</span></div>
             <div id="category-list" class="space-y-1"></div>
         </nav>
@@ -112,58 +114,41 @@
                 <p id="about-text" class="text-slate-500 leading-relaxed max-w-3xl mx-auto italic font-medium mb-20"></p>
                 
                 <h3 class="font-black uppercase tracking-widest text-xs mb-12 text-blue-600">Struktur Organisasi</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-10" id="team-list">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-10" id="team-list"></div>
+            </div>
+        </section>
+
+        <section id="view-kontak" class="view-section py-10">
+            <div class="max-w-5xl mx-auto px-4">
+                <h2 class="text-3xl font-black uppercase mb-12 text-center tracking-tighter">Hubungi <span class="text-blue-600">Kami</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+                        <h3 class="font-black uppercase text-xs mb-8 tracking-[0.2em] text-slate-400">Kirim Pesan Cepat</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="contact-name" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-blue-200 font-bold text-xs">
+                            <textarea id="contact-msg" placeholder="Apa yang ingin Anda tanyakan?" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-blue-200 h-32 font-bold text-xs"></textarea>
+                            <button onclick="sendContactWA()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-slate-200 hover:bg-blue-600 transition">Kirim Pesan Sekarang</button>
+                        </div>
                     </div>
+                    <div class="space-y-6">
+                        <div class="bg-slate-900 p-8 rounded-[40px] text-white relative overflow-hidden group">
+                            <i class="fas fa-map-marker-alt absolute -right-4 -bottom-4 text-8xl text-white/5 group-hover:scale-110 transition duration-700"></i>
+                            <h4 class="font-black uppercase text-[10px] tracking-widest mb-6 text-blue-500">Lokasi Galeri</h4>
+                            <p id="info-alamat" class="text-xs leading-relaxed text-slate-400 font-medium italic">Kp. Rocek Barat, Kel. Rocek, Kec. Cimanuk, Pandeglang, Banten 42271.</p>
+                        </div>
+                        <div class="bg-blue-600 p-8 rounded-[40px] text-white flex justify-between items-center shadow-xl shadow-blue-100">
+                            <div>
+                                <h4 class="font-black uppercase text-[10px] tracking-widest mb-2 text-blue-200">WhatsApp Fast Response</h4>
+                                <p id="info-wa" class="text-xl font-black tracking-tighter">+62 857-1684-2806</p>
+                            </div>
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl"><i class="fab fa-whatsapp"></i></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
         <section id="view-login" class="view-section py-10">
-            <section id="view-kontak" class="view-section py-10">
-    <div class="max-w-5xl mx-auto px-4">
-        <h2 class="text-3xl font-black uppercase mb-12 text-center tracking-tighter">Hubungi <span class="text-blue-600">Kami</span></h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div class="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
-                <h3 class="font-black uppercase text-xs mb-8 tracking-[0.2em] text-slate-400">Kirim Pesan Cepat</h3>
-                <div class="space-y-4">
-                    <input type="text" id="contact-name" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-blue-200 font-bold text-xs">
-                    <textarea id="contact-msg" placeholder="Apa yang ingin Anda tanyakan?" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-blue-200 h-32 font-bold text-xs"></textarea>
-                    <button onclick="sendContactWA()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-slate-200 hover:bg-blue-600 transition">Kirim Pesan Sekarang</button>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="bg-slate-900 p-8 rounded-[40px] text-white relative overflow-hidden group">
-                    <i class="fas fa-map-marker-alt absolute -right-4 -bottom-4 text-8xl text-white/5 group-hover:scale-110 transition duration-700"></i>
-                    <h4 class="font-black uppercase text-[10px] tracking-widest mb-6 text-blue-500">Lokasi Galeri</h4>
-                    <p id="info-alamat" class="text-xs leading-relaxed text-slate-400 font-medium italic">
-                        Sedang memuat alamat...
-                    </p>
-                </div>
-
-                <div class="bg-blue-600 p-8 rounded-[40px] text-white flex justify-between items-center shadow-xl shadow-blue-100">
-                    <div>
-                        <h4 class="font-black uppercase text-[10px] tracking-widest mb-2 text-blue-200">WhatsApp Fast Response</h4>
-                        <p id="info-wa" class="text-xl font-black tracking-tighter">+62 857-1684-2806</p>
-                    </div>
-                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-[40px] border border-slate-100 flex items-center gap-6">
-                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
-                        <i class="far fa-clock text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Jam Operasional</p>
-                        <p class="text-xs font-bold text-slate-600">Senin - Minggu: 08:00 - 21:00 WIB</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
             <div class="max-w-5xl mx-auto bg-white rounded-[40px] shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 border border-slate-100">
                 <div class="p-12 border-r border-slate-50">
                     <h2 class="text-3xl font-black uppercase mb-8">Masuk</h2>
@@ -189,7 +174,7 @@
                         <input type="text" placeholder="Nama Lengkap" class="w-full p-4 bg-white rounded-2xl border border-slate-100 outline-none font-bold text-sm shadow-sm">
                         <input type="email" placeholder="Email Aktif" class="w-full p-4 bg-white rounded-2xl border border-slate-100 outline-none font-bold text-sm shadow-sm">
                         <input type="password" placeholder="Buat Password" class="w-full p-4 bg-white rounded-2xl border border-slate-100 outline-none font-bold text-sm shadow-sm">
-                        <button class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-slate-200">Buat Akun Baru</button>
+                        <button class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-slate-200">Buat Akun Baru</button>
                     </div>
                 </div>
             </div>
@@ -261,106 +246,41 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzmwqGzWZdQNn6PNx0fzjzvkHcn_zmgPQKzhNji_IIWsk348hZz_wPywGvSo3YflSuoTg/exec"; // GANTI DENGAN URL DEPLOY ANDA
-        let store = { ikan: [], artikel: [], ulasan: [] };
+        const API_URL = "https://script.google.com/macros/s/AKfycbzmwqGzWZdQNn6PNx0fzjzvkHcn_zmgPQKzhNji_IIWsk348hZz_wPywGvSo3YflSuoTg/exec";
+        let store = { ikan: [], artikel: [], ulasan: [], pegawai: [], kontak: [] };
         let cart = [];
 
         async function init() {
             document.getElementById('about-text').innerText = "Biip flowerhorn aquatic berdiri sejak 2020, didirikan oleh owner Badarudin. Berkomitmen kuat dalam menjaga kualitas genetik ikan melalui progres yang teliti dan disiplin tinggi demi melahirkan ikan standar kontes yang membanggakan.";
-            
-            // Render Team Members
-            const team = [
-                {name: "Badarudin", role: "Founder & Owner", img: "https://via.placeholder.com/400"},
-                {name: "Ulfah", role: "Finance Manager", img: "https://via.placeholder.com/400"},
-                {name: "Azzam", role: "Chief of Production", img: "https://via.placeholder.com/400"},
-                {name: "Staf 1", role: "Customer Admin", img: "https://via.placeholder.com/400"}
-            ];
-            document.getElementById('team-list').innerHTML = team.map(m => `
-                <div class="space-y-4">
-                    <div class="aspect-square bg-slate-100 rounded-[40px] overflow-hidden shadow-inner group">
-                        <img src="${m.img}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700 grayscale hover:grayscale-0">
-                    </div>
-                    <div><p class="font-black text-xs uppercase tracking-tight">${m.name}</p><p class="text-[9px] text-blue-500 font-bold uppercase mt-1">${m.role}</p></div>
-                </div>
-            `).join('');
-
             const script = document.createElement('script');
             script.src = `${API_URL}?callback=render`;
             document.body.appendChild(script);
         }
 
         function render(data) {
-    store = data;
-
-    // 1. RENDER PRODUK (HOME & KATALOG)
-    // Menampilkan 4 produk terbaru di Home, dan semua produk di Katalog
-    if(data.ikan && data.ikan.length > 0) {
-        drawGrid(data.ikan.slice(0, 4), 'home-grid');
-        drawGrid(data.ikan, 'full-grid');
-        drawCategories(data.ikan);
-    }
-
-    // 2. RENDER ARTIKEL / EDUKASI
-    if(data.artikel && data.artikel.length > 0) {
-        drawArtikel(data.artikel);
-    }
-
-    // 3. RENDER ULASAN PELANGGAN (INTERAKTIF)
-    if(data.ulasan && data.ulasan.length > 0) {
-        document.getElementById('ulasan-container').innerHTML = data.ulasan.map(u => `
-            <div class="p-8 bg-white rounded-[40px] border border-slate-100 italic shadow-sm hover:shadow-md transition">
-                <div class="text-yellow-400 text-[8px] mb-4">
-                    ${'<i class="fas fa-star"></i>'.repeat(parseInt(u.bintang) || 5)}
-                </div>
-                <p class="text-[11px] text-slate-500 leading-relaxed mb-6 font-medium">"${u.pesan}"</p>
-                <p class="text-[9px] font-black uppercase text-blue-600 tracking-widest">— ${u.nama}</p>
-            </div>
-        `).join('');
-    }
-
-    // 4. RENDER TIM PEGAWAI (HALAMAN TENTANG KAMI)
-    // Ini akan mengambil data dari Tab "pegawai" di Spreadsheet Anda
-    if(data.pegawai && data.pegawai.length > 0) {
-        document.getElementById('team-list').innerHTML = data.pegawai.map(p => `
-            <div class="space-y-4 group">
-                <div class="aspect-square bg-slate-100 rounded-[40px] overflow-hidden shadow-inner relative">
-                    <img src="${p.foto}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700 transform group-hover:scale-110">
-                    <div class="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition"></div>
-                </div>
-                <div>
-                    <p class="font-black text-[11px] uppercase tracking-tight">${p.nama}</p>
-                    <p class="text-[9px] text-blue-500 font-bold uppercase mt-1 tracking-widest">${p.jabatan}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // 5. UPDATE INFORMASI KONTAK (DINAMIS DARI TAB KONTAK)
-    // Mengambil baris pertama dari Tab "kontak" untuk nomor WA dan Alamat
-    if(data.kontak && data.kontak.length > 0) {
-        const k = data.kontak[0]; 
-        
-        // Update nomor WA di semua tombol (Floating WA dan Checkout)
-        const waNumber = k.whatsapp.toString().replace(/[^0-9]/g, ""); // Bersihkan karakter non-angka
-        const waLinks = document.querySelectorAll('a[href^="https://wa.me/"]');
-        waLinks.forEach(link => {
-            link.href = `https://wa.me/${waNumber}`;
-        });
-
-        // Update teks alamat di Tentang Kami atau Kontak jika ada elemennya
-        const alamatElement = document.getElementById('info-alamat');
-        if(alamatElement) alamatElement.innerText = k.alamat;
-    }
-}
+            store = data;
+            if(data.ikan && data.ikan.length > 0) {
+                drawGrid(data.ikan.slice(0, 4), 'home-grid');
+                drawGrid(data.ikan, 'full-grid');
+                drawCategories(data.ikan);
+            }
+            if(data.artikel && data.artikel.length > 0) drawArtikel(data.artikel);
+            if(data.ulasan && data.ulasan.length > 0) drawUlasan(data.ulasan);
+            if(data.pegawai && data.pegawai.length > 0) drawTeam(data.pegawai);
+            if(data.kontak && data.kontak.length > 0) {
+                const k = data.kontak[0];
+                document.getElementById('info-alamat').innerText = k.alamat || "Pandeglang, Banten";
+                document.getElementById('info-wa').innerText = k.whatsapp || "+62 857-1684-2806";
+            }
         }
 
         function drawGrid(items, targetId) {
             const grid = document.getElementById(targetId);
             if(!grid) return;
             grid.innerHTML = items.map(p => `
-                <div class="bg-white rounded-[32px] border border-slate-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 product-card">
+                <div class="bg-white rounded-[32px] border border-slate-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500">
                     <div class="h-44 md:h-64 overflow-hidden relative cursor-pointer" onclick="showProductDetail('${p.nama}')">
-                        <img src="${p.foto}" class="w-full h-full object-cover transition duration-700" onerror="this.src='https://via.placeholder.com/400?text=No+Image'">
+                        <img src="${p.foto}" class="w-full h-full object-cover transition duration-700 hover:scale-110">
                         <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[8px] font-black uppercase tracking-widest text-blue-600">${p.kategori}</div>
                     </div>
                     <div class="p-6">
@@ -373,28 +293,6 @@
                     </div>
                 </div>
             `).join('');
-        }
-
-        function showProductDetail(name) {
-            const p = store.ikan.find(i => i.nama === name);
-            document.getElementById('modalContent').innerHTML = `
-                <img src="${p.foto}" class="w-full h-[400px] object-cover">
-                <div class="p-10">
-                    <div class="flex justify-between items-start mb-8">
-                        <div>
-                            <h2 class="text-3xl font-black uppercase mb-2 tracking-tighter">${p.nama}</h2>
-                            <p class="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em]">${p.kategori} • ${p.jenis || 'Standard'}</p>
-                        </div>
-                        <span class="text-2xl font-black text-slate-900">Rp ${Number(p.harga).toLocaleString()}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-10">
-                        <div class="p-5 bg-slate-50 rounded-3xl"><p class="text-[9px] font-black text-slate-300 uppercase mb-2">Lokasi Stok</p><p class="text-xs font-bold uppercase">Pandeglang</p></div>
-                        <div class="p-5 bg-slate-50 rounded-3xl"><p class="text-[9px] font-black text-slate-300 uppercase mb-2">Kondisi</p><p class="text-xs font-bold uppercase">Sehat & Progres</p></div>
-                    </div>
-                    <button onclick="addToCart('${p.nama}', ${p.harga}, '${p.foto}'); closeModal();" class="w-full py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-xs tracking-widest">Tambahkan ke Keranjang</button>
-                </div>
-            `;
-            document.getElementById('globalModal').classList.remove('hidden');
         }
 
         function drawArtikel(items) {
@@ -410,8 +308,52 @@
             `).join('');
         }
 
+        function drawUlasan(items) {
+            document.getElementById('ulasan-container').innerHTML = items.map(u => `
+                <div class="p-8 bg-white rounded-[40px] border border-slate-100 italic shadow-sm">
+                    <div class="text-yellow-400 text-[8px] mb-4">${'<i class="fas fa-star"></i>'.repeat(parseInt(u.bintang) || 5)}</div>
+                    <p class="text-[11px] text-slate-500 leading-relaxed mb-6 font-medium">"${u.pesan}"</p>
+                    <p class="text-[9px] font-black uppercase text-blue-600 tracking-widest">— ${u.nama}</p>
+                </div>
+            `).join('');
+        }
+
+        function drawTeam(items) {
+            document.getElementById('team-list').innerHTML = items.map(p => `
+                <div class="space-y-4 group">
+                    <div class="aspect-square bg-slate-100 rounded-[40px] overflow-hidden shadow-inner relative">
+                        <img src="${p.foto}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-700 transform group-hover:scale-110">
+                    </div>
+                    <div>
+                        <p class="font-black text-[11px] uppercase tracking-tight">${p.nama}</p>
+                        <p class="text-[9px] text-blue-500 font-bold uppercase mt-1 tracking-widest">${p.jabatan}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showProductDetail(name) {
+            const p = store.ikan.find(i => i.nama === name);
+            if(!p) return;
+            document.getElementById('modalContent').innerHTML = `
+                <img src="${p.foto}" class="w-full h-[400px] object-cover">
+                <div class="p-10">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-3xl font-black uppercase mb-2 tracking-tighter">${p.nama}</h2>
+                            <p class="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em]">${p.kategori} • ${p.jenis || 'Standard'}</p>
+                        </div>
+                        <span class="text-2xl font-black text-slate-900">Rp ${Number(p.harga).toLocaleString()}</span>
+                    </div>
+                    <button onclick="addToCart('${p.nama}', ${p.harga}, '${p.foto}'); closeModal();" class="w-full py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-xs tracking-widest">Tambahkan ke Keranjang</button>
+                </div>
+            `;
+            document.getElementById('globalModal').classList.remove('hidden');
+        }
+
         function showArticleDetail(judul) {
             const a = store.artikel.find(i => i.judul === judul);
+            if(!a) return;
             document.getElementById('modalContent').innerHTML = `
                 <img src="${a.foto}" class="w-full h-72 object-cover">
                 <div class="p-10">
@@ -435,16 +377,14 @@
             let total = 0;
             document.getElementById('cartItems').innerHTML = cart.length ? cart.map((i, idx) => {
                 total += (i.price * i.qty);
-                return `
-                    <div class="flex items-center gap-5 p-5 bg-white rounded-3xl border border-slate-100 shadow-sm relative group">
-                        <img src="${i.img}" class="w-16 h-16 rounded-2xl object-cover shadow-md">
-                        <div class="flex-1">
-                            <p class="text-[10px] font-black uppercase tracking-tight mb-1 truncate w-40">${i.name}</p>
-                            <p class="text-[10px] text-blue-600 font-bold">Rp ${i.price.toLocaleString()} x ${i.qty}</p>
-                        </div>
-                        <button onclick="removeFromCart(${idx})" class="w-8 h-8 flex items-center justify-center text-slate-200 hover:text-red-500 transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                return `<div class="flex items-center gap-5 p-5 bg-white rounded-3xl border border-slate-100 shadow-sm relative group">
+                    <img src="${i.img}" class="w-16 h-16 rounded-2xl object-cover shadow-md">
+                    <div class="flex-1">
+                        <p class="text-[10px] font-black uppercase tracking-tight mb-1 truncate w-40">${i.name}</p>
+                        <p class="text-[10px] text-blue-600 font-bold">Rp ${i.price.toLocaleString()} x ${i.qty}</p>
                     </div>
-                `;
+                    <button onclick="removeFromCart(${idx})" class="w-8 h-8 flex items-center justify-center text-slate-200 hover:text-red-500 transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                </div>`;
             }).join('') : `<div class="text-center py-20 text-slate-300 font-bold uppercase text-[10px] tracking-widest">Keranjang masih kosong</div>`;
             document.getElementById('cartTotal').innerText = `Rp ${total.toLocaleString()}`;
         }
@@ -453,8 +393,15 @@
             if(!cart.length) return alert("Keranjang belanja masih kosong!");
             let list = cart.map(i => `*${i.name}* (${i.qty}x)\n   ↳ Rp ${(i.price * i.qty).toLocaleString()}`).join('\n\n');
             let total = cart.reduce((a,b) => a + (b.price * b.qty), 0);
-            let message = `Halo Admin Biip, Saya ingin memesan produk berikut:\n\n${list}\n\n*Total Tagihan: Rp ${total.toLocaleString()}*\n\nMohon konfirmasi stok dan rincian pembayarannya. Terima kasih!`;
+            let message = `Halo Admin Biip, Saya ingin memesan produk berikut:\n\n${list}\n\n*Total Tagihan: Rp ${total.toLocaleString()}*\n\nMohon konfirmasi stok. Terima kasih!`;
             window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(message)}`);
+        }
+
+        function sendContactWA() {
+            const n = document.getElementById('contact-name').value;
+            const m = document.getElementById('contact-msg').value;
+            if(!n || !m) return alert("Lengkapi nama dan pesan!");
+            window.open(`https://wa.me/6285716842806?text=Nama: ${n}%0APesan: ${m}`);
         }
 
         function drawCategories(items) {
@@ -474,27 +421,19 @@
             drawGrid(filtered, 'home-grid');
         }
 
-        function drawUlasan(items) {
-            document.getElementById('ulasan-container').innerHTML = items.slice(0,3).map(u => `
-                <div class="p-8 bg-slate-50/50 rounded-[40px] border border-slate-100 italic relative">
-                    <div class="text-yellow-400 text-[10px] mb-6">${'<i class="fas fa-star mr-1"></i>'.repeat(u.bintang || 5)}</div>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium mb-8">"${u.pesan}"</p>
-                    <p class="text-[9px] font-black uppercase text-blue-600 tracking-widest">— ${u.nama}</p>
-                </div>
-            `).join('');
+        function setView(v) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`view-${v}`);
+            if(target) target.classList.add('active');
+            if(!document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar();
+            window.scrollTo(0,0);
         }
 
-        function mockGoogleLogin() { alert("Simulasi: Mengarahkan ke Google OAuth..."); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
         function toggleCart() { document.getElementById('cartDrawer').classList.toggle('translate-x-full'); }
         function closeModal() { document.getElementById('globalModal').classList.add('hidden'); }
         function removeFromCart(idx) { cart.splice(idx, 1); updateCart(); }
-        function setView(v) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`view-${v}`).classList.add('active');
-            if(!document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleSidebar();
-            window.scrollTo(0,0);
-        }
+        function mockGoogleLogin() { alert("Simulasi: Mengarahkan ke Google OAuth..."); }
 
         window.onload = init;
     </script>
