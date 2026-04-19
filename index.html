@@ -55,32 +55,31 @@
     </div>
 
     <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
-        <button onclick="setView('home')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
-            <i class="fas fa-home w-4"></i> BERANDA
-        </button>
-        <button onclick="setView('artikel')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
-            <i class="fas fa-newspaper w-4"></i> EDUKASI PERIKANAN
-        </button>
+    <button onclick="setView('home')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
+        <i class="fas fa-home w-4"></i> BERANDA
+    </button>
+    <button onclick="setView('artikel')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
+        <i class="fas fa-newspaper w-4"></i> EDUKASI PERIKANAN
+    </button>
 
-        <div class="relative">
-            <button onclick="toggleCategoryDropdown()" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center justify-between transition text-slate-600 hover:text-blue-600 group">
-                <div class="flex items-center gap-4">
-                    <i class="fas fa-fish w-4"></i> KATEGORI PRODUK
-                </div>
-                <i id="cat-chevron" class="fas fa-chevron-down text-[9px] transition-transform duration-300"></i>
-            </button>
-            
-            <div id="category-dropdown" class="hidden overflow-hidden bg-slate-50/50 rounded-2xl mt-1 ml-2 border-l-2 border-blue-100 transition-all">
-                <div id="category-list" class="p-2 space-y-1">
-                    </div>
+    <div class="relative">
+        <button onclick="toggleCategoryDropdown()" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center justify-between transition text-slate-600 hover:text-blue-600 group">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-fish w-4"></i> KATEGORI PRODUK
             </div>
-        </div>
-
-        <button onclick="setView('about')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
-            <i class="fas fa-info-circle w-4"></i> TENTANG BIIP FLOWERHORN
+            <i id="cat-chevron" class="fas fa-chevron-down text-[9px] transition-transform duration-300"></i>
         </button>
-    </nav>
+        
+        <div id="category-dropdown" class="hidden overflow-hidden bg-slate-50/80 rounded-2xl mt-1 mx-2 transition-all duration-300">
+            <div id="category-list" class="p-2 space-y-1">
+                </div>
+        </div>
+    </div>
 
+    <button onclick="setView('about')" class="w-full text-left p-4 hover:bg-blue-50 rounded-2xl font-bold text-[11px] flex items-center gap-4 transition text-slate-600 hover:text-blue-600">
+        <i class="fas fa-info-circle w-4"></i> TENTANG BIIP FLOWERHORN
+    </button>
+</nav>
     <div class="p-6 border-t">
         <button onclick="setView('login')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">Login</button>
     </div>
@@ -419,27 +418,28 @@
         }
 
         // Fungsi untuk buka-tutup dropdown kategori
-function toggleCategoryDropdown() {
-    const dropdown = document.getElementById('category-dropdown');
-    const chevron = document.getElementById('cat-chevron');
-    
-    dropdown.classList.toggle('hidden');
-    // Efek putar icon chevron saat diklik
-    chevron.style.transform = dropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-}
-
-// Fungsi render list kategori ke dalam dropdown
 function drawCategories(items) {
     const uniqueCats = [...new Set(items.map(i => i.kategori))];
     const catContainer = document.getElementById('category-list');
     if(!catContainer) return;
     
     catContainer.innerHTML = uniqueCats.map(c => `
-        <button onclick="filterByCategory('${c}')" class="w-full text-left px-6 py-3 hover:bg-white rounded-xl font-bold text-[10px] uppercase text-slate-500 hover:text-blue-600 transition flex items-center gap-3">
-            <span class="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+        <button onclick="filterByCategory('${c}')" class="w-full text-left px-10 py-3 hover:bg-white rounded-xl font-bold text-[10px] uppercase text-slate-500 hover:text-blue-600 transition flex items-center gap-3">
+            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
             ${c}
         </button>
     `).join('');
+}
+
+function toggleCategoryDropdown() {
+    const dropdown = document.getElementById('category-dropdown');
+    const chevron = document.getElementById('cat-chevron');
+    
+    // Toggle class hidden
+    const isHidden = dropdown.classList.toggle('hidden');
+    
+    // Putar chevron
+    chevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
 }
         function filterByCategory(c) {
             const filtered = store.ikan.filter(i => i.kategori === c);
