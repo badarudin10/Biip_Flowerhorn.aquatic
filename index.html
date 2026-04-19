@@ -26,27 +26,34 @@
     </a>
 
     <header class="fixed top-0 w-full glass-header z-[150] border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-5 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-5">
-                <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
-                    <i class="fas fa-bars-staggered"></i>
-                </button>
-                <div class="flex items-center gap-3 cursor-pointer" onclick="setView('home')">
-                    <img src="https://drive.google.com/thumbnail?id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN&sz=w200" class="h-10 w-auto rounded-lg shadow-sm" alt="Logo">
-                    <div class="hidden md:block">
-                        <h1 class="font-black text-sm uppercase leading-none tracking-tighter">Biip Flowerhorn</h1>
-                        <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1">Aquatic Store</p>
-                    </div>
+    <div class="max-w-7xl mx-auto px-5 h-20 grid grid-cols-3 items-center">
+        
+        <div class="flex justify-start">
+            <button onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition group">
+                <i class="fas fa-bars-staggered text-sm group-hover:rotate-90 transition-transform"></i>
+                <span class="font-bold text-[11px] uppercase tracking-widest hidden md:block">Menu</span>
+            </button>
+        </div>
+
+        <div class="flex justify-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="setView('home')">
+                <img src="https://drive.google.com/thumbnail?id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN&sz=w200" class="h-10 w-auto rounded-lg shadow-sm" alt="Logo">
+                <div class="text-center">
+                    <h1 class="font-black text-xs uppercase leading-none tracking-tighter">Biip Flowerhorn</h1>
+                    <p class="text-[8px] font-bold text-blue-600 uppercase tracking-widest mt-0.5">Aquatic Store</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="toggleCart()" class="relative w-12 h-12 flex items-center justify-center bg-slate-900 text-white rounded-2xl shadow-lg shadow-slate-200">
-                    <i class="fas fa-shopping-basket text-sm"></i>
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold ring-2 ring-white">0</span>
-                </button>
-            </div>
         </div>
-    </header>
+
+        <div class="flex justify-end">
+            <button onclick="toggleCart()" class="relative w-12 h-12 flex items-center justify-center bg-slate-900 text-white rounded-2xl shadow-lg shadow-slate-200">
+                <i class="fas fa-shopping-basket text-sm"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold ring-2 ring-white">0</span>
+            </button>
+        </div>
+
+    </div>
+</header>
 
     <aside id="sidebar" class="fixed top-0 left-0 h-full w-80 bg-white sidebar -translate-x-full shadow-2xl z-[200] flex flex-col pt-8">
     <div class="px-6 flex justify-between items-center mb-10">
@@ -239,13 +246,7 @@
     </div>
 
     <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white z-[600] translate-x-full transition-transform shadow-2xl flex flex-col">
-        <div class="p-8 bg-slate-900 text-white flex justify-between items-center">
-            <div>
-                <h3 class="font-black uppercase tracking-widest text-xs mb-1">Daftar Belanja</h3>
-                <p class="text-[9px] font-bold text-slate-400 uppercase">Periksa kembali detail pesanan Anda</p>
-            </div>
-            <button onclick="toggleCart()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
-        </div>
+    </div>
         <div id="cartItems" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/50"></div>
         <div class="p-8 border-t bg-white">
             <div class="flex justify-between items-center mb-8 font-black uppercase">
