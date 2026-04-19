@@ -3,279 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biip Flowerhorn Aquatic</title>
+    <title>Biip Flowerhorn Aquatic | Professional Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Modak&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Modak&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
-        :root { --dark-bg: #0f172a; --accent-red: #ef4444; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        :root { --light-blue: #e0f2fe; --dark-footer: #111827; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
 
-        /* Bubble Font Style untuk Brand */
-        .brand-font { 
-            font-family: 'Modak', system-ui; 
-            color: white; 
-            text-shadow: -2px -2px 0 #ef4444, 2px -2px 0 #ef4444, -2px 2px 0 #ef4444, 2px 2px 0 #ef4444;
-            letter-spacing: 2px;
+        /* Poin 1: Bubble Font Style dengan Lis Merah */
+        .brand-bubble {
+            font-family: 'Modak', system-ui;
+            color: white;
+            -webkit-text-stroke: 1.5px #ef4444; /* Lis Merah */
+            text-shadow: 3px 3px 0 #ef4444, 5px 5px 15px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
         }
 
-        .header-dark { background-color: var(--dark-bg); }
-        .sidebar { transition: transform 0.3s ease-in-out; z-index: 1000; width: 300px; }
-        .page-section { display: none; padding-top: 100px; min-height: 100vh; }
-        .active-section { display: block; }
+        /* Poin 2: Dashboard Layout */
+        .top-lis { background-color: var(--light-blue); border-bottom: 2px solid #bae6fd; }
         
-        /* Floating WhatsApp */
+        /* Interaktivitas Sidebar & Pages */
+        .sidebar { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); width: 320px; }
+        .page-section { display: none; min-height: 80vh; }
+        .active-section { display: block; animation: fadeIn 0.5s; }
+
+        /* Floating WA (Poin 12) */
         .wa-float {
-            position: fixed; bottom: 20px; right: 20px;
+            position: fixed; bottom: 30px; right: 30px;
             background: #25d366; color: white;
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 65px; height: 65px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 999; animation: pulse 2s infinite;
+            font-size: 35px; box-shadow: 0 10px 25px rgba(37,211,102,0.4);
+            z-index: 9999; cursor: pointer; transition: 0.3s;
         }
+        .wa-float:hover { transform: scale(1.1) rotate(10deg); }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        /* Banner Placeholder (Poin 2 & 5) */
+        .banner-placeholder { background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; height: 450px; }
 
-        .banner-text { font-weight: 900; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        /* Menu Tabs (Poin 4) */
+        .tab-btn.active { border-bottom: 4px solid #ef4444; color: #ef4444; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-white">
 
-    <header class="fixed top-0 w-full z-50">
-        <div class="header-dark py-4 px-6 flex justify-between items-center shadow-xl">
-            <button onclick="toggleMenu()" class="text-white text-2xl"><i class="fas fa-bars"></i></button>
-            
-            <div class="flex items-center gap-4">
-                <h1 class="brand-font text-2xl md:text-3xl">Biip flowerhorn aquatic</h1>
-                <img src="https://drive.google.com/uc?export=view&id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN" 
-                     alt="Logo" class="h-10 md:h-12 w-auto object-contain">
+    <header class="fixed top-0 w-full z-[1000] shadow-sm">
+        <div class="top-lis py-3 px-6">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <button onclick="toggleSidebar()" class="text-gray-700 text-2xl hover:text-blue-500 transition"><i class="fas fa-align-left"></i></button>
+                
+                <div class="flex items-center gap-3">
+                    <img id="main-logo" src="" class="h-10 w-auto object-contain hidden">
+                    <h1 class="brand-bubble text-xl md:text-3xl">Biip flowerhorn aquatic</h1>
+                </div>
+
+                <button onclick="toggleCart()" class="text-gray-700 text-2xl relative">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+                </button>
             </div>
-
-            <button onclick="toggleCart()" class="text-white text-2xl relative">
-                <i class="fas fa-shopping-cart"></i>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5">0</span>
-            </button>
         </div>
     </header>
 
-    <aside id="sidebar" class="fixed top-0 left-0 h-full bg-white shadow-2xl sidebar -translate-x-full overflow-y-auto">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full bg-white z-[2000] sidebar -translate-x-full shadow-2xl overflow-y-auto">
         <div class="p-6">
-            <button onclick="toggleMenu()" class="float-right text-gray-400"><i class="fas fa-times"></i></button>
-            <div class="mt-8">
-                <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="Cari ikan/size..." 
-                       class="w-full border p-3 rounded-xl mb-6 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500">
-                
-                <div class="flex border-b mb-4">
-                    <button onclick="showTab('menu')" class="flex-1 py-2 font-bold border-b-2 border-red-500" id="tab-menu-btn">Menu</button>
-                    <button onclick="showTab('kat')" class="flex-1 py-2 font-bold text-gray-400" id="tab-kat-btn">Kategori</button>
-                </div>
-
-                <div id="side-menu-content">
-                    <nav class="space-y-4">
-                        <a href="javascript:void(0)" onclick="navTo('home')" class="block font-bold hover:text-red-500"><i class="fas fa-home mr-2"></i> Beranda</a>
-                        <a href="javascript:void(0)" onclick="navTo('products')" class="block font-bold hover:text-red-500"><i class="fas fa-fish mr-2"></i> Produk</a>
-                        <a href="javascript:void(0)" onclick="navTo('articles')" class="block font-bold hover:text-red-500"><i class="fas fa-book mr-2"></i> Informasi Perikanan</a>
-                        <a href="javascript:void(0)" onclick="navTo('about')" class="block font-bold hover:text-red-500"><i class="fas fa-info-circle mr-2"></i> Tentang Biip</a>
-                        <a href="javascript:void(0)" onclick="navTo('footer')" class="block font-bold hover:text-red-500"><i class="fas fa-phone mr-2"></i> Kontak</a>
-                        
-                        <div class="pt-20">
-                            <button onclick="navTo('login')" class="w-full bg-gray-900 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2">
-                                <i class="fas fa-user-lock"></i> Login / Daftar
-                            </button>
-                        </div>
-                    </nav>
-                </div>
-
-                <div id="side-kat-content" class="hidden space-y-4">
-                    <h4 class="font-black text-xs uppercase text-gray-400">Jenis Ikan</h4>
-                    <div id="cat-list-jenis" class="grid grid-cols-1 gap-2"></div>
-                    <h4 class="font-black text-xs uppercase text-gray-400 mt-4">Size Ikan</h4>
-                    <div id="cat-list-size" class="grid grid-cols-1 gap-2"></div>
-                </div>
+            <div class="flex justify-between items-center mb-8">
+                <span class="font-black italic text-gray-400">NAVIGATION</span>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
             </div>
+
+            <div class="relative mb-8">
+                <i class="fas fa-search absolute left-4 top-4 text-gray-300"></i>
+                <input type="text" id="searchInput" onkeyup="liveSearch()" placeholder="Cari ikan impianmu..." 
+                       class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-200 transition">
+            </div>
+
+            <div class="flex border-b mb-6">
+                <button id="btn-tab-menu" onclick="switchTab('menu')" class="flex-1 py-3 font-bold tab-btn active">MENU</button>
+                <button id="btn-tab-kat" onclick="switchTab('kat')" class="flex-1 py-3 font-bold tab-btn text-gray-300">KATEGORI</button>
+            </div>
+
+            <div id="side-content-menu" class="space-y-2">
+                <a href="javascript:navTo('home')" class="flex items-center p-4 rounded-xl hover:bg-blue-50 group transition">
+                    <i class="fas fa-home mr-4 text-gray-400 group-hover:text-blue-500"></i> <span class="font-bold text-gray-700">Beranda</span>
+                </a>
+                <a href="javascript:navTo('products')" class="flex items-center p-4 rounded-xl hover:bg-blue-50 group transition">
+                    <i class="fas fa-fish mr-4 text-gray-400 group-hover:text-blue-500"></i> <span class="font-bold text-gray-700">Produk</span>
+                </a>
+                <a href="javascript:navTo('articles')" class="flex items-center p-4 rounded-xl hover:bg-blue-50 group transition">
+                    <i class="fas fa-book-open mr-4 text-gray-400 group-hover:text-blue-500"></i> <span class="font-bold text-gray-700">Informasi Perikanan</span>
+                </a>
+                <a href="javascript:navTo('about')" class="flex items-center p-4 rounded-xl hover:bg-blue-50 group transition">
+                    <i class="fas fa-store mr-4 text-gray-400 group-hover:text-blue-500"></i> <span class="font-bold text-gray-700">Tentang Kami</span>
+                </a>
+                <a href="javascript:navTo('footer')" class="flex items-center p-4 rounded-xl hover:bg-blue-50 group transition">
+                    <i class="fas fa-headset mr-4 text-gray-400 group-hover:text-blue-500"></i> <span class="font-bold text-gray-700">Kontak</span>
+                </a>
+                <hr class="my-6">
+                <a href="javascript:navTo('login')" class="flex items-center p-4 bg-gray-900 text-white rounded-2xl hover:bg-red-500 transition shadow-lg shadow-gray-200">
+                    <i class="fas fa-user-circle mr-4 text-white"></i> <span class="font-bold">Login / Daftar</span>
+                </a>
+            </div>
+
+            <div id="side-content-kat" class="hidden space-y-6">
+                </div>
         </div>
     </aside>
 
-    <main>
+    <main class="mt-20">
+        
         <section id="home" class="page-section active-section">
-            <div class="relative h-[400px] overflow-hidden">
-                <div id="slider" class="flex transition-transform duration-700 ease-in-out h-full">
-                    <div class="min-w-full relative">
-                        <img src="https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <h2 class="banner-text text-white text-3xl text-center px-4">BELANJA ONLINE TIDAK PERLU CEMAS</h2>
-                        </div>
+            <div class="relative overflow-hidden group">
+                <div id="slider" class="flex transition-transform duration-1000 ease-in-out">
+                    <div class="min-w-full banner-placeholder">
+                        <h2 class="text-3xl md:text-5xl font-black text-gray-400 italic text-center px-6">BELANJA ONLINE TIDAK PERLU CEMAS</h2>
                     </div>
-                    <div class="min-w-full relative">
-                        <img src="https://images.unsplash.com/photo-1524704659690-3f7a3fe19bb7?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <h2 class="banner-text text-white text-3xl text-center px-4">BELANJA IKAN HIAS SEMUDAH INI</h2>
-                        </div>
+                    <div class="min-w-full banner-placeholder">
+                        <h2 class="text-3xl md:text-5xl font-black text-gray-400 italic text-center px-6">BELANJA IKAN HIAS SEMUDAH INI</h2>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-4xl mx-auto p-8 bg-white mt-10 rounded-3xl shadow-lg">
-                <h3 class="font-black text-xl mb-6 italic italic">Ulasan Pelanggan</h3>
-                <div id="ulasan-display" class="space-y-4 mb-8"></div>
-                <div class="border-t pt-6">
-                    <input type="text" id="rev-name" placeholder="Nama Anda" class="w-full p-3 border rounded-xl mb-3">
-                    <div class="flex gap-2 mb-3 text-2xl text-yellow-400" id="star-input">
-                        <i class="fas fa-star cursor-pointer" onclick="setStar(1)"></i>
-                        <i class="fas fa-star cursor-pointer" onclick="setStar(2)"></i>
-                        <i class="fas fa-star cursor-pointer" onclick="setStar(3)"></i>
-                        <i class="fas fa-star cursor-pointer" onclick="setStar(4)"></i>
-                        <i class="fas fa-star cursor-pointer" onclick="setStar(5)"></i>
+            <div class="max-w-5xl mx-auto py-20 px-6">
+                <div class="bg-gray-50 rounded-[40px] p-10 shadow-inner">
+                    <h3 class="text-2xl font-black mb-8 italic">APA KATA MEREKA?</h3>
+                    <div id="ulasan-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        </div>
+                    
+                    <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl">
+                        <h4 class="font-bold mb-4">Berikan Reward Bintang Anda</h4>
+                        <div class="flex gap-3 text-3xl text-gray-200 mb-6" id="star-rating">
+                            <i class="fas fa-star cursor-pointer" onclick="setStar(1)"></i>
+                            <i class="fas fa-star cursor-pointer" onclick="setStar(2)"></i>
+                            <i class="fas fa-star cursor-pointer" onclick="setStar(3)"></i>
+                            <i class="fas fa-star cursor-pointer" onclick="setStar(4)"></i>
+                            <i class="fas fa-star cursor-pointer" onclick="setStar(5)"></i>
+                        </div>
+                        <input type="text" id="rev-name" placeholder="Nama Anda" class="w-full p-4 bg-gray-50 rounded-xl mb-4 outline-none">
+                        <textarea id="rev-text" placeholder="Ceritakan pengalaman Anda..." class="w-full p-4 bg-gray-50 rounded-xl mb-6 outline-none h-32"></textarea>
+                        <button onclick="submitReview()" class="bg-blue-500 text-white px-10 py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-600 transition">KIRIM ULASAN</button>
                     </div>
-                    <textarea id="rev-comment" placeholder="Tulis komentar..." class="w-full p-3 border rounded-xl mb-4"></textarea>
-                    <button onclick="submitReview()" class="bg-red-500 text-white px-8 py-3 rounded-xl font-bold">Kirim Ulasan</button>
                 </div>
             </div>
         </section>
 
-        <section id="products" class="page-section px-4">
-            <h2 class="text-3xl font-black italic mb-8 border-l-8 border-red-500 pl-4">Koleksi Ikan Louhan</h2>
-            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-7xl mx-auto"></div>
-        </section>
-
-        <section id="articles" class="page-section px-4">
-            <h2 class="text-3xl font-black italic mb-8 text-center">Edukasi & Informasi</h2>
-            <div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"></div>
-        </section>
-
-        <section id="about" class="page-section px-6">
-            <div class="max-w-3xl mx-auto bg-white p-10 rounded-[40px] shadow-2xl">
-                <h2 class="text-3xl font-black mb-6 text-red-500 italic italic">Tentang Kami</h2>
-                <p class="leading-relaxed text-gray-700 font-medium italic italic" id="about-text"></p>
+        <section id="products" class="page-section px-6 py-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex items-end gap-4 mb-12">
+                    <h2 class="text-4xl font-black italic">KATALOG IKAN</h2>
+                    <div class="h-1 flex-1 bg-gray-100 mb-3 rounded-full"></div>
+                </div>
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    </div>
             </div>
         </section>
 
-        <section id="login" class="page-section px-6 flex items-center justify-center">
-            <div class="bg-white p-8 rounded-[40px] shadow-2xl w-full max-w-md border-t-8 border-red-500">
-                <h2 class="text-2xl font-black mb-6 text-center italic italic">Member Area</h2>
-                <input type="email" placeholder="Email" class="w-full p-4 border rounded-2xl mb-4 bg-gray-50">
-                <input type="password" placeholder="Password" class="w-full p-4 border rounded-2xl mb-2 bg-gray-50">
-                <a href="#" class="text-xs text-blue-500 block mb-6 font-bold">Lupa Password?</a>
-                <button class="w-full bg-red-500 text-white p-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Login</button>
-                <p class="text-center mt-6 text-sm font-bold">Belum punya akun? <span class="text-red-500">Daftar</span></p>
+        <section id="articles" class="page-section px-6 py-10">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10" id="article-grid"></div>
+        </section>
+
+        <section id="about" class="page-section px-6 py-20 bg-gray-50">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-black mb-10 text-blue-500">KAMI & LOUHAN</h2>
+                <p class="text-lg leading-relaxed text-gray-600 italic font-medium" id="about-content"></p>
+            </div>
+        </section>
+
+        <section id="login" class="page-section px-6 py-20 flex items-center justify-center">
+            <div class="bg-white p-10 rounded-[50px] shadow-2xl w-full max-w-md border-t-8 border-blue-400">
+                <h2 class="text-2xl font-black mb-8 text-center">MASUK KE AKUN</h2>
+                <div class="space-y-4">
+                    <input type="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
+                    <input type="password" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
+                    <div class="flex justify-between items-center px-2">
+                        <label class="text-xs font-bold text-gray-400"><input type="checkbox"> Ingat Saya</label>
+                        <a href="#" class="text-xs font-bold text-blue-500 hover:underline">Lupa Password?</a>
+                    </div>
+                    <button class="w-full bg-blue-500 text-white p-5 rounded-2xl font-black shadow-xl shadow-blue-100 mt-6">MASUK SEKARANG</button>
+                    <p class="text-center text-sm font-bold mt-6">Belum Member? <span class="text-red-500 cursor-pointer">Daftar</span></p>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer id="footer" class="mt-20">
-        <div class="header-dark text-white p-10">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer id="footer">
+        <div class="bg-gray-900 text-white py-16 px-6">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div>
-                    <h4 class="font-black mb-4 border-b border-red-500 pb-2">PUSAT BANTUAN</h4>
-                    <ul class="text-sm space-y-2 opacity-80 font-bold">
-                        <li>Panduan Pemesanan</li>
-                        <li>Kebijakan Pengiriman</li>
-                        <li>FAQs</li>
-                        <li>Garansi</li>
+                    <h4 class="font-black text-red-500 mb-6 uppercase tracking-widest">Pusat Bantuan</h4>
+                    <ul class="space-y-3 text-sm font-bold text-gray-400">
+                        <li class="hover:text-white transition cursor-pointer">Panduan Pemesanan</li>
+                        <li class="hover:text-white transition cursor-pointer">Kebijakan Pengiriman</li>
+                        <li class="hover:text-white transition cursor-pointer">Garansi Ikan</li>
+                        <li class="hover:text-white transition cursor-pointer">FAQs</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-black mb-4 border-b border-red-500 pb-2">PEMBAYARAN</h4>
-                    <div class="flex gap-4 items-center">
-                        <div class="bg-white p-2 rounded"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" class="h-4"></div>
-                        <div class="bg-white p-2 rounded"><img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dan_motto_DANA.png" class="h-4"></div>
+                    <h4 class="font-black text-blue-400 mb-6 uppercase tracking-widest">Pembayaran</h4>
+                    <div class="flex gap-4">
+                        <div class="bg-white p-2 rounded-lg font-black text-blue-900 text-[10px]">BCA</div>
+                        <div class="bg-blue-500 p-2 rounded-lg font-black text-white text-[10px]">DANA</div>
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-black mb-4 border-b border-red-500 pb-2">PENGIRIMAN</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-gray-800 px-3 py-1 rounded text-[10px] font-bold">JNE</span>
-                        <span class="bg-gray-800 px-3 py-1 rounded text-[10px] font-bold">TIKI</span>
-                        <span class="bg-gray-800 px-3 py-1 rounded text-[10px] font-bold">PAXEL</span>
-                        <span class="bg-gray-800 px-3 py-1 rounded text-[10px] font-bold">GOJEK</span>
+                    <h4 class="font-black text-gray-400 mb-6 uppercase tracking-widest">Pengiriman</h4>
+                    <div class="flex flex-wrap gap-2 text-[10px] font-black">
+                        <span class="bg-gray-800 px-3 py-1 rounded">JNE</span>
+                        <span class="bg-gray-800 px-3 py-1 rounded">TIKI</span>
+                        <span class="bg-gray-800 px-3 py-1 rounded">PAXEL</span>
+                        <span class="bg-gray-800 px-3 py-1 rounded">GOJEK</span>
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-black mb-4 border-b border-red-500 pb-2">LOKASI</h4>
-                    <p class="text-xs leading-relaxed opacity-80 font-bold">
+                    <h4 class="font-black text-white mb-6 uppercase tracking-widest">Alamat Kami</h4>
+                    <p class="text-xs text-gray-400 font-bold leading-relaxed">
                         Kp. Rocek barat RT 012 RW 004 Kel. Rocek Kec. Cimanuk, Kabupaten Pandeglang, Banten
                     </p>
                 </div>
             </div>
-            <div class="text-center mt-12 pt-8 border-t border-gray-800 text-[10px] font-bold opacity-40">
-                &copy; 2024 BIIP FLOWERHORN AQUATIC. ALL RIGHTS RESERVED.
+            <div class="mt-20 pt-8 border-t border-gray-800 text-center">
+                <p class="text-[10px] font-black text-gray-600 tracking-tighter uppercase">Bergerak dalam bidang perikanan air tawar (budidaya, edukasi dan penjualan)</p>
             </div>
         </div>
     </footer>
 
-    <a href="https://wa.me/6285716842806" target="_blank" class="wa-float">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[1001] translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-6 bg-gray-900 text-white flex justify-between">
-            <h3 class="font-black italic italic">KERANJANG</h3>
-            <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white z-[3000] shadow-2xl translate-x-full transition-transform duration-500 flex flex-col">
+        <div class="p-8 bg-blue-50 flex justify-between items-center">
+            <h3 class="font-black text-xl italic text-blue-900">BELANJAANMU</h3>
+            <button onclick="toggleCart()"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <div id="cart-list" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-        <div class="p-6 border-t">
-            <div class="flex justify-between font-black mb-4">
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-8 border-t">
+            <div class="flex justify-between font-black text-lg mb-6">
                 <span>TOTAL</span>
                 <span id="cart-total" class="text-red-500">Rp 0</span>
             </div>
-            <button onclick="sendWAOrder()" class="w-full bg-green-500 text-white p-4 rounded-2xl font-black flex items-center justify-center gap-2">
-                <i class="fab fa-whatsapp"></i> KIRIM KE WHATSAPP
+            <button onclick="checkoutWA()" class="w-full bg-green-500 text-white py-5 rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl shadow-green-100 hover:bg-green-600 transition">
+                <i class="fab fa-whatsapp text-2xl"></i> ORDER VIA WHATSAPP
             </button>
         </div>
     </div>
 
+    <div class="wa-float" onclick="window.open('https://wa.me/6285716842806')">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+
     <script>
-        // GANTI DENGAN URL DEPLOY APP SCRIPT ANDA
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHZBB7VkP0jMOp-PN3Y_a--zzJMRuF5ThdFf7CtQdMUwH4QbAbpuSwLqkMMmIqqefc4w/exec";
+        // MASUKKAN URL APPS SCRIPT ANDA DI SINI
+        const APPS_URL = "https://script.google.com/macros/s/AKfycbwy4hrWsLpI1mMoIUFCAH2sz1oTXjK8875NHJIQuok0_6mFvwQdQcDa-hBXpUsNtDr2Lg/exec";
         
+        const DRIVE_LOGO = "11yE551WgzgTXLZacZXtB7kbKQWtnsgeN";
         let masterData = { ikan: [], artikel: [], ulasan: [] };
         let cart = [];
-        let currentStar = 5;
+        let currentStars = 5;
 
-        // Init App
-        async function init() {
-            const script = document.createElement('script');
-            script.src = `${APPS_SCRIPT_URL}?callback=loadData`;
-            document.body.appendChild(script);
+        // Init logo and data
+        window.onload = () => {
+            document.getElementById('main-logo').src = `https://drive.google.com/uc?export=view&id=${DRIVE_LOGO}`;
+            document.getElementById('main-logo').classList.remove('hidden');
             
-            // Slider Logic
-            let slideIndex = 0;
-            setInterval(() => {
-                slideIndex = slideIndex === 0 ? 1 : 0;
-                document.getElementById('slider').style.transform = `translateX(-${slideIndex * 100}%)`;
-            }, 5000);
+            // Poin 8 Text
+            document.getElementById('about-content').innerText = "Biip flowerhorn aquatic berdiri sejak 2020, yang di dirikan oleh owner Badarudin, dengan konsisten dan kerja keras dalam melestarikan budidaya ikan hias khusus nya louhan, dalam proses membentuk ikan ikan yang berkualitas kontes, progres yang teliti ketika membentuk ikan yang di harapkan, dengan begitu kami dan para pecinta louhan berkolaborasi dan bekerjasama dalam mempertahan kan kualitas dan melestarikan ikan dengan khas lokal, kami berkomitmen dengan sangat kuat dalam menjaga kualitas ikan";
+            
+            fetchData();
+            startSlider();
+        };
 
-            document.getElementById('about-text').innerText = "Biip flowerhorn aquatic berdiri sejak 2020, yang di dirikan oleh owner Badarudin, dengan konsisten dan kerja keras dalam melestarikan budidaya ikan hias khusus nya louhan, dalam proses membentuk ikan ikan yang berkualitas kontes, progres yang teliti ketika membentuk ikan yang di harapkan, dengan begitu kami dan para pecinta louhan berkolaborasi dan bekerjasama dalam mempertahan kan kualitas dan melestarikan ikan dengan khas lokal, kami berkomitmen dengan sangat kuat dalam menjaga kualitas ikan";
+        function fetchData() {
+            const script = document.createElement('script');
+            script.src = `${APPS_URL}?callback=handleResponse`;
+            document.body.appendChild(script);
         }
 
-        function loadData(data) {
+        function handleResponse(data) {
             masterData = data;
             renderProducts(data.ikan);
             renderArticles(data.artikel);
             renderReviews(data.ulasan);
-            renderCategories(data.ikan);
+            renderKatSidebar(data.ikan);
+        }
+
+        function fixUrl(url) {
+            if(!url) return "https://via.placeholder.com/300?text=Ikan+Biip";
+            if(url.includes('id=')) return `https://drive.google.com/uc?export=view&id=${url.split('id=')[1].split('&')[0]}`;
+            if(url.includes('/d/')) return `https://drive.google.com/uc?export=view&id=${url.split('/d/')[1].split('/')[0]}`;
+            return url;
         }
 
         function renderProducts(items) {
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = items.map((p, index) => `
-                <div class="bg-white rounded-[30px] overflow-hidden shadow-sm hover:shadow-2xl transition-all border border-gray-100 group">
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${fixImg(p.link_foto_googledrive)}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                        <div class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold">Stock: ${p.stock}</div>
+            grid.innerHTML = items.map((p, idx) => `
+                <div class="bg-white rounded-[40px] shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-50 group">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="${fixUrl(p.link_foto_googledrive)}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-4 py-1 rounded-full text-[10px] font-black text-blue-500">Stock: ${p.stock}</div>
                     </div>
-                    <div class="p-5">
-                        <h4 class="font-black text-sm uppercase truncate italic italic">${p.nama}</h4>
-                        <p class="text-[10px] font-bold text-gray-400 mb-2">${p.jenis} | ${p.kategori}</p>
-                        <div class="flex justify-between items-center mt-4">
-                            <span class="font-black text-red-500">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>
-                            <button onclick="addToCart(${index})" class="bg-gray-900 text-white w-8 h-8 rounded-xl flex items-center justify-center hover:bg-red-500 transition shadow-lg">
-                                <i class="fas fa-plus text-xs"></i>
+                    <div class="p-6">
+                        <h4 class="font-black text-sm uppercase italic truncate">${p.nama}</h4>
+                        <p class="text-[10px] font-bold text-gray-400 mb-4">${p.jenis} | ${p.kategori}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-black text-red-500">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>
+                            <button onclick="addToCart(${idx})" class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center hover:bg-blue-500 transition shadow-lg shadow-gray-200">
+                                <i class="fas fa-plus"></i>
                             </button>
                         </div>
                     </div>
@@ -286,102 +318,133 @@
         function renderArticles(items) {
             const grid = document.getElementById('article-grid');
             grid.innerHTML = items.map(a => `
-                <div class="bg-white p-6 rounded-[35px] shadow-lg flex flex-col md:flex-row gap-6 border border-gray-50">
-                    <img src="${fixImg(a.link_foto_googledrive)}" class="w-full md:w-32 h-32 object-cover rounded-2xl">
-                    <div>
-                        <h3 class="font-black text-lg mb-2 italic italic">${a.judul}</h3>
-                        <p class="text-sm text-gray-600 line-clamp-3 font-medium">${a.isi_artikel}</p>
-                        <button class="mt-4 text-red-500 font-bold text-xs uppercase tracking-widest">Baca Selengkapnya <i class="fas fa-arrow-right ml-1"></i></button>
+                <div class="bg-white p-8 rounded-[45px] shadow-xl border border-gray-50 flex flex-col md:flex-row gap-8 hover:translate-y-[-5px] transition duration-500">
+                    <img src="${fixUrl(a.link_foto_googledrive)}" class="w-full md:w-40 h-40 object-cover rounded-[30px] shadow-lg">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-black italic mb-4">${a.judul}</h3>
+                        <p class="text-sm text-gray-500 line-clamp-3 leading-relaxed font-medium mb-6 italic">${a.isi_artikel}</p>
+                        <button class="text-xs font-black text-blue-500 flex items-center gap-2 group">BACA ARTIKEL <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderCategories(items) {
-            const jenis = [...new Set(items.map(i => i.jenis))];
-            const sizes = [...new Set(items.map(i => i.kategori))]; // Di spreadsheet tab ikan kategori diisi size sesuai instruksi point 14
-
-            document.getElementById('cat-list-jenis').innerHTML = jenis.map(j => 
-                `<button onclick="filterBy('jenis','${j}')" class="text-left p-3 bg-gray-50 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">${j}</button>`
-            ).join('');
-            
-            document.getElementById('cat-list-size').innerHTML = sizes.map(s => 
-                `<button onclick="filterBy('kategori','${s}')" class="text-left p-3 bg-gray-50 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">${s}</button>`
-            ).join('');
+        function renderKatSidebar(items) {
+            const types = [...new Set(items.map(i => i.jenis))];
+            const container = document.getElementById('side-content-kat');
+            container.innerHTML = `
+                <div>
+                    <h5 class="text-[10px] font-black text-gray-300 mb-4 uppercase tracking-[3px]">Berdasarkan Jenis</h5>
+                    <div class="flex flex-wrap gap-2">
+                        ${types.map(t => `<button onclick="filterBy('jenis','${t}')" class="px-4 py-2 bg-gray-50 rounded-xl text-xs font-bold hover:bg-blue-500 hover:text-white transition">${t}</button>`).join('')}
+                    </div>
+                </div>
+            `;
         }
 
-        function fixImg(url) {
-            if(!url) return "";
-            let id = url.includes('id=') ? url.split('id=')[1].split('&')[0] : url.split('/d/')[1].split('/')[0];
-            return `https://drive.google.com/uc?export=view&id=${id}`;
+        // NAVIGATION
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
+        
+        function switchTab(type) {
+            document.getElementById('side-content-menu').classList.toggle('hidden', type === 'kat');
+            document.getElementById('side-content-kat').classList.toggle('hidden', type === 'menu');
+            document.getElementById('btn-tab-menu').classList.toggle('active', type === 'menu');
+            document.getElementById('btn-tab-kat').classList.toggle('active', type === 'kat');
         }
 
-        // NAVIGATION LOGIC
         function navTo(id) {
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
             document.getElementById(id).classList.add('active-section');
-            window.scrollTo(0,0);
-            if(window.innerWidth < 1024) toggleMenu();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            if(window.innerWidth < 1024) toggleSidebar();
         }
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
-        
-        function showTab(type) {
-            document.getElementById('side-menu-content').classList.toggle('hidden', type !== 'menu');
-            document.getElementById('side-kat-content').classList.toggle('hidden', type !== 'kat');
-            document.getElementById('tab-menu-btn').classList.toggle('border-red-500', type === 'menu');
-            document.getElementById('tab-kat-btn').classList.toggle('border-red-500', type === 'kat');
-        }
-
-        // CART LOGIC
-        function addToCart(idx) {
-            const item = masterData.ikan[idx];
-            cart.push(item);
+        // CART SYSTEM
+        function addToCart(i) {
+            const prod = masterData.ikan[i];
+            cart.push(prod);
             updateCartUI();
+            toggleCart();
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
-            const list = document.getElementById('cart-list');
-            list.innerHTML = cart.map((item, i) => `
-                <div class="flex gap-4 items-center bg-gray-50 p-3 rounded-2xl">
-                    <img src="${fixImg(item.link_foto_googledrive)}" class="w-12 h-12 object-cover rounded-lg">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[10px] font-black truncate italic italic">${item.nama}</p>
-                        <p class="text-xs font-black text-red-500">Rp ${Number(item.harga).toLocaleString()}</p>
+            const container = document.getElementById('cart-items');
+            container.innerHTML = cart.map((item, i) => `
+                <div class="flex gap-4 items-center bg-gray-50 p-4 rounded-[25px]">
+                    <img src="${fixUrl(item.link_foto_googledrive)}" class="w-16 h-16 object-cover rounded-2xl">
+                    <div class="flex-1">
+                        <h5 class="font-black text-xs uppercase italic">${item.nama}</h5>
+                        <p class="text-sm font-black text-red-500">Rp ${Number(item.harga).toLocaleString()}</p>
                     </div>
-                    <button onclick="removeFromCart(${i})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    <button onclick="removeItem(${i})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
             
-            const total = cart.reduce((acc, curr) => acc + Number(curr.harga), 0);
+            const total = cart.reduce((sum, item) => sum + Number(item.harga), 0);
             document.getElementById('cart-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
         }
 
-        function removeFromCart(i) { cart.splice(i, 1); updateCartUI(); }
+        function removeItem(i) { cart.splice(i, 1); updateCartUI(); }
 
-        function sendWAOrder() {
-            if(cart.length === 0) return alert("Keranjang kosong!");
-            let msg = "Halo Admin BIIP, Saya ingin memesan:\n\n";
+        function checkoutWA() {
+            if(cart.length === 0) return alert("Keranjang masih kosong!");
+            let text = `Halo Admin Biip, Saya ingin memesan:\n\n`;
             cart.forEach((item, i) => {
-                msg += `${i+1}. ${item.nama} - ${item.jenis} (Rp ${Number(item.harga).toLocaleString()})\n`;
+                text += `${i+1}. ${item.nama} (${item.jenis}) - Rp ${Number(item.harga).toLocaleString()}\n`;
             });
-            const total = cart.reduce((acc, curr) => acc + Number(curr.harga), 0);
-            msg += `\nTOTAL: Rp ${total.toLocaleString()}\n\nMohon diproses, terima kasih!`;
-            window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
+            const total = cart.reduce((sum, item) => sum + Number(item.harga), 0);
+            text += `\n*TOTAL: Rp ${total.toLocaleString()}*\n\nMohon informasi ketersediaannya.`;
+            window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(text)}`);
         }
 
-        // SEARCH & FILTER
-        function searchProduct() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = masterData.ikan.filter(p => 
-                p.nama.toLowerCase().includes(query) || 
-                p.jenis.toLowerCase().includes(query) ||
-                p.kategori.toLowerCase().includes(query)
-            );
+        // REVIEW SYSTEM
+        function setStar(n) {
+            currentStars = n;
+            const stars = document.querySelectorAll('#star-rating i');
+            stars.forEach((s, i) => {
+                s.classList.toggle('text-yellow-400', i < n);
+                s.classList.toggle('text-gray-200', i >= n);
+            });
+        }
+
+        function submitReview() {
+            const name = document.getElementById('rev-name').value;
+            const text = document.getElementById('rev-text').value;
+            if(!name || !text) return alert("Lengkapi ulasan Anda!");
+            
+            // Di sini Anda bisa menambahkan fungsi POST ke App Script untuk tab 'ulasan'
+            alert("Terima kasih! Ulasan Anda sangat berharga bagi Biip Aquatic.");
+            document.getElementById('rev-name').value = "";
+            document.getElementById('rev-text').value = "";
+        }
+
+        function renderReviews(items) {
+            const container = document.getElementById('ulasan-container');
+            container.innerHTML = items.slice(-3).map(u => `
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex text-yellow-400 text-[10px] mb-3">${'<i class="fas fa-star"></i>'.repeat(u.bintang)}</div>
+                    <p class="text-xs font-bold text-gray-500 italic mb-4 leading-relaxed">"${u.komentar}"</p>
+                    <span class="text-[10px] font-black uppercase text-blue-500">@ ${u.nama}</span>
+                </div>
+            `).join('');
+        }
+
+        // OTHER INTERACTIVES
+        function startSlider() {
+            let i = 0;
+            setInterval(() => {
+                i = i === 0 ? 1 : 0;
+                document.getElementById('slider').style.transform = `translateX(-${i * 100}%)`;
+            }, 6000);
+        }
+
+        function liveSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = masterData.ikan.filter(p => p.nama.toLowerCase().includes(q) || p.jenis.toLowerCase().includes(q));
             renderProducts(filtered);
-            if(query !== "") navTo('products');
+            if(q !== "") navTo('products');
         }
 
         function filterBy(key, val) {
@@ -389,54 +452,6 @@
             renderProducts(filtered);
             navTo('products');
         }
-
-        // REVIEWS
-        function setStar(n) {
-            currentStar = n;
-            const stars = document.querySelectorAll('#star-input i');
-            stars.forEach((s, i) => {
-                s.classList.toggle('text-yellow-400', i < n);
-                s.classList.toggle('text-gray-300', i >= n);
-            });
-        }
-
-        async function submitReview() {
-            const name = document.getElementById('rev-name').value;
-            const comment = document.getElementById('rev-comment').value;
-            if(!name || !comment) return alert("Mohon lengkapi ulasan!");
-            
-            const reviewData = {
-                target: "ulasan",
-                data: [name, currentStar, comment]
-            };
-
-            // Kirim ke Spreadsheet (POST)
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(reviewData)
-            });
-
-            alert("Terima kasih atas ulasan Anda! Ulasan akan muncul setelah sinkronisasi data.");
-            document.getElementById('rev-name').value = "";
-            document.getElementById('rev-comment').value = "";
-        }
-
-        function renderReviews(items) {
-            const div = document.getElementById('ulasan-display');
-            div.innerHTML = items.slice(-3).map(r => `
-                <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-yellow-400">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-black text-xs uppercase">${r.nama}</span>
-                        <div class="text-[10px] text-yellow-500">${'★'.repeat(r.bintang)}</div>
-                    </div>
-                    <p class="text-xs font-medium text-gray-500 italic italic">"${r.komentar}"</p>
-                </div>
-            `).join('');
-        }
-
-        window.onload = init;
     </script>
 </body>
 </html>
-
