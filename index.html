@@ -2966,6 +2966,51 @@ document.getElementById('loginModal').addEventListener('click', function(e) {
         document.getElementById('cartOverlay').classList.toggle('active');
     }
   <script>
+      <script>
+    // 1. DEFINISI URL (Wajib ada di paling atas)
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
+
+    // 2. FUNGSI PEMBUKA LOADING SCREEN (Yang sudah berhasil tadi)
+    function hideLoader() {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // 3. FUNGSI AMBIL DATA (IKAN, ARTIKEL, ULASAN)
+    async function loadAllData() {
+        try {
+            // Ambil Ikan
+            const resIkan = await fetch(`${API_URL}?action=getIkan`);
+            const dataIkan = await resIkan.json();
+            if(dataIkan.success) { /* ... kode render ikan ... */ }
+
+            // Ambil Artikel
+            const resArt = await fetch(`${API_URL}?action=getArtikel`);
+            const dataArt = await resArt.json();
+            if(dataArt.success) { /* ... kode render artikel ... */ }
+
+            // Ambil Ulasan
+            const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
+            const dataUlasan = await resUlasan.json();
+            if(dataUlasan.success) { /* ... kode render ulasan ... */ }
+
+        } catch (error) {
+            console.error("Gagal mengambil data:", error);
+        }
+    }
+
+    // 4. JALANKAN SEMUANYA SAAT HALAMAN SELESAI LOADING
+    window.addEventListener('load', () => {
+        hideLoader();   // Buka layar dulu agar user tidak menunggu lama
+        loadAllData();  // Lalu isi kontennya dengan data dari Spreadsheet
+    });
+
+    // 5. FUNGSI TOMBOL-TOMBOL (Menu, Keranjang, dll tetap di sini)
+    function toggleMenu() { /* ... */ }
+    function showPage(id) { /* ... */ }
+</script>
 </script>
 </body>
 </html>
