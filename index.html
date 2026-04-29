@@ -2062,7 +2062,7 @@
 
 <script>
 // ============================================================
-// CONFIG API & STATE
+// 1. CONFIG & STATE (Hanya satu kali deklarasi)
 // ============================================================
 const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
 
@@ -2070,7 +2070,7 @@ let products = [], articles = [], reviews = [], cart = [];
 let currentUser = null, currentRating = 0, currentPage = 'home';
 
 // ============================================================
-// FUNGSI UTAMA (INIT & LOADING)
+// 2. FUNGSI UTAMA & LOADER
 // ============================================================
 function hideLoader() {
     const loader = document.getElementById('loader');
@@ -2081,53 +2081,50 @@ function hideLoader() {
     }
 }
 
-// Gabungan semua fetch agar lebih efisien
-async function initAppData() {
-    console.log("⏳ Memulai sinkronisasi data...");
+// Menjalankan fungsi saat website dibuka
+window.addEventListener('load', async () => {
+    hideLoader(); 
+    await loadAllData();
+});
+
+// Backup jika loading macet
+setTimeout(hideLoader, 3000);
+
+async function loadAllData() {
+    console.log("⏳ Menghubungkan ke AppScript...");
     try {
         await Promise.all([
             loadProductsFromSheet(),
             loadArticlesFromSheet(),
             loadReviewsFromSheet()
         ]);
-        console.log("✅ Semua data berhasil dimuat");
     } catch (e) {
-        console.error("❌ Error saat init data:", e);
+        console.error("❌ Gagal sinkronisasi:", e);
     }
-    startHeroSlider();
 }
 
-window.addEventListener('load', () => {
-    hideLoader(); // Buka layar segera
-    initAppData(); // Isi data di latar belakang
-});
-
-// Backup jika load macet
-setTimeout(hideLoader, 3000);
-
 // ============================================================
-// FETCH DATA LOGIC
+// 3. FUNGSI FETCH (IKAN, ARTIKEL, ULASAN)
 // ============================================================
 async function loadProductsFromSheet() {
     try {
         const response = await fetch(`${API_URL}?action=getIkan`);
         const result = await response.json();
-        if (result.success && result.data.length > 0) {
+        if (result.success) {
             products = result.data.map((item, index) => ({
                 id: index + 1,
-                name: item.nama || 'Louhan',
-                category: item.kategori || 'Umum',
-                type: item.jenis || 'Kamfa',
+                name: item.nama,
+                category: item.kategori,
                 price: parseInt(item.harga) || 0,
                 stock: parseInt(item.stock) || 0,
-                image: item.link_foto || 'https://placehold.co/400x280?text=Ikan',
-                size: item.jenis && item.jenis.includes('cm') ? item.jenis : '5 cm',
-                origin: item.kategori && item.kategori.includes('Thailand') ? 'Thailand' : 'Lokal'
+                image: item.link_foto,
+                size: "5 cm", // Default
+                origin: "Lokal"
             }));
             renderProducts('all', 'homeProductGrid');
             renderProducts('all', 'productGrid');
-        } else { loadDefaultProducts(); }
-    } catch (e) { loadDefaultProducts(); }
+        }
+    } catch (e) { console.error("Ikan error:", e); }
 }
 
 async function loadArticlesFromSheet() {
@@ -2138,14 +2135,14 @@ async function loadArticlesFromSheet() {
             articles = result.data.map((item, index) => ({
                 id: index + 1,
                 title: item.judul,
-                excerpt: item.isi_artikel.substring(0, 100) + '...',
                 content: item.isi_artikel,
-                date: item.tanggal,
-                image: item.link_foto
+                excerpt: item.isi_artikel.substring(0, 80) + "...",
+                image: item.link_foto,
+                date: item.tanggal
             }));
             renderArticles();
-        } else { loadDefaultArticles(); }
-    } catch (e) { loadDefaultArticles(); }
+        }
+    } catch (e) { console.error("Artikel error:", e); }
 }
 
 async function loadReviewsFromSheet() {
@@ -2160,17 +2157,13 @@ async function loadReviewsFromSheet() {
                 avatar: item.nama.charAt(0).toUpperCase()
             }));
             renderReviews();
-        } else { loadDefaultReviews(); }
-    } catch (e) { loadDefaultReviews(); }
+        }
+    } catch (e) { console.error("Ulasan error:", e); }
 }
 
 // ============================================================
-// RENDER & UI LOGIC
+// 4. NAVIGASI & MODAL (LOGIN/DAFTAR)
 // ============================================================
-function formatRupiah(angka) {
-    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
 function showPage(pageId) {
     document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
@@ -2179,66 +2172,16 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
 }
 
-function renderProducts(filter, gridId) {
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
-    
-    let filtered = products;
-    if (filter !== 'all') {
-        filtered = products.filter(p => p.category.includes(filter) || p.type.includes(filter));
-    }
-
-    grid.innerHTML = filtered.map(p => `
-        <div class="product-card">
-            <div class="product-img-wrap">
-                <img src="${p.image}" class="product-img" onerror="this.src='https://placehold.co/400x280?text=Ikan'">
-            </div>
-            <div class="product-info">
-                <span class="product-category-tag">${p.category}</span>
-                <h3 class="product-name">${p.name}</h3>
-                <div class="product-price">${formatRupiah(p.price)}</div>
-                <button class="add-cart-btn" onclick="addToCart(${p.id})">
-                    <i class="fas fa-cart-plus"></i> Tambah
-                </button>
-            </div>
-        </div>
-    `).join('');
+function openLogin() {
+    const modal = document.getElementById('loginModal');
+    if(modal) modal.classList.add('active');
 }
 
-function renderArticles() {
-    const grid = document.getElementById('articlesGrid');
-    if (!grid) return;
-    grid.innerHTML = articles.map(a => `
-        <div class="article-card" onclick="showArticleDetail(${a.id})">
-            <img src="${a.image}" class="article-img">
-            <div class="article-content">
-                <h3>${a.title}</h3>
-                <p>${a.excerpt}</p>
-            </div>
-        </div>
-    `).join('');
+function closeLogin() {
+    const modal = document.getElementById('loginModal');
+    if(modal) modal.classList.remove('active');
 }
 
-function renderReviews() {
-    const grid = document.getElementById('reviewsGrid');
-    if (!grid) return;
-    grid.innerHTML = reviews.map(r => `
-        <div class="review-card">
-            <div class="review-header">
-                <div class="review-avatar">${r.avatar}</div>
-                <div>
-                    <h4>${r.name}</h4>
-                    <div class="review-stars">${'⭐'.repeat(r.rating)}</div>
-                </div>
-            </div>
-            <p class="review-text">"${r.text}"</p>
-        </div>
-    `).join('');
-}
-
-// ============================================================
-// KERANJANG & NAVIGASI (SIDEBAR)
-// ============================================================
 function toggleMenu() {
     document.getElementById('menuSidebar').classList.toggle('active');
     document.getElementById('menuOverlay').classList.toggle('active');
@@ -2249,27 +2192,53 @@ function toggleCart() {
     document.getElementById('cartOverlay').classList.toggle('active');
 }
 
-function addToCart(id) {
-    const p = products.find(prod => prod.id === id);
-    if (!p) return;
-    cart.push(p);
-    showToast(`${p.name} masuk keranjang`);
-    updateCartUI();
+// ============================================================
+// 5. RENDER UI
+// ============================================================
+function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function updateCartUI() {
-    const badge = document.getElementById('cartBadge');
-    if (badge) badge.textContent = cart.length;
+function renderProducts(filter, gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.innerHTML = products.map(p => `
+        <div class="product-card">
+            <img src="${p.image}" class="product-img">
+            <div class="product-info">
+                <h3>${p.name}</h3>
+                <p>${formatRupiah(p.price)}</p>
+                <button onclick="addToCart(${p.id})">Tambah</button>
+            </div>
+        </div>
+    `).join('');
 }
 
-function showToast(msg, success = true) {
-    const toast = document.getElementById('toast');
-    const msgEl = document.getElementById('toastMessage');
-    if(!toast || !msgEl) return;
-    msgEl.textContent = msg;
-    toast.className = `toast show ${success ? 'success' : 'error'}`;
-    setTimeout(() => toast.classList.remove('show'), 3000);
+function renderArticles() {
+    const grid = document.getElementById('articlesGrid');
+    if (!grid) return;
+    grid.innerHTML = articles.map(a => `
+        <div class="article-card" onclick="showArticleDetail(${a.id})">
+            <img src="${a.image}">
+            <h3>${a.title}</h3>
+        </div>
+    `).join('');
 }
 
-// Sisipkan fungsi default (loadDefaultProducts, dll) dan Hero Slider di bawah sini jika diperlukan.
+function renderReviews() {
+    const grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    grid.innerHTML = reviews.map(r => `
+        <div class="review-card">
+            <strong>${r.name}</strong>
+            <p>${r.text}</p>
+        </div>
+    `).join('');
+}
+
+function showToast(msg) {
+    alert(msg); // Gunakan alert dulu untuk tes jika toast Anda error
+}
 </script>
+</body>
+</html>
