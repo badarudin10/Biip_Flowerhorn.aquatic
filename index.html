@@ -1668,27 +1668,28 @@
             </div>
         </div>
         <div class="cart-footer" id="cartFooter" style="display:none;">
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Subtotal</span>
-                    <span id="cartSubtotal">Rp 0</span>
-                </div>
-                <div class="summary-row">
-                    <span>Ongkir</span>
-                    <span>Rp 25.000</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total</span>
-                    <span id="cartTotal">Rp 0</span>
-                </div>
-            </div>
-            <button class="checkout-btn" onclick="checkoutCart()">
-                <i class="fas fa-credit-card"></i> Checkout
-            </button>
-            <button class="wa-checkout-btn" onclick="sendWAOrder()">
-                <i class="fab fa-whatsapp"></i> Pesan via WhatsApp
-            </button>
+    <div class="cart-summary">
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="cartSubtotal">Rp 0</span>
         </div>
+        <div class="summary-row">
+            <span>Ongkir</span>
+            <span>Rp 25.000</span>
+        </div>
+        <div class="summary-row total">
+            <span>Total</span>
+            <span id="cartTotal">Rp 0</span>
+        </div>
+    </div>
+    <!-- Tombol baru: Simpan & Pesan WA -->
+    <button class="checkout-btn" onclick="checkoutAndSave()" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+        <i class="fas fa-save"></i> Simpan & Pesan via WA
+    </button>
+    <button class="wa-checkout-btn" onclick="sendWAOrder()">
+        <i class="fab fa-whatsapp"></i> Pesan WhatsApp Langsung
+    </button>
+</div>
     </div>
 
     <!-- Login Modal -->
@@ -2060,31 +2061,172 @@
     </div>
 
     <script>
-        // Data Produk
-        const products = [
-            { id: 1, name: "Louhan Kamfa F1 Thailand", category: "Kamfa F1 Thailand", type: "Kamfa", origin: "Thailand", size: "4 cm", price: 2000000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Premium" },
-            { id: 2, name: "Louhan Kamfa F2 Thailand", category: "Kamfa F2 Thailand", type: "Kamfa", origin: "Thailand", size: "5 cm", price: 1500000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Best Seller" },
-            { id: 3, name: "Louhan Kamfa F3 Thailand", category: "Kamfa F3 Thailand", type: "Kamfa", origin: "Thailand", size: "6 cm", price: 1000000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: null },
-            { id: 4, name: "Louhan Kamfa F2 Lokal", category: "Kamfa F2 Lokal", type: "Kamfa", origin: "Lokal", size: "7 cm", price: 800000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Diskon" },
-            { id: 5, name: "Louhan Kamfa F2 Line GB", category: "Kamfa F2 Line GB", type: "Kamfa", origin: "Lokal", size: "8 cm", price: 600000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: null },
-            { id: 6, name: "Louhan Kamfa F2 Lokal Pride", category: "Kamfa F2 Lokal Pride", type: "Kamfa", origin: "Lokal", size: "10 cm", price: 500000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: "New" },
-            { id: 7, name: "Louhan Cencu Lokal", category: "Cencu Lokal", type: "Cencu", origin: "Lokal", size: "11 cm", price: 400000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: null },
-            { id: 8, name: "Louhan Cencu Lokal GB", category: "Cencu Lokal GB", type: "Cencu", origin: "Lokal", size: "12 cm", price: 300000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Terlaris" }
-        ];
+        // // ============================================================
+// CONFIG API - GANTI DENGAN URL WEB APP ANDA
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
+
+// Data Produk (akan diisi dari spreadsheet)
+let products = [];
+
+// ============================================================
+// FUNGSI FETCH DATA DARI SPREADSHEET
+// ============================================================
+
+/**
+ * Ambil data ikan dari spreadsheet
+ */
+async function loadProductsFromSheet() {
+    try {
+        showToast('Memuat data produk...', true);
+        const response = await fetch(`${API_URL}?action=getIkan`);
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            // Mapping data dari spreadsheet ke format website
+            products = result.data.map((item, index) => ({
+                id: index + 1,
+                name: item.nama,
+                category: item.kategori,
+                type: item.jenis,
+                origin: item.kategori.includes('Thailand') ? 'Thailand' : 'Lokal',
+                size: item.jenis.match(/\d+\s*cm/) ? item.jenis.match(/\d+\s*cm/)[0] : '5 cm',
+                price: parseInt(item.harga) || 0,
+                stock: parseInt(item.stock) || 1,
+                image: item.link_foto || 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400',
+                badge: item.stock < 3 ? 'Stok Terbatas' : (index < 2 ? 'Premium' : null)
+            }));
+            
+            // Render ulang produk
+            renderProducts('all', 'homeProductGrid');
+            renderProducts('all', 'productGrid');
+            
+            showToast(`${result.count} produk dimuat dari database!`);
+        } else {
+            // Fallback ke data default jika spreadsheet kosong
+            loadDefaultProducts();
+            showToast('Menggunakan data default');
+        }
+    } catch (error) {
+        console.error('Gagal memuat data:', error);
+        loadDefaultProducts();
+        showToast('Koneksi gagal, menggunakan data lokal', false);
+    }
+}
+
+/**
+ * Data default jika spreadsheet tidak tersedia
+ */
+function loadDefaultProducts() {
+    products = [
+        { id: 1, name: "Louhan Kamfa F1 Thailand", category: "Kamfa F1 Thailand", type: "Kamfa", origin: "Thailand", size: "4 cm", price: 2000000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Premium" },
+        { id: 2, name: "Louhan Kamfa F2 Thailand", category: "Kamfa F2 Thailand", type: "Kamfa", origin: "Thailand", size: "5 cm", price: 1500000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Best Seller" },
+        { id: 3, name: "Louhan Kamfa F3 Thailand", category: "Kamfa F3 Thailand", type: "Kamfa", origin: "Thailand", size: "6 cm", price: 1000000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: null },
+        { id: 4, name: "Louhan Kamfa F2 Lokal", category: "Kamfa F2 Lokal", type: "Kamfa", origin: "Lokal", size: "7 cm", price: 800000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Diskon" },
+        { id: 5, name: "Louhan Kamfa F2 Line GB", category: "Kamfa F2 Line GB", type: "Kamfa", origin: "Lokal", size: "8 cm", price: 600000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: null },
+        { id: 6, name: "Louhan Kamfa F2 Lokal Pride", category: "Kamfa F2 Lokal Pride", type: "Kamfa", origin: "Lokal", size: "10 cm", price: 500000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: "New" },
+        { id: 7, name: "Louhan Cencu Lokal", category: "Cencu Lokal", type: "Cencu", origin: "Lokal", size: "11 cm", price: 400000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: null },
+        { id: 8, name: "Louhan Cencu Lokal GB", category: "Cencu Lokal GB", type: "Cencu", origin: "Lokal", size: "12 cm", price: 300000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Terlaris" }
+    ];
+    
+    renderProducts('all', 'homeProductGrid');
+    renderProducts('all', 'productGrid');
+}
+
 
         // Data Artikel
         const articles = [
-            { id: 1, title: "Cara Merawat Ikan Louhan Agar Berkualitas Kontes", excerpt: "Panduan lengkap perawatan ikan louhan dari pemilihan pakan hingga pengaturan air...", date: "15 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Ikan louhan merupakan salah satu ikan hias yang sangat populer di Indonesia. Untuk mendapatkan kualitas kontes, perawatan harus dilakukan dengan teliti. Pertama, pastikan kualitas air selalu terjaga dengan pH 6.5-7.5. Kedua, berikan pakan berkualitas seperti pelet khusus louhan, cacing beku, dan udang. Ketiga, perhatikan suhu air yang ideal antara 26-30°C. Keempat, lakukan perawatan ketok kepala secara rutin untuk membentuk jenong. Kelima, berikan pencahayaan yang cukup 8-12 jam per hari." },
-            { id: 2, title: "Membedakan Jenis Kamfa dan Cencu", excerpt: "Kenali perbedaan karakteristik antara louhan jenis Kamfa dan Cencu...", date: "12 Apr 2026", image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", content: "Kamfa dan Cencu adalah dua jenis louhan yang paling diminati. Kamfa memiliki ciri khas mutiara (pearls) yang merata di seluruh tubuh, warna dasar gelap, dan ekor melebar. Cencu memiliki corak warna yang lebih cerah dengan pola khas di kepalanya. Kamfa cenderung lebih agresif dan aktif dibandingkan Cencu. Dalam kontes, Kamfa dinilai dari mutiaranya, jenong, dan warna. Cencu dinilai dari corak, warna, dan proporsi tubuh." },
-            { id: 3, title: "Tips Memilih Louhan Berkualitas", excerpt: "Panduan memilih ikan louhan yang berpotensi menjadi juara kontes...", date: "10 Apr 2026", image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", content: "Memilih louhan berkualitas memerlukan kejelian. Perhatikan simetri tubuh, mutiara yang merata, dan aktifitas ikan. Pilih ikan dengan mata cerah dan sirip utuh. Jenong yang bagus terlihat dari bentuk kepala yang proporsional. Warna yang cerah dan kontras menandakan ikan sehat. Jangan lupa perhatikan garis keturunan (line) ikan tersebut." },
-            { id: 4, title: "Setting Aquarium Ideal untuk Louhan", excerpt: "Ukuran dan perlengkapan aquarium yang tepat untuk ikan louhan...", date: "8 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Aquarium untuk louhan minimal berukuran 60x40x40 cm untuk ikan ukuran 10-15 cm. Gunakan filter yang kuat karena louhan menghasilkan banyak limbah. Pasir dasar opsional, namun disarankan menggunakan batu karang atau tanaman plastik. Suhu air dijaga 26-30°C dengan heater. Lampu LED dengan warna putih atau biru membantu menonjolkan warna ikan." }
+            // Data Artikel (akan diisi dari spreadsheet)
+let articles = [];
+
+/**
+ * Ambil artikel dari spreadsheet
+ */
+async function loadArticlesFromSheet() {
+    try {
+        const response = await fetch(`${API_URL}?action=getArtikel`);
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            articles = result.data.map((item, index) => ({
+                id: index + 1,
+                title: item.judul,
+                excerpt: item.isi_artikel.substring(0, 100) + '...',
+                content: item.isi_artikel,
+                date: item.tanggal || '20 Apr 2026',
+                image: item.link_foto || 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400'
+            }));
+            
+            renderArticles();
+        } else {
+            loadDefaultArticles();
+        }
+    } catch (error) {
+        console.error('Gagal memuat artikel:', error);
+        loadDefaultArticles();
+    }
+}
+
+/**
+ * Data artikel default
+ */
+function loadDefaultArticles() {
+    articles = [
+        { id: 1, title: "Cara Merawat Ikan Louhan Agar Berkualitas Kontes", excerpt: "Panduan lengkap perawatan ikan louhan dari pemilihan pakan hingga pengaturan air...", date: "15 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Ikan louhan merupakan salah satu ikan hias yang sangat populer di Indonesia..." },
+        { id: 2, title: "Membedakan Jenis Kamfa dan Cencu", excerpt: "Kenali perbedaan karakteristik antara louhan jenis Kamfa dan Cencu...", date: "12 Apr 2026", image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", content: "Kamfa dan Cencu adalah dua jenis louhan yang paling diminati..." },
+        { id: 3, title: "Tips Memilih Louhan Berkualitas", excerpt: "Panduan memilih ikan louhan yang berpotensi menjadi juara kontes...", date: "10 Apr 2026", image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", content: "Memilih louhan berkualitas memerlukan kejelian..." },
+        { id: 4, title: "Setting Aquarium Ideal untuk Louhan", excerpt: "Ukuran dan perlengkapan aquarium yang tepat untuk ikan louhan...", date: "8 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Aquarium untuk louhan minimal berukuran 60x40x40 cm..." }
+    ];
+    
+    renderArticles();
+}
+
         ];
 
         // Data Ulasan
         let reviews = [
-            { name: "Ahmad Rizky", rating: 5, text: "Ikan yang dikirim sangat berkualitas, packing aman sampai rumah. Recommended seller!", avatar: "A" },
-            { name: "Budi Santoso", rating: 5, text: "Sudah 3x belanja di sini, selalu puas dengan kualitas louhannya. Owner ramah dan informatif.", avatar: "B" },
-            { name: "Citra Dewi", rating: 4, text: "Pengiriman cepat, ikan sehat dan aktif. Harga sesuai kualitas. Terima kasih Biip Flowerhorn!", avatar: "C" }
+           // Data Ulasan (akan diisi dari spreadsheet)
+let reviews = [];
+
+/**
+ * Ambil ulasan dari spreadsheet
+ */
+async function loadReviewsFromSheet() {
+    try {
+        const response = await fetch(`${API_URL}?action=getUlasan`);
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            reviews = result.data.map(item => ({
+                name: item.nama,
+                rating: parseInt(item.bintang) || 5,
+                text: item.komentar,
+                avatar: item.nama.charAt(0).toUpperCase()
+            }));
+            
+            renderReviews();
+        } else {
+            loadDefaultReviews();
+        }
+    } catch (error) {
+        console.error('Gagal memuat ulasan:', error);
+        loadDefaultReviews();
+    }
+}
+
+/**
+ * Data ulasan default
+ */
+function loadDefaultReviews() {
+    reviews = [
+        { name: "Ahmad Rizky", rating: 5, text: "Ikan yang dikirim sangat berkualitas, packing aman sampai rumah. Recommended seller!", avatar: "A" },
+        { name: "Budi Santoso", rating: 5, text: "Sudah 3x belanja di sini, selalu puas dengan kualitas louhannya. Owner ramah dan informatif.", avatar: "B" },
+        { name: "Citra Dewi", rating: 4, text: "Pengiriman cepat, ikan sehat dan aktif. Harga sesuai kualitas. Terima kasih Biip Flowerhorn!", avatar: "C" }
+    ];
+    
+    renderReviews();
+}
+
         ];
 
         // State
@@ -2099,16 +2241,18 @@
         }
 
         // Initialize
-        window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 2000);
-            
-            renderProducts('all');
-            renderArticles();
-            renderReviews();
-            startHeroSlider();
-        };
+       window.onload = async function() {
+    setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+    }, 2000);
+    
+    // Load data dari spreadsheet (urutan penting!)
+    await loadProductsFromSheet();
+    await loadArticlesFromSheet();
+    await loadReviewsFromSheet();
+    
+    startHeroSlider();
+};
 
         // Hero Slider
         let currentSlide = 0;
@@ -2372,6 +2516,66 @@
                 showToast('Keranjang masih kosong!', false);
                 return;
             }
+            /**
+ * Kirim pesanan ke spreadsheet
+ */
+async function sendOrderToSheet(orderData) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'tambahOrder',
+                nama: orderData.nama,
+                email: orderData.email || '',
+                telepon: orderData.telepon || '',
+                pesanan: orderData.pesanan,
+                total: orderData.total
+            })
+        });
+        
+        const result = await response.json();
+        return result.success;
+    } catch (error) {
+        console.error('Error kirim order:', error);
+        return false;
+    }
+}
+
+/**
+ * Checkout dan simpan ke spreadsheet + WhatsApp
+ */
+async function checkoutAndSave() {
+    if (cart.length === 0) {
+        showToast('Keranjang masih kosong!', false);
+        return;
+    }
+    
+    // Ambil data pelanggan
+    const nama = prompt('Masukkan nama lengkap Anda:');
+    if (!nama) return;
+    
+    const email = prompt('Masukkan email (opsional):') || '';
+    const telepon = prompt('Masukkan nomor telepon:') || '';
+    
+    // Format pesanan
+    const pesanan = cart.map(item => `${item.name} (${item.quantity}x)`).join(', ');
+    const total = document.getElementById('cartTotal').textContent;
+    
+    showToast('Menyimpan pesanan...', true);
+    
+    // Simpan ke spreadsheet
+    await sendOrderToSheet({
+        nama: nama,
+        email: email,
+        telepon: telepon,
+        pesanan: pesanan,
+        total: total
+    });
+    
+    // Lanjutkan ke WhatsApp
+    sendWAOrder();
+}
 
             let message = "Halo Biip Flowerhorn Aquatic,\n\nSaya ingin memesan:\n";
             let total = 0;
@@ -2476,12 +2680,85 @@
         }
 
         function submitReview() {
-            const name = document.getElementById('reviewName').value;
-            const text = document.getElementById('reviewText').value;
-            
-            if (!name || !text || currentRating === 0) {
-                showToast('Mohon lengkapi nama, rating, dan ulasan!', false);
-                return;
+            /**
+ * Kirim ulasan ke spreadsheet
+ */
+async function sendReviewToSheet(reviewData) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'tambahUlasan',
+                nama: reviewData.nama,
+                bintang: reviewData.bintang,
+                komentar: reviewData.komentar,
+                produk: reviewData.produk || ''
+            })
+        });
+        
+        const result = await response.json();
+        return result.success;
+    } catch (error) {
+        console.error('Error kirim ulasan:', error);
+        return false;
+    }
+}
+
+/**
+ * Submit ulasan - versi terintegrasi spreadsheet
+ */
+async function submitReview() {
+    const name = document.getElementById('reviewName').value;
+    const text = document.getElementById('reviewText').value;
+    
+    if (!name || !text || currentRating === 0) {
+        showToast('Mohon lengkapi nama, rating, dan ulasan!', false);
+        return;
+    }
+    
+    showToast('Mengirim ulasan...', true);
+    
+    // Kirim ke spreadsheet
+    const success = await sendReviewToSheet({
+        nama: name,
+        bintang: currentRating,
+        komentar: text,
+        produk: 'Umum'
+    });
+    
+    if (success) {
+        // Tambahkan ke tampilan lokal
+        reviews.unshift({
+            name: name,
+            rating: currentRating,
+            text: text,
+            avatar: name.charAt(0).toUpperCase()
+        });
+        
+        renderReviews();
+        
+        // Reset form
+        document.getElementById('reviewName').value = '';
+        document.getElementById('reviewText').value = '';
+        currentRating = 0;
+        document.querySelectorAll('#starInput i').forEach(s => s.classList.remove('active'));
+        
+        showToast('Terima kasih! Ulasan Anda telah tersimpan.', true);
+    } else {
+        // Tetap tampilkan di lokal meski gagal ke spreadsheet
+        reviews.unshift({
+            name: name,
+            rating: currentRating,
+            text: text,
+            avatar: name.charAt(0).toUpperCase()
+        });
+        
+        renderReviews();
+        showToast('Ulasan ditampilkan (mode offline)', true);
+    }
+}
+
             }
             
             reviews.unshift({
@@ -2526,18 +2803,59 @@
             document.getElementById('forgotForm').style.display = 'block';
         }
 
-        function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                showToast('Mohon isi email dan password!', false);
-                return;
-            }
-            
-            currentUser = { email: email, name: email.split('@')[0] };
+       async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        showToast('Mohon isi email dan password!', false);
+        return;
+    }
+    
+    showToast('Memproses login...', true);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'loginUser',
+                email: email,
+                password: password
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            currentUser = result.user;
             closeLogin();
-            showToast(`Selamat datang, ${currentUser.name}!`);
+            showToast(`Selamat datang, ${result.user.nama}!`);
+            
+            // Update menu user
+            document.getElementById('menuUser').innerHTML = `
+                <div class="menu-user-avatar" style="background:linear-gradient(135deg,var(--primary),var(--secondary));">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600;">${result.user.nama}</div>
+                    <div style="font-size:0.8rem;opacity:0.8;">${result.user.email}</div>
+                </div>
+            `;
+            
+            // Update tombol login di menu
+            document.querySelector('.menu-footer').innerHTML = `
+                <button class="menu-login-btn" onclick="handleLogout()" style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            `;
+        } else {
+            showToast(result.message || 'Login gagal!', false);
+        }
+    } catch (error) {
+        showToast('Koneksi gagal, coba lagi', false);
+    }
+}
             
             // Update menu user
             document.getElementById('menuUser').innerHTML = `
@@ -2549,34 +2867,99 @@
             `;
         }
 
-        function handleRegister() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            
-            if (!name || !email || !password) {
-                showToast('Mohon lengkapi semua data!', false);
-                return;
-            }
-            
-            if (password.length < 6) {
-                showToast('Password minimal 6 karakter!', false);
-                return;
-            }
-            
+        async function handleRegister() {
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    
+    if (!name || !email || !password) {
+        showToast('Mohon lengkapi semua data!', false);
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Password minimal 6 karakter!', false);
+        return;
+    }
+    
+    showToast('Mendaftarkan akun...', true);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'registerUser',
+                email: email,
+                password: password,
+                nama: name,
+                telepon: ''
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
             showToast('Pendaftaran berhasil! Silakan login.', true);
             switchAuthTab('login');
+        } else {
+            showToast(result.message || 'Pendaftaran gagal!', false);
         }
+    } catch (error) {
+        showToast('Koneksi gagal, coba lagi', false);
+    }
+}
 
-        function handleForgot() {
-            const email = document.getElementById('forgotEmail').value;
-            if (!email) {
-                showToast('Mohon masukkan email!', false);
-                return;
-            }
-            showToast('Link reset password telah dikirim ke email Anda.', true);
+        function handleLogout() {
+    currentUser = null;
+    showToast('Anda telah logout');
+    
+    // Reset menu user
+    document.getElementById('menuUser').innerHTML = `
+        <div class="menu-user-avatar"><i class="fas fa-user"></i></div>
+        <div>
+            <div style="font-weight:600;">Pengunjung</div>
+            <div style="font-size:0.8rem;opacity:0.8;">Silakan login</div>
+        </div>
+    `;
+    
+    // Reset tombol login
+    document.querySelector('.menu-footer').innerHTML = `
+        <button class="menu-login-btn" onclick="toggleMenu(); openLogin()">
+            <i class="fas fa-sign-in-alt"></i> Login / Daftar
+        </button>
+    `;
+}
+
+        async function handleForgot() {
+    const email = document.getElementById('forgotEmail').value;
+    if (!email) {
+        showToast('Mohon masukkan email!', false);
+        return;
+    }
+    
+    showToast('Mengirim link reset...', true);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'resetPassword',
+                email: email
+            })
+        });
+        
+        const result = await response.json();
+        showToast(result.message, result.success);
+        
+        if (result.success) {
             switchAuthTab('login');
         }
+    } catch (error) {
+        showToast('Koneksi gagal', false);
+    }
+}
 
         // Wishlist
         function toggleWishlist(btn) {
