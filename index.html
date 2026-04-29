@@ -3,392 +3,696 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TokoKu - E-Commerce Modern</title>
+    <title>Biip Flowerhorn Aquatic - Premium Louhan Indonesia</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #f59e0b;
+            --accent: #ef4444;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #22c55e;
+            --glass: rgba(255, 255, 255, 0.1);
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #ec4899;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: var(--light);
             color: var(--dark);
-            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        /* Header */
-        header {
-            background: white;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
-            position: sticky;
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Loading Screen */
+        .loader {
+            position: fixed;
             top: 0;
-            z-index: 1000;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--darker);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loader-fish {
+            font-size: 4rem;
+            color: var(--primary);
+            animation: swim 2s ease-in-out infinite;
+        }
+        .loader-text {
+            color: white;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+        }
+        @keyframes swim {
+            0%, 100% { transform: translateX(-20px) rotate(-5deg); }
+            50% { transform: translateX(20px) rotate(5deg); }
         }
 
-        nav {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(90deg, var(--darker), var(--dark));
+            color: white;
+            padding: 0.5rem 2rem;
+            font-size: 0.85rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            cursor: pointer;
-        }
-
-        .nav-links {
+        .top-bar-info {
             display: flex;
             gap: 2rem;
-            list-style: none;
         }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            transition: color 0.3s;
-            position: relative;
+        .top-bar-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
         }
-
-        .nav-links a:hover {
+        .top-bar-info i {
             color: var(--primary);
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: width 0.3s;
+        /* Header */
+        .main-header {
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
         }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .nav-actions {
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0.8rem 2rem;
             display: flex;
-            gap: 1.5rem;
             align-items: center;
+            justify-content: space-between;
         }
 
-        .search-box {
+        /* Logo Section */
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+        .brand-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+            transition: transform 0.3s;
+        }
+        .brand-logo:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        .brand-tagline {
+            font-size: 0.75rem;
+            color: var(--gray);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .menu-toggle, .cart-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 0.5rem;
+            position: relative;
+            transition: all 0.3s;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-toggle:hover, .cart-toggle:hover {
+            background: var(--light);
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s;
+        }
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .menu-sidebar {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 380px;
+            max-width: 90%;
+            height: 100%;
+            background: white;
+            z-index: 2001;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+        }
+        .menu-sidebar.active {
+            left: 0;
+        }
+        .menu-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 2rem;
+            color: white;
             position: relative;
         }
-
-        .search-box input {
-            padding: 0.6rem 1rem 0.6rem 2.5rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 50px;
-            width: 250px;
+        .menu-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
             transition: all 0.3s;
+        }
+        .menu-close:hover {
+            background: rgba(255,255,255,0.4);
+            transform: rotate(90deg);
+        }
+        .menu-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .menu-user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        .menu-search {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .menu-search-box {
+            position: relative;
+        }
+        .menu-search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
             outline: none;
+            transition: all 0.3s;
         }
-
-        .search-box input:focus {
+        .menu-search-box input:focus {
             border-color: var(--primary);
-            width: 300px;
         }
-
-        .search-box i {
+        .menu-search-box i {
             position: absolute;
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--gray);
         }
-
-        .cart-btn {
-            position: relative;
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            color: var(--dark);
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: color 0.3s;
+        .menu-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
         }
-
-        .cart-btn:hover {
-            color: var(--primary);
+        .menu-section {
+            margin-bottom: 1.5rem;
         }
-
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--secondary);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-        }
-
-        .mobile-menu {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            padding: 4rem 2rem;
-            color: white;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
-
-        .hero-btns {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            animation: fadeInUp 0.8s ease 0.4s both;
-        }
-
-        .btn {
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
+        .menu-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray);
             font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-            font-size: 1rem;
         }
-
-        .btn-primary {
-            background: white;
-            color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-outline:hover {
-            background: white;
-            color: var(--primary);
-        }
-
-        /* Categories */
-        .categories {
-            padding: 3rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .category-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .category-card i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Products */
-        .products {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .products-header {
+        .menu-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
             gap: 1rem;
+            padding: 0.9rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--dark);
+            border-left: 3px solid transparent;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: #f1f5f9;
+            border-left-color: var(--primary);
+            color: var(--primary);
+        }
+        .menu-item i {
+            width: 30px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        .menu-item span {
+            font-weight: 500;
+        }
+        .menu-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .menu-login-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .menu-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
         }
 
-        .filter-tabs {
+        /* Hero Slider */
+        .hero-section {
+            position: relative;
+            height: 600px;
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
             display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-slide.active {
+            opacity: 1;
+        }
+        .hero-slide-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.4);
+        }
+        .hero-slide-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+        }
+        .hero-slide-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease;
+        }
+        .hero-slide-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
             gap: 0.5rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            animation: fadeInUp 1s ease 0.4s both;
+            border: none;
+            cursor: pointer;
+        }
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.4);
+        }
+        .hero-dots {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.8rem;
+            z-index: 10;
+        }
+        .hero-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .hero-dot.active {
+            background: white;
+            transform: scale(1.3);
+            border-color: var(--primary);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        .section-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        .section-line {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* Filter Tabs */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
         }
-
-        .filter-tab {
-            padding: 0.5rem 1.2rem;
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
             border: 2px solid #e2e8f0;
             background: white;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
             font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .filter-tab.active, .filter-tab:hover {
-            background: var(--primary);
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            border-color: var(--primary);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
         }
 
+        /* Product Grid */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
         }
-
         .product-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            border: 1px solid #f1f5f9;
         }
-
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.12);
         }
-
         .product-badge {
             position: absolute;
             top: 1rem;
             left: 1rem;
-            background: var(--danger);
+            background: linear-gradient(135deg, var(--accent), #dc2626);
             color: white;
-            padding: 0.3rem 0.8rem;
+            padding: 0.4rem 1rem;
             border-radius: 50px;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             z-index: 10;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
-
+        .product-wishlist {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--gray);
+            transition: all 0.3s;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .product-wishlist:hover, .product-wishlist.active {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+        .product-img-wrap {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+        }
         .product-img {
             width: 100%;
-            height: 250px;
+            height: 100%;
             object-fit: cover;
+            transition: transform 0.6s;
+        }
+        .product-card:hover .product-img {
+            transform: scale(1.1);
+        }
+        .product-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            transform: translateY(100%);
             transition: transform 0.3s;
         }
-
-        .product-card:hover .product-img {
-            transform: scale(1.05);
+        .product-card:hover .product-overlay {
+            transform: translateY(0);
         }
-
+        .product-quick-view {
+            width: 100%;
+            padding: 0.8rem;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .product-quick-view:hover {
+            background: var(--primary);
+            color: white;
+        }
         .product-info {
             padding: 1.5rem;
         }
-
-        .product-category {
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .product-name {
-            font-size: 1.1rem;
-            margin: 0.5rem 0;
-            font-weight: 600;
-        }
-
-        .product-rating {
-            color: var(--warning);
-            font-size: 0.9rem;
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 0.5rem;
         }
-
-        .product-price {
+        .product-category-tag {
+            background: #e0f2fe;
+            color: var(--primary-dark);
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .product-stock {
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.3rem;
+        }
+        .product-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: var(--dark);
+        }
+        .product-variant {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 1rem;
         }
-
-        .price-current {
+        .product-price {
             font-size: 1.4rem;
             font-weight: 800;
             color: var(--primary);
         }
-
-        .price-old {
-            font-size: 1rem;
+        .product-price-old {
+            font-size: 0.95rem;
             color: var(--gray);
             text-decoration: line-through;
+            margin-left: 0.5rem;
         }
-
-        .add-to-cart {
+        .product-rating {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        .add-cart-btn {
             width: 100%;
-            padding: 0.8rem;
-            background: var(--primary);
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -396,11 +700,260 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            font-size: 1rem;
+        }
+        .add-cart-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
         }
 
-        .add-to-cart:hover {
-            background: var(--primary-dark);
-            transform: scale(1.02);
+        /* About Section */
+        .about-section {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: white;
+            padding: 5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .about-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1), transparent);
+            border-radius: 50%;
+        }
+        .about-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .about-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .about-content p {
+            font-size: 1.1rem;
+            line-height: 2;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--glass);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* Articles Section */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        .article-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+        .article-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .article-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        .article-content {
+            padding: 1.5rem;
+        }
+        .article-date {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .article-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+        .article-excerpt {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .read-more {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.3s;
+        }
+        .read-more:hover {
+            gap: 1rem;
+        }
+
+        /* Reviews Section */
+        .reviews-section {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 4rem 2rem;
+        }
+        .reviews-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .review-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .review-meta h4 {
+            font-weight: 600;
+        }
+        .review-stars {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        .review-text {
+            color: var(--gray);
+            line-height: 1.7;
+            font-style: italic;
+        }
+        .review-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .review-form h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        .star-rating-input {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .star-rating-input i {
+            font-size: 2rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .star-rating-input i:hover, .star-rating-input i.active {
+            color: var(--secondary);
+            transform: scale(1.2);
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
         }
 
         /* Cart Sidebar */
@@ -410,107 +963,109 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
             z-index: 2000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: all 0.4s;
         }
-
         .cart-overlay.active {
             opacity: 1;
             visibility: visible;
         }
-
         .cart-sidebar {
             position: fixed;
             top: 0;
             right: -450px;
-            width: 450px;
+            width: 420px;
             max-width: 100%;
             height: 100%;
             background: white;
             z-index: 2001;
-            transition: right 0.4s ease;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
+            box-shadow: var(--shadow);
         }
-
         .cart-sidebar.active {
             right: 0;
         }
-
         .cart-header {
             padding: 1.5rem;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
         }
-
         .cart-header h2 {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 1.3rem;
         }
-
         .close-cart {
-            background: none;
+            background: rgba(255,255,255,0.2);
             border: none;
-            font-size: 1.5rem;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
             cursor: pointer;
-            color: var(--gray);
-            transition: color 0.3s;
+            font-size: 1.2rem;
+            transition: all 0.3s;
         }
-
         .close-cart:hover {
-            color: var(--danger);
+            background: rgba(255,255,255,0.4);
+            transform: rotate(90deg);
         }
-
         .cart-items {
             flex: 1;
             overflow-y: auto;
             padding: 1rem;
         }
-
         .cart-item {
             display: flex;
             gap: 1rem;
             padding: 1rem;
             background: #f8fafc;
-            border-radius: 15px;
+            border-radius: 16px;
             margin-bottom: 1rem;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.4s ease;
+            border: 1px solid #f1f5f9;
         }
-
         .cart-item img {
             width: 80px;
             height: 80px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 12px;
         }
-
         .cart-item-info {
             flex: 1;
         }
-
         .cart-item-name {
             font-weight: 600;
             margin-bottom: 0.3rem;
+            font-size: 0.95rem;
         }
-
+        .cart-item-variant {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 0.3rem;
+        }
         .cart-item-price {
             color: var(--primary);
             font-weight: 700;
+            font-size: 1rem;
         }
-
         .cart-item-qty {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
-
         .qty-btn {
             width: 28px;
             height: 28px;
@@ -522,418 +1077,581 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-weight: 700;
         }
-
         .qty-btn:hover {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-
         .remove-item {
-            color: var(--danger);
+            color: var(--accent);
             cursor: pointer;
             font-size: 1.1rem;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            margin-left: auto;
         }
-
         .remove-item:hover {
             transform: scale(1.2);
         }
-
         .cart-empty {
             text-align: center;
             padding: 3rem;
             color: var(--gray);
         }
-
         .cart-empty i {
             font-size: 4rem;
             margin-bottom: 1rem;
-            opacity: 0.3;
+            opacity: 0.2;
+            color: var(--primary);
         }
-
         .cart-footer {
             padding: 1.5rem;
             border-top: 1px solid #e2e8f0;
             background: #f8fafc;
         }
-
-        .cart-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2rem;
-            font-weight: 700;
+        .cart-summary {
             margin-bottom: 1rem;
         }
-
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+        .summary-row.total {
+            border-top: 2px solid #e2e8f0;
+            margin-top: 0.5rem;
+            padding-top: 0.8rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
         .checkout-btn {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--success), #16a34a);
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 1.1rem;
+            border-radius: 14px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-
         .checkout-btn:hover {
             transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+        .wa-checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .wa-checkout-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
         }
 
-        /* Checkout Modal */
-        .checkout-modal {
+        /* Contact Section */
+        .contact-section {
+            background: white;
+            padding: 4rem 2rem;
+        }
+        .contact-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .contact-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+        .contact-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: white;
+        }
+        .contact-card h3 {
+            margin-bottom: 0.5rem;
+        }
+        .contact-card p {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Login Modal */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
             z-index: 3000;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: all 0.4s;
         }
-
-        .checkout-modal.active {
+        .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
-
-        .checkout-content {
+        .modal-content {
             background: white;
-            border-radius: 25px;
-            padding: 2rem;
-            max-width: 500px;
+            border-radius: 30px;
+            padding: 2.5rem;
+            max-width: 450px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-
-        .checkout-modal.active .checkout-content {
-            transform: scale(1);
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
         }
-
-        .checkout-content h2 {
-            margin-bottom: 1.5rem;
-            text-align: center;
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: var(--primary);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .payment-methods {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .payment-method {
-            flex: 1;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .payment-method.active {
-            border-color: var(--primary);
-            background: #eef2ff;
-        }
-
-        .payment-method i {
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
             font-size: 1.5rem;
-            margin-bottom: 0.3rem;
-            color: var(--primary);
-        }
-
-        .order-summary {
-            background: #f8fafc;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-        }
-
-        .summary-row.total {
-            border-top: 2px solid #e2e8f0;
-            margin-top: 0.5rem;
-            padding-top: 0.8rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--dark);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            z-index: 4000;
-            opacity: 0;
-            transition: all 0.4s ease;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .modal-header .brand-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+        }
+        .modal-header p {
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+        .form-tabs {
+            display: flex;
             gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: #f1f5f9;
+            padding: 0.3rem;
+            border-radius: 12px;
         }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
+        .form-tab {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--gray);
         }
-
-        .toast.success {
-            background: var(--success);
+        .form-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .forgot-link {
+            text-align: right;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        .forgot-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .forgot-link a:hover {
+            text-decoration: underline;
         }
 
         /* Footer */
-        footer {
-            background: var(--dark);
+        .main-footer {
+            background: linear-gradient(180deg, var(--darker), #000);
             color: white;
-            padding: 3rem 2rem 1rem;
-            margin-top: 4rem;
+            padding: 4rem 2rem 2rem;
+            position: relative;
         }
-
         .footer-content {
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            gap: 3rem;
+            margin-bottom: 3rem;
         }
-
         .footer-section h3 {
-            margin-bottom: 1rem;
             color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
         .footer-section p, .footer-section a {
             color: #94a3b8;
             text-decoration: none;
             line-height: 2;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            display: block;
         }
-
         .footer-section a:hover {
             color: white;
+            padding-left: 5px;
         }
-
-        .social-links {
+        .footer-section a i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .payment-logos, .shipping-logos {
             display: flex;
             gap: 1rem;
+            flex-wrap: wrap;
             margin-top: 1rem;
         }
+        .payment-logos span, .shipping-logos span {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .footer-bottom {
+            border-top: 1px solid #1e293b;
+            padding-top: 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .footer-brand img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+        .footer-brand-text h4 {
+            font-family: 'Playfair Display', serif;
+            color: white;
+            font-size: 1.3rem;
+        }
+        .footer-brand-text p {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
 
-        .social-links a {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.1);
+        /* Floating WA Button */
+        .floating-wa {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 1500;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
             transition: all 0.3s;
+            animation: float 3s ease-in-out infinite;
+            text-decoration: none;
+        }
+        .floating-wa:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating-wa-tooltip {
+            position: absolute;
+            right: 75px;
+            background: white;
+            color: var(--dark);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .floating-wa:hover .floating-wa-tooltip {
+            opacity: 1;
+            visibility: visible;
+            right: 80px;
         }
 
-        .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            z-index: 4000;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid #334155;
-            color: #64748b;
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast.success {
+            background: linear-gradient(135deg, var(--success), #16a34a);
+        }
+        .toast.error {
+            background: linear-gradient(135deg, var(--accent), #dc2626);
         }
 
         /* Animations */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .search-box input {
-                width: 150px;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .cart-sidebar {
-                width: 100%;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .products-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            .top-bar { display: none; }
+            .hero-section { height: 500px; }
+            .hero-slide-content h1 { font-size: 2rem; }
+            .product-grid { grid-template-columns: 1fr; }
+            .menu-sidebar { width: 100%; }
+            .cart-sidebar { width: 100%; }
+            .section { padding: 2rem 1rem; }
+            .brand-name { font-size: 1.2rem; }
+            .floating-wa { width: 55px; height: 55px; font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-fish"><i class="fas fa-fish"></i></div>
+        <div class="loader-text">BIIP FLOWERHORN AQUATIC</div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-info">
+            <span><i class="fas fa-phone"></i> 0857-1684-2806</span>
+            <span><i class="fas fa-envelope"></i> biipflowerhorn@gmail.com</span>
+            <span><i class="fas fa-map-marker-alt"></i> Pandeglang, Banten</span>
+        </div>
+        <div class="top-bar-info">
+            <span><i class="fas fa-truck"></i> Pengiriman ke Seluruh Indonesia</span>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header>
-        <nav>
-            <div class="logo" onclick="window.scrollTo(0,0)">TokoKu</div>
-            <ul class="nav-links">
-                <li><a href="#home">Beranda</a></li>
-                <li><a href="#products">Produk</a></li>
-                <li><a href="#categories">Kategori</a></li>
-                <li><a href="#about">Tentang</a></li>
-            </ul>
-            <div class="nav-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Cari produk..." id="searchInput">
-                </div>
-                <button class="cart-btn" onclick="toggleCart()">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cartCount">0</span>
-                </button>
-                <div class="mobile-menu">
-                    <i class="fas fa-bars"></i>
+    <header class="main-header">
+        <div class="header-inner">
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="brand-section" onclick="showPage('home')">
+                <img src="https://drive.google.com/uc?export=view&id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN" alt="Biip Flowerhorn" class="brand-logo" onerror="this.src='https://via.placeholder.com/60?text=BF'">
+                <div class="brand-text">
+                    <div class="brand-name">Biip Flowerhorn</div>
+                    <div class="brand-tagline">Premium Aquatic</div>
                 </div>
             </div>
-        </nav>
+
+            <div class="header-actions">
+                <button class="cart-toggle" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <h1>Belanja Mudah & Cepat</h1>
-        <p>Temukan produk berkualitas dengan harga terbaik. Pengiriman cepat ke seluruh Indonesia.</p>
-        <div class="hero-btns">
-            <a href="#products" class="btn btn-primary">Jelajahi Produk</a>
-            <a href="#categories" class="btn btn-outline">Lihat Kategori</a>
-        </div>
-    </section>
-
-    <!-- Categories -->
-    <section class="categories" id="categories">
-        <h2 class="section-title">Kategori Populer</h2>
-        <div class="category-grid">
-            <div class="category-card" onclick="filterProducts('elektronik')">
-                <i class="fas fa-laptop"></i>
-                <h3>Elektronik</h3>
+    <!-- Menu Sidebar -->
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="menu-sidebar" id="menuSidebar">
+        <div class="menu-header">
+            <button class="menu-close" onclick="toggleMenu()"><i class="fas fa-times"></i></button>
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <img src="https://drive.google.com/uc?export=view&id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN" style="width:50px;height:50px;border-radius:50%;border:2px solid white;" onerror="this.style.display='none'">
+                <div>
+                    <div style="font-weight:700;font-size:1.2rem;">Biip Flowerhorn</div>
+                    <div style="font-size:0.8rem;opacity:0.8;">Premium Aquatic</div>
+                </div>
             </div>
-            <div class="category-card" onclick="filterProducts('fashion')">
-                <i class="fas fa-tshirt"></i>
-                <h3>Fashion</h3>
-            </div>
-            <div class="category-card" onclick="filterProducts('rumah')">
-                <i class="fas fa-couch"></i>
-                <h3>Rumah</h3>
-            </div>
-            <div class="category-card" onclick="filterProducts('olahraga')">
-                <i class="fas fa-dumbbell"></i>
-                <h3>Olahraga</h3>
-            </div>
-            <div class="category-card" onclick="filterProducts('kecantikan')">
-                <i class="fas fa-spa"></i>
-                <h3>Kecantikan</h3>
-            </div>
-            <div class="category-card" onclick="filterProducts('buku')">
-                <i class="fas fa-book"></i>
-                <h3>Buku</h3>
+            <div class="menu-user" id="menuUser">
+                <div class="menu-user-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                    <div style="font-weight:600;">Pengunjung</div>
+                    <div style="font-size:0.8rem;opacity:0.8;">Silakan login</div>
+                </div>
             </div>
         </div>
-    </section>
-
-    <!-- Products -->
-    <section class="products" id="products">
-        <div class="products-header">
-            <h2 class="section-title" style="margin:0">Produk Terbaru</h2>
-            <div class="filter-tabs">
-                <button class="filter-tab active" onclick="filterProducts('all')">Semua</button>
-                <button class="filter-tab" onclick="filterProducts('elektronik')">Elektronik</button>
-                <button class="filter-tab" onclick="filterProducts('fashion')">Fashion</button>
-                <button class="filter-tab" onclick="filterProducts('rumah')">Rumah</button>
-                <button class="filter-tab" onclick="filterProducts('olahraga')">Olahraga</button>
+        <div class="menu-search">
+            <div class="menu-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Cari ikan, artikel..." id="menuSearchInput" onkeyup="searchFromMenu(this.value)">
             </div>
         </div>
-        <div class="product-grid" id="productGrid">
-            <!-- Products will be rendered by JavaScript -->
+        <div class="menu-content">
+            <div class="menu-section">
+                <div class="menu-section-title">Menu Utama</div>
+                <div class="menu-item active" onclick="showPage('home'); toggleMenu()">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                </div>
+                <div class="menu-item" onclick="showPage('products'); toggleMenu()">
+                    <i class="fas fa-fish"></i>
+                    <span>Produk</span>
+                </div>
+                <div class="menu-item" onclick="showPage('articles'); toggleMenu()">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Informasi Perikanan</span>
+                </div>
+                <div class="menu-item" onclick="showPage('about'); toggleMenu()">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Tentang Biip Flowerhorn</span>
+                </div>
+                <div class="menu-item" onclick="showPage('contact'); toggleMenu()">
+                    <i class="fas fa-address-book"></i>
+                    <span>Kontak</span>
+                </div>
+            </div>
+            <div class="menu-section">
+                <div class="menu-section-title">Kategori Ikan</div>
+                <div class="menu-item" onclick="filterFromMenu('Kamfa F1 Thailand')">
+                    <i class="fas fa-tag"></i>
+                    <span>Kamfa F1 Thailand</span>
+                </div>
+                <div class="menu-item" onclick="filterFromMenu('Kamfa F2 Thailand')">
+                    <i class="fas fa-tag"></i>
+                    <span>Kamfa F2 Thailand</span>
+                </div>
+                <div class="menu-item" onclick="filterFromMenu('Kamfa F3 Thailand')">
+                    <i class="fas fa-tag"></i>
+                    <span>Kamfa F3 Thailand</span>
+                </div>
+                <div class="menu-item" onclick="filterFromMenu('Kamfa F2 Lokal')">
+                    <i class="fas fa-tag"></i>
+                    <span>Kamfa F2 Lokal</span>
+                </div>
+                <div class="menu-item" onclick="filterFromMenu('Cencu Lokal')">
+                    <i class="fas fa-tag"></i>
+                    <span>Cencu Lokal</span>
+                </div>
+            </div>
         </div>
-    </section>
+        <div class="menu-footer">
+            <button class="menu-login-btn" onclick="toggleMenu(); openLogin()">
+                <i class="fas fa-sign-in-alt"></i> Login / Daftar
+            </button>
+        </div>
+    </div>
 
     <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
@@ -944,251 +1662,554 @@
         </div>
         <div class="cart-items" id="cartItems">
             <div class="cart-empty">
-                <i class="fas fa-shopping-cart"></i>
+                <i class="fas fa-fish"></i>
                 <p>Keranjang masih kosong</p>
+                <p style="font-size:0.9rem;margin-top:0.5rem;">Yuk, pilih ikan louhan favoritmu!</p>
             </div>
         </div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Total:</span>
-                <span id="cartTotal">Rp 0</span>
-            </div>
-            <button class="checkout-btn" onclick="openCheckout()">
-                <i class="fas fa-credit-card"></i> Checkout
-            </button>
-        </div>
-    </div>
-
-    <!-- Checkout Modal -->
-    <div class="checkout-modal" id="checkoutModal">
-        <div class="checkout-content">
-            <h2><i class="fas fa-lock"></i> Checkout</h2>
-            
-            <div class="order-summary">
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-summary">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span id="checkoutSubtotal">Rp 0</span>
+                    <span id="cartSubtotal">Rp 0</span>
                 </div>
                 <div class="summary-row">
                     <span>Ongkir</span>
-                    <span>Rp 15.000</span>
+                    <span>Rp 25.000</span>
                 </div>
                 <div class="summary-row total">
-                    <span>Total Pembayaran</span>
-                    <span id="checkoutTotal">Rp 0</span>
+                    <span>Total</span>
+                    <span id="cartTotal">Rp 0</span>
                 </div>
             </div>
-
-            <h3 style="margin-bottom:1rem">Metode Pembayaran</h3>
-            <div class="payment-methods">
-                <div class="payment-method active" onclick="selectPayment(this)">
-                    <i class="fas fa-credit-card"></i>
-                    <div>Kartu</div>
-                </div>
-                <div class="payment-method" onclick="selectPayment(this)">
-                    <i class="fas fa-university"></i>
-                    <div>Transfer</div>
-                </div>
-                <div class="payment-method" onclick="selectPayment(this)">
-                    <i class="fas fa-wallet"></i>
-                    <div>E-Wallet</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Nama Lengkap</label>
-                <input type="text" placeholder="Masukkan nama lengkap">
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="email@contoh.com">
-            </div>
-            <div class="form-group">
-                <label>Alamat Pengiriman</label>
-                <input type="text" placeholder="Jl. Contoh No. 123">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kota</label>
-                    <input type="text" placeholder="Jakarta">
-                </div>
-                <div class="form-group">
-                    <label>Kode Pos</label>
-                    <input type="text" placeholder="12345">
-                </div>
-            </div>
-            
-            <button class="checkout-btn" onclick="processOrder()" style="margin-top:1rem">
-                <i class="fas fa-check-circle"></i> Bayar Sekarang
+            <button class="checkout-btn" onclick="checkoutCart()">
+                <i class="fas fa-credit-card"></i> Checkout
             </button>
-            <button class="btn btn-outline" onclick="closeCheckout()" style="width:100%; margin-top:0.5rem; color:var(--gray); border-color:#e2e8f0">
-                Batal
+            <button class="wa-checkout-btn" onclick="sendWAOrder()">
+                <i class="fab fa-whatsapp"></i> Pesan via WhatsApp
             </button>
         </div>
     </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLogin()"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <img src="https://drive.google.com/uc?export=view&id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+                <h2>Biip Flowerhorn</h2>
+                <p>Bergabung dengan komunitas pecinta louhan</p>
+            </div>
+            <div class="form-tabs">
+                <button class="form-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="form-tab" onclick="switchAuthTab('register')">Daftar</button>
+            </div>
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="nama@email.com" id="loginEmail">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••" id="loginPassword">
+                </div>
+                <div class="forgot-link">
+                    <a href="#" onclick="showForgotPassword()">Lupa Password?</a>
+                </div>
+                <button class="submit-btn" onclick="handleLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
+                </button>
+            </div>
+            <div id="registerForm" style="display:none;">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" placeholder="Nama Anda" id="regName">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="nama@email.com" id="regEmail">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="Minimal 6 karakter" id="regPassword">
+                </div>
+                <button class="submit-btn" onclick="handleRegister()">
+                    <i class="fas fa-user-plus"></i> Daftar Sekarang
+                </button>
+            </div>
+            <div id="forgotForm" style="display:none;">
+                <div class="form-group">
+                    <label>Email Terdaftar</label>
+                    <input type="email" placeholder="nama@email.com" id="forgotEmail">
+                </div>
+                <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem;">Kami akan mengirimkan link reset password ke email Anda.</p>
+                <button class="submit-btn" onclick="handleForgot()">
+                    <i class="fas fa-paper-plane"></i> Kirim Link Reset
+                </button>
+                <p style="text-align:center;margin-top:1rem;">
+                    <a href="#" onclick="switchAuthTab('login')" style="color:var(--primary);text-decoration:none;font-weight:600;">Kembali ke Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+
+        <!-- HOME PAGE -->
+        <div id="page-home">
+            <!-- Hero Slider -->
+            <section class="hero-section">
+                <div class="hero-slide active">
+                    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=1200');"></div>
+                    <div class="hero-slide-content">
+                        <h1>BELANJA ONLINE TIDAK PERLU CEMAS</h1>
+                        <p>Ikan louhan berkualitas kontes langsung dari pembudidaya terpercaya</p>
+                        <a href="#products" class="hero-btn" onclick="showPage('products')">
+                            <i class="fas fa-fish"></i> Lihat Koleksi
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-slide">
+                    <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=1200');"></div>
+                    <div class="hero-slide-content">
+                        <h1>BELANJA IKAN HIAS SEMUDAH INI</h1>
+                        <p>Pengiriman aman ke seluruh Indonesia dengan garansi hidup</p>
+                        <a href="#products" class="hero-btn" onclick="showPage('products')">
+                            <i class="fas fa-shopping-cart"></i> Belanja Sekarang
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-dots">
+                    <div class="hero-dot active" onclick="goToSlide(0)"></div>
+                    <div class="hero-dot" onclick="goToSlide(1)"></div>
+                </div>
+            </section>
+
+            <!-- Featured Products -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>Koleksi Louhan Premium</h2>
+                    <p>Ikan louhan berkualitas kontes dari Biip Flowerhorn Aquatic</p>
+                    <div class="section-line"></div>
+                </div>
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filterProducts('all')"><i class="fas fa-th"></i> Semua</button>
+                    <button class="filter-btn" onclick="filterProducts('Kamfa')"><i class="fas fa-fish"></i> Kamfa</button>
+                    <button class="filter-btn" onclick="filterProducts('Cencu')"><i class="fas fa-fish"></i> Cencu</button>
+                    <button class="filter-btn" onclick="filterProducts('Thailand')"><i class="fas fa-globe"></i> Thailand</button>
+                    <button class="filter-btn" onclick="filterProducts('Lokal')"><i class="fas fa-flag"></i> Lokal</button>
+                </div>
+                <div class="product-grid" id="homeProductGrid"></div>
+                <div style="text-align:center;margin-top:2rem;">
+                    <button class="hero-btn" onclick="showPage('products')" style="display:inline-flex;">
+                        Lihat Semua Produk <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- About Preview -->
+            <section class="about-section">
+                <div class="about-content">
+                    <h2>Tentang Biip Flowerhorn Aquatic</h2>
+                    <p>Biip Flowerhorn Aquatic berdiri sejak 2020, yang didirikan oleh owner Badarudin, dengan konsisten dan kerja keras dalam melestarikan budidaya ikan hias khususnya louhan. Kami berkomitmen dengan sangat kuat dalam menjaga kualitas ikan dan mempertahankan kualitas lokal.</p>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">4+</div>
+                            <div class="stat-label">Tahun Berdiri</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">Ikan Terjual</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Pelanggan Puas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">15+</div>
+                            <div class="stat-label">Varian Louhan</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews -->
+            <section class="reviews-section">
+                <div class="reviews-container">
+                    <div class="section-header">
+                        <h2>Ulasan Pelanggan</h2>
+                        <p>Testimoni dari para pecinta louhan</p>
+                        <div class="section-line"></div>
+                    </div>
+                    <div class="reviews-grid" id="reviewsGrid"></div>
+                    
+                    <div class="review-form">
+                        <h3><i class="fas fa-star" style="color:var(--secondary)"></i> Berikan Ulasan Anda</h3>
+                        <div class="star-rating-input" id="starInput">
+                            <i class="fas fa-star" onclick="setRating(1)"></i>
+                            <i class="fas fa-star" onclick="setRating(2)"></i>
+                            <i class="fas fa-star" onclick="setRating(3)"></i>
+                            <i class="fas fa-star" onclick="setRating(4)"></i>
+                            <i class="fas fa-star" onclick="setRating(5)"></i>
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Anda</label>
+                            <input type="text" placeholder="Nama lengkap" id="reviewName">
+                        </div>
+                        <div class="form-group">
+                            <label>Ulasan</label>
+                            <textarea placeholder="Ceritakan pengalaman Anda berbelanja..." id="reviewText"></textarea>
+                        </div>
+                        <button class="submit-btn" onclick="submitReview()">
+                            <i class="fas fa-paper-plane"></i> Kirim Ulasan
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PRODUCTS PAGE -->
+        <div id="page-products" style="display:none;">
+            <section class="section" style="padding-top:2rem;">
+                <div class="section-header">
+                    <h2>Katalog Produk</h2>
+                    <p>Pilih ikan louhan berkualitas sesuai kebutuhan Anda</p>
+                    <div class="section-line"></div>
+                </div>
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filterProducts('all')"><i class="fas fa-th"></i> Semua Produk</button>
+                    <button class="filter-btn" onclick="filterProducts('Kamfa F1')"><i class="fas fa-fish"></i> Kamfa F1</button>
+                    <button class="filter-btn" onclick="filterProducts('Kamfa F2')"><i class="fas fa-fish"></i> Kamfa F2</button>
+                    <button class="filter-btn" onclick="filterProducts('Kamfa F3')"><i class="fas fa-fish"></i> Kamfa F3</button>
+                    <button class="filter-btn" onclick="filterProducts('Cencu')"><i class="fas fa-fish"></i> Cencu</button>
+                </div>
+                <div class="product-grid" id="productGrid"></div>
+            </section>
+        </div>
+
+        <!-- ARTICLES PAGE -->
+        <div id="page-articles" style="display:none;">
+            <section class="section" style="padding-top:2rem;">
+                <div class="section-header">
+                    <h2>Informasi Perikanan</h2>
+                    <p>Artikel edukasi seputar ikan hias dan perawatannya</p>
+                    <div class="section-line"></div>
+                </div>
+                <div class="articles-grid" id="articlesGrid"></div>
+            </section>
+        </div>
+
+        <!-- ARTICLE DETAIL PAGE -->
+        <div id="page-article-detail" style="display:none;">
+            <section class="section" style="padding-top:2rem;max-width:900px;">
+                <button class="filter-btn" onclick="showPage('articles')" style="margin-bottom:2rem;">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Artikel
+                </button>
+                <div id="articleDetailContent"></div>
+            </section>
+        </div>
+
+        <!-- ABOUT PAGE -->
+        <div id="page-about" style="display:none;">
+            <section class="about-section" style="margin-top:0;padding:6rem 2rem;">
+                <div class="about-content">
+                    <h2>Biip Flowerhorn Aquatic</h2>
+                    <p style="font-size:1.2rem;line-height:2.2;">
+                        Biip Flowerhorn Aquatic berdiri sejak 2020, yang didirikan oleh owner Badarudin, dengan konsisten dan kerja keras dalam melestarikan budidaya ikan hias khususnya louhan, dalam proses membentuk ikan-ikan yang berkualitas kontes, progres yang teliti ketika membentuk ikan yang diharapkan, dengan begitu kami dan para pecinta louhan berkolaborasi dan bekerjasama dalam mempertahankan kualitas dan melestarikan ikan dengan khas lokal, kami berkomitmen dengan sangat kuat dalam menjaga kualitas ikan.
+                    </p>
+                    <div class="about-stats" style="margin-top:4rem;">
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="stat-label">Berdiri Sejak 2020</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-user-tie"></i></div>
+                            <div class="stat-label">Owner: Badarudin</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-trophy"></i></div>
+                            <div class="stat-label">Kualitas Kontes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-handshake"></i></div>
+                            <div class="stat-label">Kolaborasi Komunitas</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="section">
+                <div class="section-header">
+                    <h2>Visi & Misi</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fas fa-eye"></i></div>
+                        <h3>Visi</h3>
+                        <p>Menjadi pusat budidaya ikan louhan terbaik di Indonesia dengan kualitas kontes yang diakui secara nasional dan internasional.</p>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fas fa-bullseye"></i></div>
+                        <h3>Misi</h3>
+                        <p>Melestarikan budidaya ikan hias khususnya louhan, membentuk ikan berkualitas kontes, dan menjaga kelestarian ikan khas lokal.</p>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fas fa-heart"></i></div>
+                        <h3>Komitmen</h3>
+                        <p>Berkomitmen kuat dalam menjaga kualitas ikan, progres teliti, dan kerjasama dengan para pecinta louhan seluruh Indonesia.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- CONTACT PAGE -->
+        <div id="page-contact" style="display:none;">
+            <section class="section" style="padding-top:2rem;">
+                <div class="section-header">
+                    <h2>Hubungi Kami</h2>
+                    <p>Kami siap membantu Anda</p>
+                    <div class="section-line"></div>
+                </div>
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+                        <h3>WhatsApp</h3>
+                        <p>0857-1684-2806<br>Admin siap melayani 24 jam</p>
+                        <a href="https://wa.me/6285716842806" target="_blank" class="hero-btn" style="margin-top:1rem;display:inline-flex;font-size:0.9rem;padding:0.7rem 1.5rem;">
+                            <i class="fab fa-whatsapp"></i> Chat Sekarang
+                        </a>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3>Lokasi</h3>
+                        <p>Kp. Rocek Barat RT 012 RW 004<br>Kel. Rocek, Kec. Cimanuk<br>Kab. Pandeglang, Banten</p>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                        <h3>Email</h3>
+                        <p>biipflowerhorn@gmail.com<br>Respon dalam 1x24 jam</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <img src="https://drive.google.com/uc?export=view&id=11yE551WgzgTXLZacZXtB7kbKQWtnsgeN" alt="Logo" onerror="this.style.display='none'">
+                    <div class="footer-brand-text">
+                        <h4>Biip Flowerhorn</h4>
+                        <p>Premium Aquatic</p>
+                    </div>
+                </div>
+                <p style="color:#94a3b8;line-height:1.8;margin-bottom:1rem;">
+                    Bergerak dalam bidang perikanan air tawar (budidaya, edukasi dan penjualan). Kp. Rocek Barat RT 012 RW 004 Kel. Rocek Kec. Cimanuk, Kabupaten Pandeglang, Banten.
+                </p>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-life-ring"></i> Pusat Bantuan</h3>
+                <a href="#" onclick="showToast('Panduan pemesanan akan segera tersedia!')"><i class="fas fa-book"></i> Panduan Pemesanan</a>
+                <a href="#" onclick="showToast('Kebijakan pengiriman akan segera tersedia!')"><i class="fas fa-shipping-fast"></i> Kebijakan Pengiriman</a>
+                <a href="#" onclick="showToast('FAQ akan segera tersedia!')"><i class="fas fa-question-circle"></i> FAQ</a>
+                <a href="#" onclick="showToast('Garansi akan segera tersedia!')"><i class="fas fa-shield-alt"></i> Garansi</a>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-credit-card"></i> Pembayaran</h3>
+                <div class="payment-logos">
+                    <span style="background:#003399;color:white;">BCA</span>
+                    <span style="background:#118EEA;color:white;"><i class="fas fa-wallet"></i> DANA</span>
+                </div>
+                <h3 style="margin-top:1.5rem;"><i class="fas fa-truck"></i> Pengiriman</h3>
+                <div class="shipping-logos">
+                    <span style="color:#E31E24;font-weight:800;">JNE</span>
+                    <span style="color:#0066B3;font-weight:800;">TIKI</span>
+                    <span style="color:#00A651;font-weight:800;">PAXEL</span>
+                    <span style="color:#00AA13;font-weight:800;"><i class="fas fa-motorcycle"></i> GOJEK</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-link"></i> Tautan Cepat</h3>
+                <a href="#" onclick="showPage('home')"><i class="fas fa-home"></i> Beranda</a>
+                <a href="#" onclick="showPage('products')"><i class="fas fa-fish"></i> Produk</a>
+                <a href="#" onclick="showPage('articles')"><i class="fas fa-newspaper"></i> Artikel</a>
+                <a href="#" onclick="showPage('about')"><i class="fas fa-info-circle"></i> Tentang Kami</a>
+                <a href="#" onclick="showPage('contact')"><i class="fas fa-address-book"></i> Kontak</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Biip Flowerhorn Aquatic. Hak Cipta Dilindungi.</p>
+            <p style="margin-top:0.5rem;font-size:0.85rem;">Dibuat dengan <i class="fas fa-heart" style="color:var(--accent)"></i> untuk pecinta louhan Indonesia</p>
+        </div>
+    </footer>
+
+    <!-- Floating WA -->
+    <a href="https://wa.me/6285716842806" target="_blank" class="floating-wa">
+        <i class="fab fa-whatsapp"></i>
+        <span class="floating-wa-tooltip">Chat Admin</span>
+    </a>
 
     <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">Produk ditambahkan ke keranjang!</span>
+        <span id="toastMessage">Notifikasi</span>
     </div>
 
-    <!-- Footer -->
-    <footer id="about">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>TokoKu</h3>
-                <p>Platform e-commerce terpercaya dengan ribuan produk berkualitas. Kami berkomitmen memberikan pengalaman belanja terbaik.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Tautan Cepat</h3>
-                <p><a href="#">Tentang Kami</a></p>
-                <p><a href="#">Kebijakan Privasi</a></p>
-                <p><a href="#">Syarat & Ketentuan</a></p>
-                <p><a href="#">Hubungi Kami</a></p>
-            </div>
-            <div class="footer-section">
-                <h3>Kontak</h3>
-                <p><i class="fas fa-map-marker-alt"></i> Jl. Sudirman No. 123, Jakarta</p>
-                <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
-                <p><i class="fas fa-envelope"></i> support@tokoku.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 TokoKu. Hak Cipta Dilindungi.</p>
-        </div>
-    </footer>
-
     <script>
-        // Product Data
+        // Data Produk
         const products = [
-            {
-                id: 1,
-                name: "Laptop Gaming Pro X1",
-                category: "elektronik",
-                price: 12500000,
-                oldPrice: 15000000,
-                rating: 5,
-                image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400",
-                badge: "Diskon 17%"
-            },
-            {
-                id: 2,
-                name: "Smartwatch Series 7",
-                category: "elektronik",
-                price: 3500000,
-                oldPrice: 4200000,
-                rating: 4,
-                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-                badge: "Best Seller"
-            },
-            {
-                id: 3,
-                name: "Kemeja Casual Premium",
-                category: "fashion",
-                price: 299000,
-                oldPrice: 450000,
-                rating: 4,
-                image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
-                badge: null
-            },
-            {
-                id: 4,
-                name: "Sofa Minimalis 3 Seater",
-                category: "rumah",
-                price: 2800000,
-                oldPrice: 3500000,
-                rating: 5,
-                image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400",
-                badge: "Diskon 20%"
-            },
-            {
-                id: 5,
-                name: "Dumbbell Set 20kg",
-                category: "olahraga",
-                price: 450000,
-                oldPrice: 600000,
-                rating: 4,
-                image: "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=400",
-                badge: null
-            },
-            {
-                id: 6,
-                name: "Headphone Wireless ANC",
-                category: "elektronik",
-                price: 1800000,
-                oldPrice: 2500000,
-                rating: 5,
-                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-                badge: "Terlaris"
-            },
-            {
-                id: 7,
-                name: "Sneakers Sport Urban",
-                category: "fashion",
-                price: 750000,
-                oldPrice: 950000,
-                rating: 4,
-                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
-                badge: "New"
-            },
-            {
-                id: 8,
-                name: "Lampu Meja LED Smart",
-                category: "rumah",
-                price: 350000,
-                oldPrice: 500000,
-                rating: 4,
-                image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400",
-                badge: null
-            }
+            { id: 1, name: "Louhan Kamfa F1 Thailand", category: "Kamfa F1 Thailand", type: "Kamfa", origin: "Thailand", size: "4 cm", price: 2000000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Premium" },
+            { id: 2, name: "Louhan Kamfa F2 Thailand", category: "Kamfa F2 Thailand", type: "Kamfa", origin: "Thailand", size: "5 cm", price: 1500000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Best Seller" },
+            { id: 3, name: "Louhan Kamfa F3 Thailand", category: "Kamfa F3 Thailand", type: "Kamfa", origin: "Thailand", size: "6 cm", price: 1000000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: null },
+            { id: 4, name: "Louhan Kamfa F2 Lokal", category: "Kamfa F2 Lokal", type: "Kamfa", origin: "Lokal", size: "7 cm", price: 800000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Diskon" },
+            { id: 5, name: "Louhan Kamfa F2 Line GB", category: "Kamfa F2 Line GB", type: "Kamfa", origin: "Lokal", size: "8 cm", price: 600000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: null },
+            { id: 6, name: "Louhan Kamfa F2 Lokal Pride", category: "Kamfa F2 Lokal Pride", type: "Kamfa", origin: "Lokal", size: "10 cm", price: 500000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: "New" },
+            { id: 7, name: "Louhan Cencu Lokal", category: "Cencu Lokal", type: "Cencu", origin: "Lokal", size: "11 cm", price: 400000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: null },
+            { id: 8, name: "Louhan Cencu Lokal GB", category: "Cencu Lokal GB", type: "Cencu", origin: "Lokal", size: "12 cm", price: 300000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Terlaris" }
         ];
 
+        // Data Artikel
+        const articles = [
+            { id: 1, title: "Cara Merawat Ikan Louhan Agar Berkualitas Kontes", excerpt: "Panduan lengkap perawatan ikan louhan dari pemilihan pakan hingga pengaturan air...", date: "15 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Ikan louhan merupakan salah satu ikan hias yang sangat populer di Indonesia. Untuk mendapatkan kualitas kontes, perawatan harus dilakukan dengan teliti. Pertama, pastikan kualitas air selalu terjaga dengan pH 6.5-7.5. Kedua, berikan pakan berkualitas seperti pelet khusus louhan, cacing beku, dan udang. Ketiga, perhatikan suhu air yang ideal antara 26-30°C. Keempat, lakukan perawatan ketok kepala secara rutin untuk membentuk jenong. Kelima, berikan pencahayaan yang cukup 8-12 jam per hari." },
+            { id: 2, title: "Membedakan Jenis Kamfa dan Cencu", excerpt: "Kenali perbedaan karakteristik antara louhan jenis Kamfa dan Cencu...", date: "12 Apr 2026", image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", content: "Kamfa dan Cencu adalah dua jenis louhan yang paling diminati. Kamfa memiliki ciri khas mutiara (pearls) yang merata di seluruh tubuh, warna dasar gelap, dan ekor melebar. Cencu memiliki corak warna yang lebih cerah dengan pola khas di kepalanya. Kamfa cenderung lebih agresif dan aktif dibandingkan Cencu. Dalam kontes, Kamfa dinilai dari mutiaranya, jenong, dan warna. Cencu dinilai dari corak, warna, dan proporsi tubuh." },
+            { id: 3, title: "Tips Memilih Louhan Berkualitas", excerpt: "Panduan memilih ikan louhan yang berpotensi menjadi juara kontes...", date: "10 Apr 2026", image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", content: "Memilih louhan berkualitas memerlukan kejelian. Perhatikan simetri tubuh, mutiara yang merata, dan aktifitas ikan. Pilih ikan dengan mata cerah dan sirip utuh. Jenong yang bagus terlihat dari bentuk kepala yang proporsional. Warna yang cerah dan kontras menandakan ikan sehat. Jangan lupa perhatikan garis keturunan (line) ikan tersebut." },
+            { id: 4, title: "Setting Aquarium Ideal untuk Louhan", excerpt: "Ukuran dan perlengkapan aquarium yang tepat untuk ikan louhan...", date: "8 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Aquarium untuk louhan minimal berukuran 60x40x40 cm untuk ikan ukuran 10-15 cm. Gunakan filter yang kuat karena louhan menghasilkan banyak limbah. Pasir dasar opsional, namun disarankan menggunakan batu karang atau tanaman plastik. Suhu air dijaga 26-30°C dengan heater. Lampu LED dengan warna putih atau biru membantu menonjolkan warna ikan." }
+        ];
+
+        // Data Ulasan
+        let reviews = [
+            { name: "Ahmad Rizky", rating: 5, text: "Ikan yang dikirim sangat berkualitas, packing aman sampai rumah. Recommended seller!", avatar: "A" },
+            { name: "Budi Santoso", rating: 5, text: "Sudah 3x belanja di sini, selalu puas dengan kualitas louhannya. Owner ramah dan informatif.", avatar: "B" },
+            { name: "Citra Dewi", rating: 4, text: "Pengiriman cepat, ikan sehat dan aktif. Harga sesuai kualitas. Terima kasih Biip Flowerhorn!", avatar: "C" }
+        ];
+
+        // State
         let cart = [];
-        let currentFilter = 'all';
+        let currentUser = null;
+        let currentRating = 0;
+        let currentPage = 'home';
 
         // Format Rupiah
         function formatRupiah(angka) {
             return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
+        // Initialize
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2000);
+            
+            renderProducts('all');
+            renderArticles();
+            renderReviews();
+            startHeroSlider();
+        };
+
+        // Hero Slider
+        let currentSlide = 0;
+        function startHeroSlider() {
+            setInterval(() => {
+                const slides = document.querySelectorAll('.hero-slide');
+                const dots = document.querySelectorAll('.hero-dot');
+                slides[currentSlide].classList.remove('active');
+                dots[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
+            }, 5000);
+        }
+
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        // Page Navigation
+        function showPage(page) {
+            // Hide all pages
+            document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
+            // Show selected page
+            document.getElementById('page-' + page).style.display = 'block';
+            currentPage = page;
+            
+            // Update menu active state
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Render content based on page
+            if (page === 'products') renderProducts('all', 'productGrid');
+            if (page === 'home') renderProducts('all', 'homeProductGrid');
+        }
+
+        // Toggle Menu
+        function toggleMenu() {
+            document.getElementById('menuOverlay').classList.toggle('active');
+            document.getElementById('menuSidebar').classList.toggle('active');
+        }
+
+        // Toggle Cart
+        function toggleCart() {
+            document.getElementById('cartOverlay').classList.toggle('active');
+            document.getElementById('cartSidebar').classList.toggle('active');
+        }
+
         // Render Products
-        function renderProducts(filter = 'all', searchTerm = '') {
-            const grid = document.getElementById('productGrid');
+        function renderProducts(filter = 'all', gridId = 'homeProductGrid') {
+            const grid = document.getElementById(gridId) || document.getElementById('productGrid');
             let filtered = products;
 
             if (filter !== 'all') {
-                filtered = filtered.filter(p => p.category === filter);
-            }
-
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                filtered = products.filter(p => 
+                    p.category.includes(filter) || 
+                    p.type.includes(filter) || 
+                    p.origin.includes(filter)
                 );
             }
 
             grid.innerHTML = filtered.map(product => `
                 <div class="product-card">
                     ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <button class="product-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
+                    <div class="product-img-wrap">
+                        <img src="${product.image}" alt="${product.name}" class="product-img">
+                        <div class="product-overlay">
+                            <button class="product-quick-view" onclick="showToast('Quick view: ${product.name}')">
+                                <i class="fas fa-eye"></i> Lihat Detail
+                            </button>
+                        </div>
+                    </div>
                     <div class="product-info">
-                        <div class="product-category">${product.category}</div>
+                        <div class="product-meta">
+                            <span class="product-category-tag">${product.category}</span>
+                            <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${product.stock} Ekor</span>
+                        </div>
                         <h3 class="product-name">${product.name}</h3>
-                        <div class="product-rating">
-                            ${Array(product.rating).fill('<i class="fas fa-star"></i>').join('')}
-                            ${Array(5 - product.rating).fill('<i class="far fa-star"></i>').join('')}
+                        <div class="product-variant">Size: ${product.size} | ${product.origin}</div>
+                        <div class="product-price-row">
+                            <div>
+                                <span class="product-price">${formatRupiah(product.price)}</span>
+                            </div>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
                         </div>
-                        <div class="product-price">
-                            <span class="price-current">${formatRupiah(product.price)}</span>
-                            ${product.oldPrice ? `<span class="price-old">${formatRupiah(product.oldPrice)}</span>` : ''}
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(${product.id})">
+                        <button class="add-cart-btn" onclick="addToCart(${product.id})">
                             <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
                         </button>
                     </div>
@@ -1198,17 +2219,56 @@
 
         // Filter Products
         function filterProducts(category) {
-            currentFilter = category;
-            
-            // Update active tab
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.textContent.toLowerCase().includes(category === 'all' ? 'semua' : category)) {
-                    tab.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(category) || (category === 'all' && btn.textContent.includes('Semua'))) {
+                    btn.classList.add('active');
                 }
             });
+            
+            const gridId = currentPage === 'home' ? 'homeProductGrid' : 'productGrid';
+            renderProducts(category, gridId);
+        }
 
-            renderProducts(category, document.getElementById('searchInput').value);
+        function filterFromMenu(category) {
+            toggleMenu();
+            showPage('products');
+            setTimeout(() => filterProducts(category), 100);
+        }
+
+        function searchFromMenu(query) {
+            if (query.length > 2) {
+                toggleMenu();
+                showPage('products');
+                // Simple search implementation
+                const grid = document.getElementById('productGrid');
+                const filtered = products.filter(p => 
+                    p.name.toLowerCase().includes(query.toLowerCase()) ||
+                    p.category.toLowerCase().includes(query.toLowerCase())
+                );
+                grid.innerHTML = filtered.map(product => `
+                    <div class="product-card">
+                        ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                        <div class="product-img-wrap">
+                            <img src="${product.image}" alt="${product.name}" class="product-img">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-meta">
+                                <span class="product-category-tag">${product.category}</span>
+                                <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${product.stock}</span>
+                            </div>
+                            <h3 class="product-name">${product.name}</h3>
+                            <div class="product-variant">Size: ${product.size}</div>
+                            <div class="product-price-row">
+                                <span class="product-price">${formatRupiah(product.price)}</span>
+                            </div>
+                            <button class="add-cart-btn" onclick="addToCart(${product.id})">
+                                <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         // Add to Cart
@@ -1217,39 +2277,55 @@
             const existingItem = cart.find(item => item.id === productId);
 
             if (existingItem) {
-                existingItem.quantity++;
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity++;
+                } else {
+                    showToast('Stok tidak mencukupi!', false);
+                    return;
+                }
             } else {
                 cart.push({ ...product, quantity: 1 });
             }
 
             updateCart();
-            showToast('Produk ditambahkan ke keranjang!');
+            showToast(`${product.name} ditambahkan ke keranjang!`);
+            
+            // Animate cart badge
+            const badge = document.getElementById('cartBadge');
+            badge.style.transform = 'scale(1.5)';
+            setTimeout(() => badge.style.transform = 'scale(1)', 300);
         }
 
         // Update Cart
         function updateCart() {
             const cartItems = document.getElementById('cartItems');
-            const cartCount = document.getElementById('cartCount');
+            const cartBadge = document.getElementById('cartBadge');
+            const cartFooter = document.getElementById('cartFooter');
+            const cartSubtotal = document.getElementById('cartSubtotal');
             const cartTotal = document.getElementById('cartTotal');
 
-            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalItems;
 
             if (cart.length === 0) {
                 cartItems.innerHTML = `
                     <div class="cart-empty">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-fish"></i>
                         <p>Keranjang masih kosong</p>
+                        <p style="font-size:0.9rem;margin-top:0.5rem;">Yuk, pilih ikan louhan favoritmu!</p>
                     </div>
                 `;
-                cartTotal.textContent = 'Rp 0';
+                cartFooter.style.display = 'none';
                 return;
             }
 
+            cartFooter.style.display = 'block';
             cartItems.innerHTML = cart.map(item => `
                 <div class="cart-item">
                     <img src="${item.image}" alt="${item.name}">
                     <div class="cart-item-info">
                         <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-variant">${item.size} | ${item.category}</div>
                         <div class="cart-item-price">${formatRupiah(item.price)}</div>
                         <div class="cart-item-qty">
                             <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)"><i class="fas fa-minus"></i></button>
@@ -1262,117 +2338,277 @@
                 </div>
             `).join('');
 
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            cartTotal.textContent = formatRupiah(total);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartSubtotal.textContent = formatRupiah(subtotal);
+            cartTotal.textContent = formatRupiah(subtotal + 25000);
         }
 
-        // Update Quantity
         function updateQuantity(productId, change) {
             const item = cart.find(item => item.id === productId);
+            const product = products.find(p => p.id === productId);
+            
             if (item) {
                 item.quantity += change;
                 if (item.quantity <= 0) {
                     removeFromCart(productId);
+                } else if (item.quantity > product.stock) {
+                    showToast('Stok tidak mencukupi!', false);
+                    item.quantity = product.stock;
                 } else {
                     updateCart();
                 }
             }
         }
 
-        // Remove from Cart
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCart();
             showToast('Produk dihapus dari keranjang');
         }
 
-        // Toggle Cart
-        function toggleCart() {
-            document.getElementById('cartOverlay').classList.toggle('active');
-            document.getElementById('cartSidebar').classList.toggle('active');
-        }
-
-        // Open Checkout
-        function openCheckout() {
+        // Send WA Order
+        function sendWAOrder() {
             if (cart.length === 0) {
-                showToast('Keranjang masih kosong!');
+                showToast('Keranjang masih kosong!', false);
                 return;
             }
+
+            let message = "Halo Biip Flowerhorn Aquatic,\n\nSaya ingin memesan:\n";
+            let total = 0;
+            
+            cart.forEach(item => {
+                message += `\n• ${item.name} (${item.size})`;
+                message += `\n  Jumlah: ${item.quantity} ekor`;
+                message += `\n  Harga: ${formatRupiah(item.price * item.quantity)}\n`;
+                total += item.price * item.quantity;
+            });
+            
+            message += `\n\nSubtotal: ${formatRupiah(total)}`;
+            message += `\nOngkir: Rp 25.000`;
+            message += `\n*Total: ${formatRupiah(total + 25000)}*`;
+            message += `\n\nMohon konfirmasi ketersediaan stok. Terima kasih!`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/6285716842806?text=${encodedMessage}`, '_blank');
+            
             toggleCart();
-            
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            document.getElementById('checkoutSubtotal').textContent = formatRupiah(subtotal);
-            document.getElementById('checkoutTotal').textContent = formatRupiah(subtotal + 15000);
-            
-            document.getElementById('checkoutModal').classList.add('active');
+            showToast('Mengarahkan ke WhatsApp Admin...');
         }
 
-        // Close Checkout
-        function closeCheckout() {
-            document.getElementById('checkoutModal').classList.remove('active');
+        function checkoutCart() {
+            showToast('Fitur checkout online akan segera hadir! Silakan gunakan WhatsApp.', true);
         }
 
-        // Select Payment
-        function selectPayment(element) {
-            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        // Render Articles
+        function renderArticles() {
+            const grid = document.getElementById('articlesGrid');
+            grid.innerHTML = articles.map(article => `
+                <div class="article-card" onclick="showArticleDetail(${article.id})">
+                    <img src="${article.image}" alt="${article.title}" class="article-img">
+                    <div class="article-content">
+                        <div class="article-date"><i class="far fa-calendar"></i> ${article.date}</div>
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-excerpt">${article.excerpt}</p>
+                        <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Process Order
-        function processOrder() {
-            const inputs = document.querySelectorAll('.checkout-content input');
-            let valid = true;
+        function showArticleDetail(id) {
+            const article = articles.find(a => a.id === id);
+            document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
+            document.getElementById('page-article-detail').style.display = 'block';
             
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    input.style.borderColor = 'var(--danger)';
-                    valid = false;
+            document.getElementById('articleDetailContent').innerHTML = `
+                <img src="${article.image}" style="width:100%;height:400px;object-fit:cover;border-radius:20px;margin-bottom:2rem;">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;color:var(--primary);font-weight:600;">
+                    <span><i class="far fa-calendar"></i> ${article.date}</span>
+                    <span><i class="far fa-user"></i> Admin</span>
+                </div>
+                <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;margin-bottom:1.5rem;">${article.title}</h1>
+                <div style="line-height:2;color:var(--gray);font-size:1.1rem;">
+                    ${article.content}
+                </div>
+                <div style="margin-top:3rem;padding:2rem;background:#f8fafc;border-radius:20px;">
+                    <h3 style="margin-bottom:1rem;"><i class="fas fa-share-alt" style="color:var(--primary)"></i> Bagikan Artikel</h3>
+                    <div style="display:flex;gap:1rem;">
+                        <button class="filter-btn" onclick="showToast('Bagikan ke Facebook')"><i class="fab fa-facebook"></i> Facebook</button>
+                        <button class="filter-btn" onclick="showToast('Bagikan ke Twitter')"><i class="fab fa-twitter"></i> Twitter</button>
+                        <button class="filter-btn" onclick="showToast('Bagikan ke WhatsApp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    </div>
+                </div>
+            `;
+            window.scrollTo(0, 0);
+        }
+
+        // Render Reviews
+        function renderReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            grid.innerHTML = reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-avatar">${review.avatar}</div>
+                        <div class="review-meta">
+                            <h4>${review.name}</h4>
+                            <div class="review-stars">
+                                ${Array(review.rating).fill('<i class="fas fa-star"></i>').join('')}
+                                ${Array(5 - review.rating).fill('<i class="far fa-star"></i>').join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <p class="review-text">"${review.text}"</p>
+                </div>
+            `).join('');
+        }
+
+        // Star Rating
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('#starInput i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
                 } else {
-                    input.style.borderColor = '#e2e8f0';
+                    star.classList.remove('active');
                 }
             });
-
-            if (!valid) {
-                showToast('Mohon lengkapi semua data!');
-                return;
-            }
-
-            closeCheckout();
-            cart = [];
-            updateCart();
-            showToast('Pesanan berhasil! Terima kasih telah berbelanja.', true);
         }
 
-        // Show Toast
+        function submitReview() {
+            const name = document.getElementById('reviewName').value;
+            const text = document.getElementById('reviewText').value;
+            
+            if (!name || !text || currentRating === 0) {
+                showToast('Mohon lengkapi nama, rating, dan ulasan!', false);
+                return;
+            }
+            
+            reviews.unshift({
+                name: name,
+                rating: currentRating,
+                text: text,
+                avatar: name.charAt(0).toUpperCase()
+            });
+            
+            renderReviews();
+            
+            // Reset form
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewText').value = '';
+            currentRating = 0;
+            document.querySelectorAll('#starInput i').forEach(s => s.classList.remove('active'));
+            
+            showToast('Terima kasih! Ulasan Anda telah dikirim.', true);
+        }
+
+        // Login Modal
+        function openLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('forgotForm').style.display = 'none';
+        }
+
+        function showForgotPassword() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'block';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showToast('Mohon isi email dan password!', false);
+                return;
+            }
+            
+            currentUser = { email: email, name: email.split('@')[0] };
+            closeLogin();
+            showToast(`Selamat datang, ${currentUser.name}!`);
+            
+            // Update menu user
+            document.getElementById('menuUser').innerHTML = `
+                <div class="menu-user-avatar" style="background:linear-gradient(135deg,var(--primary),var(--secondary));"><i class="fas fa-user"></i></div>
+                <div>
+                    <div style="font-weight:600;">${currentUser.name}</div>
+                    <div style="font-size:0.8rem;opacity:0.8;">${currentUser.email}</div>
+                </div>
+            `;
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!name || !email || !password) {
+                showToast('Mohon lengkapi semua data!', false);
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('Password minimal 6 karakter!', false);
+                return;
+            }
+            
+            showToast('Pendaftaran berhasil! Silakan login.', true);
+            switchAuthTab('login');
+        }
+
+        function handleForgot() {
+            const email = document.getElementById('forgotEmail').value;
+            if (!email) {
+                showToast('Mohon masukkan email!', false);
+                return;
+            }
+            showToast('Link reset password telah dikirim ke email Anda.', true);
+            switchAuthTab('login');
+        }
+
+        // Wishlist
+        function toggleWishlist(btn) {
+            btn.classList.toggle('active');
+            const icon = btn.querySelector('i');
+            if (btn.classList.contains('active')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showToast('Ditambahkan ke wishlist!');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showToast('Dihapus dari wishlist');
+            }
+        }
+
+        // Toast
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             
             toastMessage.textContent = message;
-            toast.className = 'toast show' + (isSuccess ? ' success' : '');
+            toast.className = 'toast show' + (isSuccess ? ' success' : ' error');
             
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
         }
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderProducts(currentFilter, e.target.value);
-        });
-
-        // Initialize
-        renderProducts();
-
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
+        // Close modal on outside click
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLogin();
         });
     </script>
 </body>
