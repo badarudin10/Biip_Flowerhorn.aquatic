@@ -2062,955 +2062,214 @@
 
 <script>
 // ============================================================
-// CONFIG API - GANTI DENGAN URL WEB APP ANDA
+// CONFIG API & STATE
 // ============================================================
 const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
 
-// ============================================================
-// DATA & STATE
-// ============================================================
-let products = [];
-let articles = [];
-let reviews = [];
-let cart = [];
-let currentUser = null;
-let currentRating = 0;
-let currentPage = 'home';
+let products = [], articles = [], reviews = [], cart = [];
+let currentUser = null, currentRating = 0, currentPage = 'home';
 
 // ============================================================
-// FUNGSI UTILITAS
+// FUNGSI UTAMA (INIT & LOADING)
 // ============================================================
-function formatRupiah(angka) {
-    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
 function hideLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
-        loader.classList.add('hidden');
-        console.log('✅ Loader disembunyikan');
+        loader.style.display = 'none';
+        loader.style.visibility = 'hidden';
+        console.log("✅ Loader disembunyikan");
     }
 }
 
+// Gabungan semua fetch agar lebih efisien
+async function initAppData() {
+    console.log("⏳ Memulai sinkronisasi data...");
+    try {
+        await Promise.all([
+            loadProductsFromSheet(),
+            loadArticlesFromSheet(),
+            loadReviewsFromSheet()
+        ]);
+        console.log("✅ Semua data berhasil dimuat");
+    } catch (e) {
+        console.error("❌ Error saat init data:", e);
+    }
+    startHeroSlider();
+}
+
+window.addEventListener('load', () => {
+    hideLoader(); // Buka layar segera
+    initAppData(); // Isi data di latar belakang
+});
+
+// Backup jika load macet
+setTimeout(hideLoader, 3000);
+
 // ============================================================
-// FETCH DATA DARI SPREADSHEET
+// FETCH DATA LOGIC
 // ============================================================
 async function loadProductsFromSheet() {
     try {
         const response = await fetch(`${API_URL}?action=getIkan`);
         const result = await response.json();
-        
-        if (result.success && result.data && result.data.length > 0) {
+        if (result.success && result.data.length > 0) {
             products = result.data.map((item, index) => ({
                 id: index + 1,
                 name: item.nama || 'Louhan',
                 category: item.kategori || 'Umum',
                 type: item.jenis || 'Kamfa',
-                origin: (item.kategori || '').includes('Thailand') ? 'Thailand' : 'Lokal',
-                size: (item.jenis || '').match(/\d+\s*cm/) ? item.jenis.match(/\d+\s*cm/)[0] : '5 cm',
                 price: parseInt(item.harga) || 0,
-                stock: parseInt(item.stock) || 1,
-                image: item.link_foto || 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400',
-                badge: parseInt(item.stock) < 3 ? 'Stok Terbatas' : null
+                stock: parseInt(item.stock) || 0,
+                image: item.link_foto || 'https://placehold.co/400x280?text=Ikan',
+                size: item.jenis && item.jenis.includes('cm') ? item.jenis : '5 cm',
+                origin: item.kategori && item.kategori.includes('Thailand') ? 'Thailand' : 'Lokal'
             }));
-            
             renderProducts('all', 'homeProductGrid');
             renderProducts('all', 'productGrid');
-            console.log(`✅ ${result.count} produk dimuat`);
-        } else {
-            loadDefaultProducts();
-        }
-    } catch (error) {
-        console.error('❌ Gagal memuat produk:', error);
-        loadDefaultProducts();
-    }
-}
-
-function loadDefaultProducts() {
-    products = [
-        { id: 1, name: "Louhan Kamfa F1 Thailand", category: "Kamfa F1 Thailand", type: "Kamfa", origin: "Thailand", size: "4 cm", price: 2000000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Premium" },
-        { id: 2, name: "Louhan Kamfa F2 Thailand", category: "Kamfa F2 Thailand", type: "Kamfa", origin: "Thailand", size: "5 cm", price: 1500000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Best Seller" },
-        { id: 3, name: "Louhan Kamfa F3 Thailand", category: "Kamfa F3 Thailand", type: "Kamfa", origin: "Thailand", size: "6 cm", price: 1000000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: null },
-        { id: 4, name: "Louhan Kamfa F2 Lokal", category: "Kamfa F2 Lokal", type: "Kamfa", origin: "Lokal", size: "7 cm", price: 800000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: "Diskon" },
-        { id: 5, name: "Louhan Kamfa F2 Line GB", category: "Kamfa F2 Line GB", type: "Kamfa", origin: "Lokal", size: "8 cm", price: 600000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: null },
-        { id: 6, name: "Louhan Kamfa F2 Lokal Pride", category: "Kamfa F2 Lokal Pride", type: "Kamfa", origin: "Lokal", size: "10 cm", price: 500000, stock: 1, image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", badge: "New" },
-        { id: 7, name: "Louhan Cencu Lokal", category: "Cencu Lokal", type: "Cencu", origin: "Lokal", size: "11 cm", price: 400000, stock: 1, image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", badge: null },
-        { id: 8, name: "Louhan Cencu Lokal GB", category: "Cencu Lokal GB", type: "Cencu", origin: "Lokal", size: "12 cm", price: 300000, stock: 1, image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", badge: "Terlaris" }
-    ];
-    renderProducts('all', 'homeProductGrid');
-    renderProducts('all', 'productGrid');
+        } else { loadDefaultProducts(); }
+    } catch (e) { loadDefaultProducts(); }
 }
 
 async function loadArticlesFromSheet() {
     try {
         const response = await fetch(`${API_URL}?action=getArtikel`);
         const result = await response.json();
-        
-        if (result.success && result.data && result.data.length > 0) {
+        if (result.success) {
             articles = result.data.map((item, index) => ({
                 id: index + 1,
-                title: item.judul || 'Artikel',
-                excerpt: (item.isi_artikel || '').substring(0, 100) + '...',
-                content: item.isi_artikel || '',
-                date: item.tanggal || '20 Apr 2026',
-                image: item.link_foto || 'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400'
+                title: item.judul,
+                excerpt: item.isi_artikel.substring(0, 100) + '...',
+                content: item.isi_artikel,
+                date: item.tanggal,
+                image: item.link_foto
             }));
             renderArticles();
-        } else {
-            loadDefaultArticles();
-        }
-    } catch (error) {
-        console.error('❌ Gagal memuat artikel:', error);
-        loadDefaultArticles();
-    }
-}
-
-function loadDefaultArticles() {
-    articles = [
-        { id: 1, title: "Cara Merawat Ikan Louhan Agar Berkualitas Kontes", excerpt: "Panduan lengkap perawatan ikan louhan dari pemilihan pakan hingga pengaturan air...", date: "15 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Ikan louhan merupakan salah satu ikan hias yang sangat populer di Indonesia. Untuk mendapatkan kualitas kontes, perawatan harus dilakukan dengan teliti. Pertama, pastikan kualitas air selalu terjaga dengan pH 6.5-7.5. Kedua, berikan pakan berkualitas seperti pelet khusus louhan, cacing beku, dan udang. Ketiga, perhatikan suhu air yang ideal antara 26-30°C. Keempat, lakukan perawatan ketok kepala secara rutin untuk membentuk jenong. Kelima, berikan pencahayaan yang cukup 8-12 jam per hari." },
-        { id: 2, title: "Membedakan Jenis Kamfa dan Cencu", excerpt: "Kenali perbedaan karakteristik antara louhan jenis Kamfa dan Cencu...", date: "12 Apr 2026", image: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400", content: "Kamfa dan Cencu adalah dua jenis louhan yang paling diminati. Kamfa memiliki ciri khas mutiara (pearls) yang merata di seluruh tubuh, warna dasar gelap, dan ekor melebar. Cencu memiliki corak warna yang lebih cerah dengan pola khas di kepalanya. Kamfa cenderung lebih agresif dan aktif dibandingkan Cencu. Dalam kontes, Kamfa dinilai dari mutiaranya, jenong, dan warna. Cencu dinilai dari corak, warna, dan proporsi tubuh." },
-        { id: 3, title: "Tips Memilih Louhan Berkualitas", excerpt: "Panduan memilih ikan louhan yang berpotensi menjadi juara kontes...", date: "10 Apr 2026", image: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=400", content: "Memilih louhan berkualitas memerlukan kejelian. Perhatikan simetri tubuh, mutiara yang merata, dan aktifitas ikan. Pilih ikan dengan mata cerah dan sirip utuh. Jenong yang bagus terlihat dari bentuk kepala yang proporsional. Warna yang cerah dan kontras menandakan ikan sehat. Jangan lupa perhatikan garis keturunan (line) ikan tersebut." },
-        { id: 4, title: "Setting Aquarium Ideal untuk Louhan", excerpt: "Ukuran dan perlengkapan aquarium yang tepat untuk ikan louhan...", date: "8 Apr 2026", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400", content: "Aquarium untuk louhan minimal berukuran 60x40x40 cm untuk ikan ukuran 10-15 cm. Gunakan filter yang kuat karena louhan menghasilkan banyak limbah. Pasir dasar opsional, namun disarankan menggunakan batu karang atau tanaman plastik. Suhu air dijaga 26-30°C dengan heater. Lampu LED dengan warna putih atau biru membantu menonjolkan warna ikan." }
-    ];
-    renderArticles();
+        } else { loadDefaultArticles(); }
+    } catch (e) { loadDefaultArticles(); }
 }
 
 async function loadReviewsFromSheet() {
     try {
         const response = await fetch(`${API_URL}?action=getUlasan`);
         const result = await response.json();
-        
-        if (result.success && result.data && result.data.length > 0) {
+        if (result.success) {
             reviews = result.data.map(item => ({
-                name: item.nama || 'Anonim',
-                rating: parseInt(item.bintang) || 5,
-                text: item.komentar || '',
-                avatar: (item.nama || 'A').charAt(0).toUpperCase()
+                name: item.nama,
+                rating: parseInt(item.bintang),
+                text: item.komentar,
+                avatar: item.nama.charAt(0).toUpperCase()
             }));
             renderReviews();
-        } else {
-            loadDefaultReviews();
-        }
-    } catch (error) {
-        console.error('❌ Gagal memuat ulasan:', error);
-        loadDefaultReviews();
-    }
-}
-
-function loadDefaultReviews() {
-    reviews = [
-        { name: "Ahmad Rizky", rating: 5, text: "Ikan yang dikirim sangat berkualitas, packing aman sampai rumah. Recommended seller!", avatar: "A" },
-        { name: "Budi Santoso", rating: 5, text: "Sudah 3x belanja di sini, selalu puas dengan kualitas louhannya. Owner ramah dan informatif.", avatar: "B" },
-        { name: "Citra Dewi", rating: 4, text: "Pengiriman cepat, ikan sehat dan aktif. Harga sesuai kualitas. Terima kasih Biip Flowerhorn!", avatar: "C" }
-    ];
-    renderReviews();
+        } else { loadDefaultReviews(); }
+    } catch (e) { loadDefaultReviews(); }
 }
 
 // ============================================================
-// INIT & LOADER
+// RENDER & UI LOGIC
 // ============================================================
-window.onload = function() {
-    // Sembunyikan loader setelah 2 detik (pasti!)
-    setTimeout(hideLoader, 2000);
-    
-    // Load data (tidak blocking)
-    setTimeout(async () => {
-        try {
-            await loadProductsFromSheet();
-            await loadArticlesFromSheet();
-            await loadReviewsFromSheet();
-        } catch (e) {
-            console.error('Init error:', e);
-        }
-        startHeroSlider();
-    }, 100);
-};
-
-// ============================================================
-// HERO SLIDER
-// ============================================================
-let currentSlide = 0;
-function startHeroSlider() {
-    setInterval(() => {
-        const slides = document.querySelectorAll('.hero-slide');
-        const dots = document.querySelectorAll('.hero-dot');
-        if (slides.length === 0) return;
-        slides[currentSlide].classList.remove('active');
-        dots[currentSlide].classList.remove('active');
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-    }, 5000);
+function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function goToSlide(index) {
-    const slides = document.querySelectorAll('.hero-slide');
-    const dots = document.querySelectorAll('.hero-dot');
-    if (slides.length === 0) return;
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-    currentSlide = index;
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-}
-
-// ============================================================
-// NAVIGASI
-// ============================================================
-function showPage(page) {
+function showPage(pageId) {
     document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
-    document.getElementById('page-' + page).style.display = 'block';
-    currentPage = page;
-    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (page === 'products') renderProducts('all', 'productGrid');
-    if (page === 'home') renderProducts('all', 'homeProductGrid');
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.style.display = 'block';
+    currentPage = pageId;
+    window.scrollTo(0, 0);
 }
 
-function toggleMenu() {
-    document.getElementById('menuOverlay').classList.toggle('active');
-    document.getElementById('menuSidebar').classList.toggle('active');
-}
-
-function toggleCart() {
-    document.getElementById('cartOverlay').classList.toggle('active');
-    document.getElementById('cartSidebar').classList.toggle('active');
-}
-
-// ============================================================
-// PRODUK
-// ============================================================
 function renderProducts(filter, gridId) {
-    const grid = document.getElementById(gridId) || document.getElementById('productGrid');
+    const grid = document.getElementById(gridId);
     if (!grid) return;
     
     let filtered = products;
     if (filter !== 'all') {
-        filtered = products.filter(p => 
-            (p.category && p.category.includes(filter)) || 
-            (p.type && p.type.includes(filter)) || 
-            (p.origin && p.origin.includes(filter))
-        );
+        filtered = products.filter(p => p.category.includes(filter) || p.type.includes(filter));
     }
 
-    grid.innerHTML = filtered.map(product => `
+    grid.innerHTML = filtered.map(p => `
         <div class="product-card">
-            ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-            <button class="product-wishlist" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
             <div class="product-img-wrap">
-                <img src="${product.image}" alt="${product.name}" class="product-img" onerror="this.src='https://via.placeholder.com/400x280?text=Louhan'">
-                <div class="product-overlay">
-                    <button class="product-quick-view" onclick="showToast('Quick view: ${product.name}')">
-                        <i class="fas fa-eye"></i> Lihat Detail
-                    </button>
-                </div>
+                <img src="${p.image}" class="product-img" onerror="this.src='https://placehold.co/400x280?text=Ikan'">
             </div>
             <div class="product-info">
-                <div class="product-meta">
-                    <span class="product-category-tag">${product.category}</span>
-                    <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${product.stock} Ekor</span>
-                </div>
-                <h3 class="product-name">${product.name}</h3>
-                <div class="product-variant">Size: ${product.size} | ${product.origin}</div>
-                <div class="product-price-row">
-                    <div>
-                        <span class="product-price">${formatRupiah(product.price)}</span>
-                    </div>
-                    <div class="product-rating">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-                <button class="add-cart-btn" onclick="addToCart(${product.id})">
-                    <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
+                <span class="product-category-tag">${p.category}</span>
+                <h3 class="product-name">${p.name}</h3>
+                <div class="product-price">${formatRupiah(p.price)}</div>
+                <button class="add-cart-btn" onclick="addToCart(${p.id})">
+                    <i class="fas fa-cart-plus"></i> Tambah
                 </button>
             </div>
         </div>
     `).join('');
 }
 
-function filterProducts(category) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.includes(category) || (category === 'all' && btn.textContent.includes('Semua'))) {
-            btn.classList.add('active');
-        }
-    });
-    const gridId = currentPage === 'home' ? 'homeProductGrid' : 'productGrid';
-    renderProducts(category, gridId);
-}
-
-function filterFromMenu(category) {
-    toggleMenu();
-    showPage('products');
-    setTimeout(() => filterProducts(category), 100);
-}
-
-function searchFromMenu(query) {
-    if (query.length <= 2) return;
-    toggleMenu();
-    showPage('products');
-    const grid = document.getElementById('productGrid');
-    if (!grid) return;
-    const filtered = products.filter(p => 
-        (p.name && p.name.toLowerCase().includes(query.toLowerCase())) ||
-        (p.category && p.category.toLowerCase().includes(query.toLowerCase()))
-    );
-    grid.innerHTML = filtered.map(product => `
-        <div class="product-card">
-            ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-            <div class="product-img-wrap">
-                <img src="${product.image}" alt="${product.name}" class="product-img">
-            </div>
-            <div class="product-info">
-                <div class="product-meta">
-                    <span class="product-category-tag">${product.category}</span>
-                    <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${product.stock}</span>
-                </div>
-                <h3 class="product-name">${product.name}</h3>
-                <div class="product-variant">Size: ${product.size}</div>
-                <div class="product-price-row">
-                    <span class="product-price">${formatRupiah(product.price)}</span>
-                </div>
-                <button class="add-cart-btn" onclick="addToCart(${product.id})">
-                    <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-// ============================================================
-// KERANJANG
-// ============================================================
-function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        if (existingItem.quantity < product.stock) {
-            existingItem.quantity++;
-        } else {
-            showToast('Stok tidak mencukupi!', false);
-            return;
-        }
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
-
-    updateCart();
-    showToast(`${product.name} ditambahkan ke keranjang!`);
-    
-    const badge = document.getElementById('cartBadge');
-    if (badge) {
-        badge.style.transform = 'scale(1.5)';
-        setTimeout(() => badge.style.transform = 'scale(1)', 300);
-    }
-}
-
-function updateCart() {
-    const cartItems = document.getElementById('cartItems');
-    const cartBadge = document.getElementById('cartBadge');
-    const cartFooter = document.getElementById('cartFooter');
-    const cartSubtotal = document.getElementById('cartSubtotal');
-    const cartTotal = document.getElementById('cartTotal');
-
-    if (!cartItems || !cartBadge) return;
-
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartBadge.textContent = totalItems;
-
-    if (cart.length === 0) {
-        cartItems.innerHTML = `
-            <div class="cart-empty">
-                <i class="fas fa-fish"></i>
-                <p>Keranjang masih kosong</p>
-                <p style="font-size:0.9rem;margin-top:0.5rem;">Yuk, pilih ikan louhan favoritmu!</p>
-            </div>
-        `;
-        if (cartFooter) cartFooter.style.display = 'none';
-        return;
-    }
-
-    if (cartFooter) cartFooter.style.display = 'block';
-    cartItems.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-variant">${item.size} | ${item.category}</div>
-                <div class="cart-item-price">${formatRupiah(item.price)}</div>
-                <div class="cart-item-qty">
-                    <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)"><i class="fas fa-minus"></i></button>
-                    <span>${item.quantity}</span>
-                    <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)"><i class="fas fa-plus"></i></button>
-                    <span style="flex:1"></span>
-                    <i class="fas fa-trash remove-item" onclick="removeFromCart(${item.id})"></i>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    if (cartSubtotal) cartSubtotal.textContent = formatRupiah(subtotal);
-    if (cartTotal) cartTotal.textContent = formatRupiah(subtotal + 25000);
-}
-
-function updateQuantity(productId, change) {
-    const item = cart.find(item => item.id === productId);
-    const product = products.find(p => p.id === productId);
-    if (!item || !product) return;
-    
-    item.quantity += change;
-    if (item.quantity <= 0) {
-        removeFromCart(productId);
-    } else if (item.quantity > product.stock) {
-        showToast('Stok tidak mencukupi!', false);
-        item.quantity = product.stock;
-        updateCart();
-    } else {
-        updateCart();
-    }
-}
-
-function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
-    updateCart();
-    showToast('Produk dihapus dari keranjang');
-}
-
-// ============================================================
-// WHATSAPP & CHECKOUT
-// ============================================================
-async function sendOrderToSheet(orderData) {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'tambahOrder',
-                nama: orderData.nama,
-                email: orderData.email || '',
-                telepon: orderData.telepon || '',
-                pesanan: orderData.pesanan,
-                total: orderData.total
-            })
-        });
-        const result = await response.json();
-        return result.success;
-    } catch (error) {
-        console.error('Error kirim order:', error);
-        return false;
-    }
-}
-
-async function checkoutAndSave() {
-    if (cart.length === 0) {
-        showToast('Keranjang masih kosong!', false);
-        return;
-    }
-    
-    const nama = prompt('Masukkan nama lengkap Anda:');
-    if (!nama) return;
-    
-    const email = prompt('Masukkan email (opsional):') || '';
-    const telepon = prompt('Masukkan nomor telepon:') || '';
-    
-    let pesananDetail = '';
-    let subtotal = 0;
-    
-    cart.forEach(item => {
-        pesananDetail += `${item.name} (${item.size}) x${item.quantity} = ${formatRupiah(item.price * item.quantity)}\n`;
-        subtotal += item.price * item.quantity;
-    });
-    
-    const total = subtotal + 25000;
-    
-    showToast('Menyimpan pesanan...', true);
-    
-    await sendOrderToSheet({
-        nama: nama,
-        email: email,
-        telepon: telepon,
-        pesanan: pesananDetail,
-        total: formatRupiah(total)
-    });
-    
-    sendWAOrder();
-}
-
-function sendWAOrder() {
-    if (cart.length === 0) {
-        showToast('Keranjang masih kosong!', false);
-        return;
-    }
-
-    let message = "Halo Biip Flowerhorn Aquatic,\n\nSaya ingin memesan:\n";
-    let total = 0;
-    
-    cart.forEach(item => {
-        message += `\n• ${item.name} (${item.size})`;
-        message += `\n  Jumlah: ${item.quantity} ekor`;
-        message += `\n  Harga: ${formatRupiah(item.price * item.quantity)}\n`;
-        total += item.price * item.quantity;
-    });
-    
-    message += `\n\nSubtotal: ${formatRupiah(total)}`;
-    message += `\nOngkir: Rp 25.000`;
-    message += `\n*Total: ${formatRupiah(total + 25000)}*`;
-    message += `\n\nMohon konfirmasi ketersediaan stok. Terima kasih!`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/6285716842806?text=${encodedMessage}`, '_blank');
-    
-    toggleCart();
-    showToast('Mengarahkan ke WhatsApp Admin...');
-}
-
-function checkoutCart() {
-    showToast('Fitur checkout online akan segera hadir! Silakan gunakan WhatsApp.', true);
-}
-
-// ============================================================
-// ARTIKEL
-// ============================================================
 function renderArticles() {
     const grid = document.getElementById('articlesGrid');
     if (!grid) return;
-    grid.innerHTML = articles.map(article => `
-        <div class="article-card" onclick="showArticleDetail(${article.id})">
-            <img src="${article.image}" alt="${article.title}" class="article-img">
+    grid.innerHTML = articles.map(a => `
+        <div class="article-card" onclick="showArticleDetail(${a.id})">
+            <img src="${a.image}" class="article-img">
             <div class="article-content">
-                <div class="article-date"><i class="far fa-calendar"></i> ${article.date}</div>
-                <h3 class="article-title">${article.title}</h3>
-                <p class="article-excerpt">${article.excerpt}</p>
-                <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
+                <h3>${a.title}</h3>
+                <p>${a.excerpt}</p>
             </div>
         </div>
     `).join('');
 }
 
-function showArticleDetail(id) {
-    const article = articles.find(a => a.id === id);
-    if (!article) return;
-    
-    document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
-    const detailPage = document.getElementById('page-article-detail');
-    if (detailPage) detailPage.style.display = 'block';
-    
-    const content = document.getElementById('articleDetailContent');
-    if (content) {
-        content.innerHTML = `
-            <img src="${article.image}" style="width:100%;height:400px;object-fit:cover;border-radius:20px;margin-bottom:2rem;">
-            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;color:var(--primary);font-weight:600;">
-                <span><i class="far fa-calendar"></i> ${article.date}</span>
-                <span><i class="far fa-user"></i> Admin</span>
-            </div>
-            <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;margin-bottom:1.5rem;">${article.title}</h1>
-            <div style="line-height:2;color:var(--gray);font-size:1.1rem;">
-                ${article.content}
-            </div>
-            <div style="margin-top:3rem;padding:2rem;background:#f8fafc;border-radius:20px;">
-                <h3 style="margin-bottom:1rem;"><i class="fas fa-share-alt" style="color:var(--primary)"></i> Bagikan Artikel</h3>
-                <div style="display:flex;gap:1rem;">
-                    <button class="filter-btn" onclick="showToast('Bagikan ke Facebook')"><i class="fab fa-facebook"></i> Facebook</button>
-                    <button class="filter-btn" onclick="showToast('Bagikan ke Twitter')"><i class="fab fa-twitter"></i> Twitter</button>
-                    <button class="filter-btn" onclick="showToast('Bagikan ke WhatsApp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-                </div>
-            </div>
-        `;
-    }
-    window.scrollTo(0, 0);
-}
-
-// ============================================================
-// ULASAN
-// ============================================================
 function renderReviews() {
     const grid = document.getElementById('reviewsGrid');
     if (!grid) return;
-    grid.innerHTML = reviews.map(review => `
+    grid.innerHTML = reviews.map(r => `
         <div class="review-card">
             <div class="review-header">
-                <div class="review-avatar">${review.avatar}</div>
-                <div class="review-meta">
-                    <h4>${review.name}</h4>
-                    <div class="review-stars">
-                        ${Array(review.rating).fill('<i class="fas fa-star"></i>').join('')}
-                        ${Array(5 - review.rating).fill('<i class="far fa-star"></i>').join('')}
-                    </div>
+                <div class="review-avatar">${r.avatar}</div>
+                <div>
+                    <h4>${r.name}</h4>
+                    <div class="review-stars">${'⭐'.repeat(r.rating)}</div>
                 </div>
             </div>
-            <p class="review-text">"${review.text}"</p>
+            <p class="review-text">"${r.text}"</p>
         </div>
     `).join('');
 }
 
-function setRating(rating) {
-    currentRating = rating;
-    const stars = document.querySelectorAll('#starInput i');
-    stars.forEach((star, index) => {
-        if (index < rating) {
-            star.classList.add('active');
-        } else {
-            star.classList.remove('active');
-        }
-    });
-}
-
-async function sendReviewToSheet(reviewData) {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'tambahUlasan',
-                nama: reviewData.nama,
-                bintang: reviewData.bintang,
-                komentar: reviewData.komentar,
-                produk: reviewData.produk || ''
-            })
-        });
-        const result = await response.json();
-        return result.success;
-    } catch (error) {
-        console.error('Error kirim ulasan:', error);
-        return false;
-    }
-}
-
-async function submitReview() {
-    const name = document.getElementById('reviewName').value;
-    const text = document.getElementById('reviewText').value;
-    
-    if (!name || !text || currentRating === 0) {
-        showToast('Mohon lengkapi nama, rating, dan ulasan!', false);
-        return;
-    }
-    
-    showToast('Mengirim ulasan...', true);
-    
-    const success = await sendReviewToSheet({
-        nama: name,
-        bintang: currentRating,
-        komentar: text,
-        produk: 'Umum'
-    });
-    
-    reviews.unshift({
-        name: name,
-        rating: currentRating,
-        text: text,
-        avatar: name.charAt(0).toUpperCase()
-    });
-    
-    renderReviews();
-    
-    document.getElementById('reviewName').value = '';
-    document.getElementById('reviewText').value = '';
-    currentRating = 0;
-    document.querySelectorAll('#starInput i').forEach(s => s.classList.remove('active'));
-    
-    if (success) {
-        showToast('Terima kasih! Ulasan Anda telah tersimpan.', true);
-    } else {
-        showToast('Ulasan ditampilkan (mode offline)', true);
-    }
-}
-
 // ============================================================
-// LOGIN & AUTH
+// KERANJANG & NAVIGASI (SIDEBAR)
 // ============================================================
-function openLogin() {
-    document.getElementById('loginModal').classList.add('active');
+function toggleMenu() {
+    document.getElementById('menuSidebar').classList.toggle('active');
+    document.getElementById('menuOverlay').classList.toggle('active');
 }
 
-function closeLogin() {
-    document.getElementById('loginModal').classList.remove('active');
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('active');
+    document.getElementById('cartOverlay').classList.toggle('active');
 }
 
-function switchAuthTab(tab) {
-    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-    document.getElementById('forgotForm').style.display = 'none';
+function addToCart(id) {
+    const p = products.find(prod => prod.id === id);
+    if (!p) return;
+    cart.push(p);
+    showToast(`${p.name} masuk keranjang`);
+    updateCartUI();
 }
 
-function showForgotPassword() {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'none';
-    document.getElementById('forgotForm').style.display = 'block';
+function updateCartUI() {
+    const badge = document.getElementById('cartBadge');
+    if (badge) badge.textContent = cart.length;
 }
 
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    if (!email || !password) {
-        showToast('Mohon isi email dan password!', false);
-        return;
-    }
-    
-    showToast('Memproses login...', true);
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'loginUser',
-                email: email,
-                password: password
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            currentUser = result.user;
-            closeLogin();
-            showToast(`Selamat datang, ${result.user.nama}!`);
-            
-            document.getElementById('menuUser').innerHTML = `
-                <div class="menu-user-avatar" style="background:linear-gradient(135deg,var(--primary),var(--secondary));">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div>
-                    <div style="font-weight:600;">${result.user.nama}</div>
-                    <div style="font-size:0.8rem;opacity:0.8;">${result.user.email}</div>
-                </div>
-            `;
-            
-            document.querySelector('.menu-footer').innerHTML = `
-                <button class="menu-login-btn" onclick="handleLogout()" style="background:linear-gradient(135deg,#ef4444,#dc2626);">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            `;
-        } else {
-            showToast(result.message || 'Login gagal!', false);
-        }
-    } catch (error) {
-        showToast('Koneksi gagal, coba lagi', false);
-    }
-}
-
-async function handleRegister() {
-    const name = document.getElementById('regName').value;
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    
-    if (!name || !email || !password) {
-        showToast('Mohon lengkapi semua data!', false);
-        return;
-    }
-    
-    if (password.length < 6) {
-        showToast('Password minimal 6 karakter!', false);
-        return;
-    }
-    
-    showToast('Mendaftarkan akun...', true);
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'registerUser',
-                email: email,
-                password: password,
-                nama: name,
-                telepon: ''
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showToast('Pendaftaran berhasil! Silakan login.', true);
-            switchAuthTab('login');
-        } else {
-            showToast(result.message || 'Pendaftaran gagal!', false);
-        }
-    } catch (error) {
-        showToast('Koneksi gagal, coba lagi', false);
-    }
-}
-
-function handleLogout() {
-    currentUser = null;
-    showToast('Anda telah logout');
-    
-    document.getElementById('menuUser').innerHTML = `
-        <div class="menu-user-avatar"><i class="fas fa-user"></i></div>
-        <div>
-            <div style="font-weight:600;">Pengunjung</div>
-            <div style="font-size:0.8rem;opacity:0.8;">Silakan login</div>
-        </div>
-    `;
-    
-    document.querySelector('.menu-footer').innerHTML = `
-        <button class="menu-login-btn" onclick="toggleMenu(); openLogin()">
-            <i class="fas fa-sign-in-alt"></i> Login / Daftar
-        </button>
-    `;
-}
-
-async function handleForgot() {
-    const email = document.getElementById('forgotEmail').value;
-    if (!email) {
-        showToast('Mohon masukkan email!', false);
-        return;
-    }
-    
-    showToast('Mengirim link reset...', true);
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'resetPassword',
-                email: email
-            })
-        });
-        
-        const result = await response.json();
-        showToast(result.message, result.success);
-        
-        if (result.success) {
-            switchAuthTab('login');
-        }
-    } catch (error) {
-        showToast('Koneksi gagal', false);
-    }
-}
-
-// ============================================================
-// WISHLIST & TOAST
-// ============================================================
-function toggleWishlist(btn) {
-    btn.classList.toggle('active');
-    const icon = btn.querySelector('i');
-    if (btn.classList.contains('active')) {
-        icon.classList.remove('far');
-        icon.classList.add('fas');
-        showToast('Ditambahkan ke wishlist!');
-    } else {
-        icon.classList.remove('fas');
-        icon.classList.add('far');
-        showToast('Dihapus dari wishlist');
-    }
-}
-
-function showToast(message, isSuccess = true) {
+function showToast(msg, success = true) {
     const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toastMessage');
-    if (!toast || !toastMessage) return;
-    
-    toastMessage.textContent = message;
-    toast.className = 'toast show' + (isSuccess ? ' success' : ' error');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    const msgEl = document.getElementById('toastMessage');
+    if(!toast || !msgEl) return;
+    msgEl.textContent = msg;
+    toast.className = `toast show ${success ? 'success' : 'error'}`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Close modal on outside click
-document.getElementById('loginModal').addEventListener('click', function(e) {
-    if (e.target === this) closeLogin();
-});
+// Sisipkan fungsi default (loadDefaultProducts, dll) dan Hero Slider di bawah sini jika diperlukan.
 </script>
-    <script>
-    // FUNGSI PENGHILANG LOADER (VERSI PAKSA)
-    function hideLoader() {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            console.log("Loader ditemukan, mencoba menghapus...");
-            loader.style.display = 'none'; // Langsung hilangkan tanpa transisi
-            loader.style.visibility = 'hidden';
-            loader.style.zIndex = '-9999'; // Lempar ke lapisan paling belakang
-        }
-    }
-
-    // Jalankan segera saat DOM siap
-    document.addEventListener('DOMContentLoaded', hideLoader);
-
-    // Jalankan lagi saat semua gambar/asset selesai (Backup)
-    window.addEventListener('load', hideLoader);
-
-    // Jalankan paksa setelah 3 detik (Jika ada asset yang nyangkut/lemot)
-    setTimeout(hideLoader, 3000);
-
-    // --- FUNGSI NAVIGASI & SIDEBAR (Tetap diperlukan agar tombol jalan) ---
-    function showPage(pageId) {
-        const pages = ['home', 'products', 'articles', 'about', 'contact', 'article-detail'];
-        pages.forEach(p => {
-            const el = document.getElementById('page-' + p);
-            if (el) el.style.display = 'none';
-        });
-        const targetPage = document.getElementById('page-' + pageId);
-        if (targetPage) targetPage.style.display = 'block';
-        window.scrollTo(0, 0);
-    }
-
-    function toggleMenu() {
-        document.getElementById('menuSidebar').classList.toggle('active');
-        document.getElementById('menuOverlay').classList.toggle('active');
-    }
-
-    function toggleCart() {
-        document.getElementById('cartSidebar').classList.toggle('active');
-        document.getElementById('cartOverlay').classList.toggle('active');
-    }
-  <script>
-      <script>
-    // 1. DEFINISI URL (Wajib ada di paling atas)
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
-
-    // 2. FUNGSI PEMBUKA LOADING SCREEN (Yang sudah berhasil tadi)
-    function hideLoader() {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.display = 'none';
-        }
-    }
-
-    // 3. FUNGSI AMBIL DATA (IKAN, ARTIKEL, ULASAN)
-    async function loadAllData() {
-        try {
-            // Ambil Ikan
-            const resIkan = await fetch(`${API_URL}?action=getIkan`);
-            const dataIkan = await resIkan.json();
-            if(dataIkan.success) { /* ... kode render ikan ... */ }
-
-            // Ambil Artikel
-            const resArt = await fetch(`${API_URL}?action=getArtikel`);
-            const dataArt = await resArt.json();
-            if(dataArt.success) { /* ... kode render artikel ... */ }
-
-            // Ambil Ulasan
-            const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
-            const dataUlasan = await resUlasan.json();
-            if(dataUlasan.success) { /* ... kode render ulasan ... */ }
-
-        } catch (error) {
-            console.error("Gagal mengambil data:", error);
-        }
-    }
-
-    // 4. JALANKAN SEMUANYA SAAT HALAMAN SELESAI LOADING
-    window.addEventListener('load', () => {
-        hideLoader();   // Buka layar dulu agar user tidak menunggu lama
-        loadAllData();  // Lalu isi kontennya dengan data dari Spreadsheet
-    });
-
-    // 5. FUNGSI TOMBOL-TOMBOL (Menu, Keranjang, dll tetap di sini)
-    function toggleMenu() { /* ... */ }
-    function showPage(id) { /* ... */ }
-</script>
-</script>
-</body>
-</html>
