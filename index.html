@@ -2923,20 +2923,29 @@ document.getElementById('loginModal').addEventListener('click', function(e) {
     if (e.target === this) closeLogin();
 });
 </script>
+    
     <script>
-    // 1. SOLUSI LOADING SCREEN (Agar website tidak tertutup)
-    window.addEventListener('load', function() {
+    // FUNGSI PENGHILANG LOADER (VERSI PAKSA)
+    function hideLoader() {
         const loader = document.getElementById('loader');
         if (loader) {
-            loader.style.transition = "opacity 0.5s ease";
-            loader.style.opacity = "0";
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500);
+            console.log("Loader ditemukan, mencoba menghapus...");
+            loader.style.display = 'none'; // Langsung hilangkan tanpa transisi
+            loader.style.visibility = 'hidden';
+            loader.style.zIndex = '-9999'; // Lempar ke lapisan paling belakang
         }
-    });
+    }
 
-    // 2. FUNGSI NAVIGASI HALAMAN (showPage)
+    // Jalankan segera saat DOM siap
+    document.addEventListener('DOMContentLoaded', hideLoader);
+
+    // Jalankan lagi saat semua gambar/asset selesai (Backup)
+    window.addEventListener('load', hideLoader);
+
+    // Jalankan paksa setelah 3 detik (Jika ada asset yang nyangkut/lemot)
+    setTimeout(hideLoader, 3000);
+
+    // --- FUNGSI NAVIGASI & SIDEBAR (Tetap diperlukan agar tombol jalan) ---
     function showPage(pageId) {
         const pages = ['home', 'products', 'articles', 'about', 'contact', 'article-detail'];
         pages.forEach(p => {
@@ -2948,55 +2957,17 @@ document.getElementById('loginModal').addEventListener('click', function(e) {
         window.scrollTo(0, 0);
     }
 
-    // 3. FUNGSI SIDEBAR MENU & KERANJANG
     function toggleMenu() {
-        const menu = document.getElementById('menuSidebar');
-        const overlay = document.getElementById('menuOverlay');
-        menu.classList.toggle('active');
-        overlay.classList.toggle('active');
+        document.getElementById('menuSidebar').classList.toggle('active');
+        document.getElementById('menuOverlay').classList.toggle('active');
     }
 
     function toggleCart() {
-        const cart = document.getElementById('cartSidebar');
-        const overlay = document.getElementById('cartOverlay');
-        cart.classList.toggle('active');
-        overlay.classList.toggle('active');
+        document.getElementById('cartSidebar').classList.toggle('active');
+        document.getElementById('cartOverlay').classList.toggle('active');
     }
-
-    // 4. FUNGSI MODAL LOGIN
-    function openLogin() {
-        document.getElementById('loginModal').style.display = 'flex';
-    }
-
-    function closeLogin() {
-        document.getElementById('loginModal').style.display = 'none';
-    }
-
-    // 5. FUNGSI HERO SLIDER
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.hero-slide');
-    const dots = document.querySelectorAll('.hero-dot');
-
-    function goToSlide(n) {
-        slides.forEach(s => s.classList.remove('active'));
-        dots.forEach(d => d.classList.remove('active'));
-        currentSlide = (n + slides.length) % slides.length;
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-    }
-
-    setInterval(() => {
-        if(slides.length > 0) goToSlide(currentSlide + 1);
-    }, 5000);
-
-    // 6. FUNGSI TOAST NOTIFIKASI
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        const msg = document.getElementById('toastMessage');
-        msg.innerText = message;
-        toast.classList.add('active');
-        setTimeout(() => toast.classList.remove('active'), 3000);
-    }
+  <script>
+      
 </script>
 </body>
 </html>
