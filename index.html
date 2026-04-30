@@ -2061,12 +2061,30 @@
     </div>
 
 <script>
-// 1. KONFIGURASI DASAR
-const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
+// ============================================================
+// 1. CONFIG API & STATE (GANTI DENGAN URL WEB APP ANDA)
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec'; 
 
-// 2. FUNGSI NAVIGASI (Ditempatkan paling atas agar prioritas utama)
+let products = [];
+let cart = [];
+
+// ============================================================
+// 2. FUNGSI UTILITAS & NAVIGASI
+// ============================================================
+function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function killLoader() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+    }
+}
+
 function showPage(pageId) {
-    console.log("Navigasi ke:", pageId);
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
     
@@ -2077,79 +2095,234 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
 }
 
-function openLogin() {
-    console.log("Membuka Modal Login...");
-    const modal = document.getElementById('loginModal');
-    if (modal) {
-        modal.classList.add('active');
-    } else {
-        alert("Eror: Elemen 'loginModal' tidak ditemukan di HTML!");
+// Sesuai atribut onclick di HTML Anda
+function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); }
+function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+
+// ============================================================
+// 3. FUNGSI RENDER (MENYESUAIKAN TAMPILAN GAMBAR)
+// ============================================================
+
+// A. Render Produk Terbaru (4 Kolom Rapi)
+function renderProductsToGrid(gridId, data) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    
+    if (data.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;width:100%;color:var(--gray);">Memuat produk...</p>';
+        return;
     }
+
+    grid.innerHTML = data.map(p => `
+        <div class="product-card">
+            <span class="product-badge">${p.type} ${p.size}</span>
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Flowerhorn'">
+            <div class="product-info">
+                <span class="category-tag">${p.kategori}</span>
+                <h3>${p.nama}</h3>
+                <div class="product-price-row">
+                    <p class="price">${formatRupiah(p.harga)}</p>
+                    <button class="add-to-cart-btn" onclick="addToCart(${p.id})">
+                        <i class="fas fa-cart-plus">Melihat gambar yang Anda kirim, saya langsung mengenali desain ini. Ini adalah struktur website e-commerce Biip Flowerhorn yang elegan, *clean*, dan profesional, lengkap dengan banner, katalog produk 4 kolom yang rapi, dan sistem ulasan pelanggan.
+
+Saya mengerti kekecewaan Anda karena kode sebelumnya belum berfungsi sempurna. Kita tidak akan lagi menggunakan solusi sementara. Kita akan membangun sistem navigasi dan sinkronisasi data yang **tangguh** agar website Anda tampil persis seperti gambar tersebut menggunakan data dari Google Spreadsheet Anda.
+
+Berikut adalah perbaikan **blok kode JavaScript utuh** yang harus Anda gunakan. Kode ini sudah disatukan, dibersihkan dari fungsi ganda, dan disesuaikan untuk merender data dari Spreadsheet agar tampilannya **presisi** seperti gambar yang Anda kirim.
+
+Silakan **ganti seluruh** blok `<script>` lama Anda di file HTML dengan kode di bawah ini:
+
+```javascript
+<script>
+// ============================================================
+// 1. CONFIG API & STATE (GANTI DENGAN URL WEB APP ANDA)
+// ============================================================
+const API_URL = '[https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec](https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec)'; 
+
+let products = [];
+let reviews = [];
+let cart = [];
+let currentRating = 0;
+
+// ============================================================
+// 2. FUNGSI UTILITAS & NAVIGASI DASAR (DIJAMIN JALAN)
+// ============================================================
+function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function closeLogin() {
-    const modal = document.getElementById('loginModal');
-    if (modal) modal.classList.remove('active');
-}
-
-function toggleMenu() {
-    const sidebar = document.getElementById('menuSidebar');
-    const overlay = document.getElementById('menuOverlay');
-    if(sidebar) sidebar.classList.toggle('active');
-    if(overlay) overlay.classList.toggle('active');
-}
-
-// 3. PENGHILANG LOADER (INSTAN)
 function killLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.opacity = '0';
         setTimeout(() => loader.remove(), 300);
-        console.log("Loader dibersihkan.");
+        console.log("✅ Loader dibersihkan.");
     }
 }
 
-// 4. PENGAMBILAN DATA (MENGGUNAKAN TRY-CATCH AGAR TIDAK MACET)
-async function syncAppScript() {
-    console.log("Mencoba sinkronisasi data...");
+function showPage(pageId) {
+    console.log("Navigasi ke halaman:", pageId);
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
+    
+    const target = document.getElementById('page-' + pageId);
+    if (target) {
+        target.style.display = 'block';
+    } else {
+        console.error(`EROR: Halaman 'page-${pageId}' tidak ditemukan di HTML!`);
+    }
+    window.scrollTo(0, 0);
+}
+
+// Fungsi Sidebar Menu & Keranjang
+function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); }
+function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+
+// ============================================================
+// 3. FUNGSI SINKRONISASI DATA (READ & WRITE)
+// ============================================================
+
+// A. Mengambil Data Ikan, Artikel, dan Ulasan
+async function syncAllAppData() {
+    console.log("⏳ Mencoba menghubungkan ke Spreadsheet...");
     try {
-        const response = await fetch(`${API_URL}?action=getIkan`);
-        const result = await response.json();
-        if (result.success) {
-            console.log("Data Ikan Berhasil Dimuat");
-            renderProductsLocally(result.data);
+        // Ambil Data Produk
+        const resIkan = await fetch(`${API_URL}?action=getIkan`);
+        const dataIkan = await resIkan.json();
+        if (dataIkan.success) {
+            products = dataIkan.data.map((item, index) => ({
+                id: index + 1,
+                nama: item.nama,
+                kategori: item.kategori,
+                harga: parseInt(item.harga) || 0,
+                link_foto: item.link_foto,
+                stock: parseInt(item.stock) || 0,
+                // Mengambil info jenis/ukuran untuk badge di gambar
+                size: item.jenis || "5 cm",
+                type: (item.jenis || '').split(' ')[0] // Ambil kata pertama (Kamfa/Cencu)
+            }));
+            renderProductsLocally('homeProductGrid', products); // Katalog Terbaru
+            renderProductsLocally('productGrid', products);     // Katalog Lengkap
+            console.log("✅ Data Ikan Berhasil Dimuat.");
         }
-    } catch (err) {
-        console.error("Koneksi ditutup atau diblokir (ERR_CONNECTION_CLOSED). Menggunakan mode offline.");
+
+        // Ambil Data Ulasan (Pelanggan)
+        const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
+        const dataUlasan = await resUlasan.json();
+        if (dataUlasan.success) {
+            reviews = dataUlasan.data.map(item => ({
+                name: item.nama,
+                rating: parseInt(item.bintang),
+                text: item.komentar,
+                avatar: item.nama.charAt(0).toUpperCase()
+            }));
+            renderReviewsLocally();
+            console.log("✅ Data Ulasan Berhasil Dimuat.");
+        }
+
+    } catch (e) {
+        console.error("❌ Koneksi Google Script gagal. Cek URL Deployment Anda.", e);
+        // Fallback untuk tes navigasi jika API mati
+        if(products.length === 0) renderFallbackProducts();
+        if(reviews.length === 0) renderFallbackReviews();
     }
 }
 
-function renderProductsLocally(data) {
-    const grids = ['homeProductGrid', 'productGrid'];
-    grids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.innerHTML = data.map(p => `
-                <div class="product-card">
-                    <img src="${p.link_foto}" onerror="this.src='https://placehold.co/300'">
-                    <h3>${p.nama}</h3>
-                    <button onclick="openLogin()">Lihat Detail</button>
-                </div>
-            `).join('');
+// B. Menulis Ulasan Baru ke Spreadsheet
+async function submitReview() {
+    const name = document.getElementById('reviewName').value;
+    const text = document.getElementById('reviewText').value;
+    
+    if (!name || !text || currentRating === 0) {
+        showToast('Mohon lengkapi nama, bintang, dan komentar!', false);
+        return;
+    }
+    
+    showToast('Mengirim ulasan...', true);
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'tambahUlasan',
+                nama: name,
+                bintang: currentRating,
+                komentar: text,
+                produk: 'Ikan Louhan (Umum)'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast('Ulasan Anda telah tersimpan!', true);
+            // Tambahkan ulasan ke list lokal agar langsung tampil
+            reviews.unshift({ name: name, rating: currentRating, text: text, avatar: name.charAt(0).toUpperCase() });
+            renderReviewsLocally();
+            resetReviewForm();
+        } else {
+            showToast('Gagal mengirim ulasan ke database.', false);
         }
-    });
+    } catch (error) {
+        showToast('Koneksi gagal saat mengirim ulasan.', false);
+    }
 }
 
-// 5. INISIALISASI (URUTAN SANGAT PENTING)
+// ============================================================
+// 4. FUNGSI RENDER UI (SESUAI GAMBAR ANDA)
+// ============================================================
+
+// Render Katalog Produk (4 Kolom Rapi)
+function renderProductsLocally(gridId, data) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.innerHTML = data.map(p => `
+        <div class="product-card">
+            <span class="product-badge">${p.type} ${p.size}</span>
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='[https://placehold.co/400x300?text=Ikan+Louhan](https://placehold.co/400x300?text=Ikan+Louhan)'">
+            <div class="product-info">
+                <span class="category-tag">${p.kategori}</span>
+                <h3>${p.nama}</h3>
+                <div class="product-price-row">
+                    <p class="price">${formatRupiah(p.harga)}</p>
+                    <button class="add-to-cart-btn" onclick="addToCart(${p.id})">
+                        <i class="fas fa-cart-plus"></i> Tambah
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render Ulasan Pelanggan (3 Ulasan Sesuai Gambar)
+function renderReviewsLocally() {
+    const grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    grid.innerHTML = reviews.slice(0, 3).map(r => `
+        <div class="review-card">
+            <div class="review-header">
+                <div class="review-avatar">${r.avatar}</div>
+                <div>
+                    <h4>${r.name}</h4>
+                    <div class="review-stars">${'⭐'.repeat(r.rating)}</div>
+                </div>
+            </div>
+            <p class="review-text">"${r.text}"</p>
+        </div>
+    `).join('');
+}
+
+// ============================================================
+// 5. INISIALISASI (URUTAN WAJIB)
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Jalankan loader dulu supaya website bisa diklik
+    // 1. Matikan loader agar website bisa diklik
     killLoader();
     
-    // Pastikan halaman awal muncul
+    // 2. Tampilkan halaman utama
     showPage('home');
     
-    // Baru ambil data dari AppScript (background)
-    syncAppScript();
+    // 3. Ambil data dari Spreadsheet (background)
+    syncAllAppData();
 });
 
 // Penutup Modal jika klik di luar area
