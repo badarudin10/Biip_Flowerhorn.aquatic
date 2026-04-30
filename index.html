@@ -2061,23 +2061,14 @@
     </div>
 
 <script>
-// 1. KONFIGURASI
+// 1. KONFIGURASI DASAR
 const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec';
 
-// State global
-let products = [];
-let articles = [];
-let reviews = [];
-let cart = [];
-
-// 2. FUNGSI NAVIGASI (Wajib jalan tanpa perlu AppScript)
+// 2. FUNGSI NAVIGASI (Ditempatkan paling atas agar prioritas utama)
 function showPage(pageId) {
-    console.log("Berpindah ke halaman:", pageId);
-    const pages = ['home', 'products', 'articles', 'about', 'contact', 'article-detail'];
-    pages.forEach(p => {
-        const el = document.getElementById('page-' + p);
-        if (el) el.style.display = 'none';
-    });
+    console.log("Navigasi ke:", pageId);
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
     
     const target = document.getElementById('page-' + pageId);
     if (target) {
@@ -2087,83 +2078,85 @@ function showPage(pageId) {
 }
 
 function openLogin() {
-    console.log("Membuka Modal Login");
+    console.log("Membuka Modal Login...");
     const modal = document.getElementById('loginModal');
-    if(modal) modal.classList.add('active');
+    if (modal) {
+        modal.classList.add('active');
+    } else {
+        alert("Eror: Elemen 'loginModal' tidak ditemukan di HTML!");
+    }
 }
 
 function closeLogin() {
     const modal = document.getElementById('loginModal');
-    if(modal) modal.classList.remove('active');
+    if (modal) modal.classList.remove('active');
 }
 
 function toggleMenu() {
-    document.getElementById('menuSidebar').classList.toggle('active');
-    document.getElementById('menuOverlay').classList.toggle('active');
+    const sidebar = document.getElementById('menuSidebar');
+    const overlay = document.getElementById('menuOverlay');
+    if(sidebar) sidebar.classList.toggle('active');
+    if(overlay) overlay.classList.toggle('active');
 }
 
-// 3. FUNGSI LOADER
-function hideLoader() {
+// 3. PENGHILANG LOADER (INSTAN)
+function killLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
-        loader.style.display = 'none';
-        loader.style.zIndex = '-1';
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+        console.log("Loader dibersihkan.");
     }
 }
 
-// 4. AMBIL DATA DARI APPSCRIPT (Dengan penanganan error)
-async function fetchAllData() {
+// 4. PENGAMBILAN DATA (MENGGUNAKAN TRY-CATCH AGAR TIDAK MACET)
+async function syncAppScript() {
+    console.log("Mencoba sinkronisasi data...");
     try {
-        // Ambil Data Produk
-        const resProd = await fetch(`${API_URL}?action=getIkan`);
-        const dataProd = await resProd.json();
-        if(dataProd.success) {
-            products = dataProd.data;
-            renderProductGrid('homeProductGrid', products.slice(0, 4));
-            renderProductGrid('productGrid', products);
-        }
-
-        // Ambil Data Artikel
-        const resArt = await fetch(`${API_URL}?action=getArtikel`);
-        const dataArt = await resArt.json();
-        if(dataArt.success) {
-            articles = dataArt.data;
-            // Panggil fungsi render artikel Anda di sini
+        const response = await fetch(`${API_URL}?action=getIkan`);
+        const result = await response.json();
+        if (result.success) {
+            console.log("Data Ikan Berhasil Dimuat");
+            renderProductsLocally(result.data);
         }
     } catch (err) {
-        console.error("Gagal mengambil data AppScript:", err);
+        console.error("Koneksi ditutup atau diblokir (ERR_CONNECTION_CLOSED). Menggunakan mode offline.");
     }
 }
 
-function renderProductGrid(elementId, data) {
-    const grid = document.getElementById(elementId);
-    if(!grid) return;
-    grid.innerHTML = data.map(item => `
-        <div class="product-card">
-            <img src="${item.link_foto || ''}" onerror="this.src='https://placehold.co/400x300?text=Ikan+Louhan'" class="product-img">
-            <div class="product-info">
-                <h3 class="product-name">${item.nama || 'Tanpa Nama'}</h3>
-                <p class="product-price">Rp ${item.harga || 0}</p>
-                <button class="add-cart-btn" onclick="openLogin()">Beli Sekarang</button>
-            </div>
-        </div>
-    `).join('');
+function renderProductsLocally(data) {
+    const grids = ['homeProductGrid', 'productGrid'];
+    grids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.innerHTML = data.map(p => `
+                <div class="product-card">
+                    <img src="${p.link_foto}" onerror="this.src='https://placehold.co/300'">
+                    <h3>${p.nama}</h3>
+                    <button onclick="openLogin()">Lihat Detail</button>
+                </div>
+            `).join('');
+        }
+    });
 }
 
-// 5. INISIALISASI AKHIR
-window.addEventListener('DOMContentLoaded', () => {
-    hideLoader();
-    // Jalankan fetch data setelah loader hilang agar tidak macet
-    fetchAllData();
+// 5. INISIALISASI (URUTAN SANGAT PENTING)
+document.addEventListener('DOMContentLoaded', () => {
+    // Jalankan loader dulu supaya website bisa diklik
+    killLoader();
+    
+    // Pastikan halaman awal muncul
+    showPage('home');
+    
+    // Baru ambil data dari AppScript (background)
+    syncAppScript();
 });
 
-// Tutup modal jika klik di luar
-window.onclick = function(event) {
+// Penutup Modal jika klik di luar area
+window.onclick = function(e) {
     const modal = document.getElementById('loginModal');
-    if (event.target == modal) {
-        closeLogin();
-    }
-}
+    if (e.target === modal) closeLogin();
+};
 </script>
 </body>
 </html>
