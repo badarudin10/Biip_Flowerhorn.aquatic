@@ -2340,6 +2340,19 @@ function toggleMenu() {
     } else {
         console.error("EROR: Elemen dengan ID 'menuSidebar' TIDAK ADA di HTML.");
     }
-</script>
+    // Tambahkan ini agar tombol menu berfungsi kembali
+function toggleMenu() {
+    const sidebar = document.getElementById('menuSidebar');
+    const overlay = document.getElementById('menuOverlay');
+    
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+        if (overlay) overlay.classList.toggle('active');
+        console.log("Menu berhasil dibuka/tutup");
+    } else {
+        console.error("Elemen dengan ID 'menuSidebar' tidak ditemukan!");
+    }
+}
+    </script>
 </body>
 </html>
