@@ -2061,166 +2061,109 @@
     </div>
 
 <script>
-// ============================================================
-// 1. CONFIG & STATE
-// ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbwbHirHvV_hVLj5CfbAgNQ8XW1G0PWUYX4B8HRMc2kryX2rGiq0KpUXOIG-CUH7cbe0Bw/exec'; 
-
+// 1. URL API (PASTIKAN GUNAKAN URL BARU HASIL DEPLOY 'ANYONE')
+const API_URL = 'https://script.google.com/macros/s/AKfycbyrjvRuBW27tu8wX-7FBK_YMFcj0Egdixkg2lICMdGszxMFIrt_F_MD15MOoTHy8FhGYQ/exec';
 let products = [];
 let articles = [];
 let reviews = [];
 
-// ============================================================
-// 2. SISTEM LOGIN (TAB 4: USERS)
-// ============================================================
+// 2. FUNGSI LOGIN & MODAL (MEMPERBAIKI ERROR 'openLogin is not defined')
+function openLogin() {
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeLogin() {
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.style.display = 'none';
+}
+
 async function handleLogin(event) {
     if(event) event.preventDefault();
     const email = document.getElementById('loginEmail')?.value;
     const pass = document.getElementById('loginPass')?.value;
 
-    if(!email || !pass) return alert("Mohon isi Email dan Password");
-
     try {
-        // Memanggil action login di AppScript
         const res = await fetch(`${API_URL}?action=login&email=${email}&pass=${pass}`);
         const result = await res.json();
-        
         if(result.success) {
-            alert("Login Berhasil! Selamat datang " + result.user.nama);
+            alert("Login Berhasil! Halo " + result.user.nama);
             localStorage.setItem('userSession', JSON.stringify(result.user));
-            document.getElementById('loginModal').style.display = 'none';
-            location.reload(); // Refresh untuk update status login di UI
+            closeLogin();
         } else {
             alert("Gagal: " + result.message);
         }
-    } catch (e) {
-        alert("Terjadi kesalahan koneksi saat login.");
-    }
+    } catch (e) { console.error("Koneksi login mati."); }
 }
 
-// ============================================================
-// 3. SINKRONISASI 5 TAB (IKAN, ARTIKEL, ULASAN)
-// ============================================================
+// 3. SINKRONISASI DATA (IKAN, ARTIKEL, ULASAN)
 async function syncAllAppData() {
-    console.log("Memulai sinkronisasi data dari Spreadsheet...");
+    console.log("Memulai sinkronisasi...");
     try {
-        // Ambil Data dari Tab 1 (Ikan), Tab 2 (Artikel), dan Tab 5 (Ulasan)
-        // Pastikan AppScript Anda memiliki case untuk action ini
-        const [resIkan, resArt, resUlasan] = await Promise.all([
-            fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
-            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
-        ]);
-
-        if (resIkan.success) {
-            products = resIkan.data;
-            renderProducts();
+        const actions = ['getIkan', 'getArtikel', 'getUlasan'];
+        for (let action of actions) {
+            const res = await fetch(`${API_URL}?action=${action}`);
+            const result = await res.json();
+            
+            if (result.success) {
+                if (action === 'getIkan') { products = result.data; renderProducts(); }
+                if (action === 'getArtikel') { articles = result.data; renderArticles(); }
+                if (action === 'getUlasan') { reviews = result.data; renderReviews(); }
+            }
         }
-        if (resArt.success) {
-            articles = resArt.data;
-            renderArticles();
-        }
-        if (resUlasan.success) {
-            reviews = resUlasan.data;
-            renderReviews();
-        }
-        console.log("Sinkronisasi selesai.");
+        console.log("Sinkronisasi 5 Tab Berhasil.");
     } catch (e) {
-        console.error("Gagal sinkronisasi data:", e);
+        console.error("Gagal sinkronisasi. Cek izin Deployment AppScript Anda.");
     }
 }
 
-// ============================================================
-// 4. RENDER UI (SINKRON DENGAN KOLOM SPREADSHEET)
-// ============================================================
-
+// 4. RENDER UI (SESUAI TAB SPREADSHEET ANDA)
 function renderProducts() {
-    const grids = ['homeProductGrid', 'productGrid'];
-    grids.forEach(id => {
-        const el = document.getElementById(id);
-        if(!el) return;
-        // Mapping kolom: nama, kategori, jenis, harga, link_foto, stock
-        el.innerHTML = products.map(p => `
-            <div class="product-card">
-                <span class="product-badge">${p.jenis || ''}</span>
-                <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Flowerhorn'">
-                <div class="product-info">
-                    <span class="category-tag">${p.kategori}</span>
-                    <h3>${p.nama}</h3>
-                    <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-                    <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">
-                        <i class="fas fa-shopping-cart"></i> Tambah
-                    </button>
-                </div>
+    const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
+    if(!grid) return;
+    grid.innerHTML = products.map(p => `
+        <div class="product-card">
+            <span class="product-badge">${p.jenis || ''}</span>
+            <img src="${p.link_foto || 'https://placehold.co/400x300?text=No+Image'}" class="product-img">
+            <div class="product-info">
+                <small>${p.kategori}</small>
+                <h3>${p.nama}</h3>
+                <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+                <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">Beli</button>
             </div>
-        `).join('');
-    });
+        </div>
+    `).join('');
 }
 
 function renderArticles() {
-    const el = document.getElementById('articleGrid');
-    if(!el) return;
-    // Mapping kolom: judul, isi, link_foto, tanggal
-    el.innerHTML = articles.map(a => `
+    const grid = document.getElementById('articleGrid');
+    if(!grid) return;
+    grid.innerHTML = articles.map(a => `
         <div class="article-card">
-            <img src="${a.link_foto}" class="article-img">
-            <div class="article-info">
-                <small>${a.tanggal}</small>
-                <h3>${a.judul}</h3>
-                <p>${a.isi ? a.isi.substring(0, 80) : ''}...</p>
-                <button class="read-more-btn">Selengkapnya</button>
-            </div>
+            <h3>${a.judul}</h3>
+            <p>${a.isi ? a.isi.substring(0, 50) : ''}...</p>
         </div>
     `).join('');
 }
 
 function renderReviews() {
-    const el = document.getElementById('reviewsGrid');
-    if(!el) return;
-    // Mapping kolom: nama, bintang, komentar, tanggal, produk
-    el.innerHTML = reviews.slice(0, 3).map(r => `
+    const grid = document.getElementById('reviewsGrid');
+    if(!grid) return;
+    grid.innerHTML = reviews.slice(0, 3).map(r => `
         <div class="review-card">
-            <div class="review-stars">${'⭐'.repeat(r.bintang || 5)}</div>
             <p>"${r.komentar}"</p>
-            <h4>- ${r.nama}</h4>
-            <small>Produk: ${r.produk}</small>
+            <strong>- ${r.nama}</strong>
         </div>
     `).join('');
 }
 
-// ============================================================
-// 5. INISIALISASI
-// ============================================================
-function showPage(pageId) {
-    const pages = document.querySelectorAll('[id^="page-"]');
-    pages.forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if (target) target.style.display = 'block';
-    window.scrollTo(0, 0);
-}
-
-function toggleMenu() {
-    const sidebar = document.getElementById('menuSidebar');
-    const overlay = document.getElementById('menuOverlay');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-        if (overlay) overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
-    }
-}
-
+// 5. INIT
 document.addEventListener('DOMContentLoaded', () => {
-    const loader = document.getElementById('loader');
-    if(loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 300);
-    }
-    showPage('home');
     syncAllAppData();
 });
 
 window.onclick = function(e) {
-    if (e.target.id === 'menuOverlay') toggleMenu();
-    if (e.target.id === 'loginModal') document.getElementById('loginModal').style.display = 'none';
+    if (e.target.id === 'loginModal') closeLogin();
 };
 </script>
 </body>
