@@ -2061,31 +2061,13 @@
     </div>
 
 <script>
-// ============================================================
-// 1. CONFIG API & STATE
-// ============================================================
+// 1. CONFIG
 const API_URL = 'https://script.google.com/macros/s/AKfycbwqmJOSNqw143SnxK1b8VFE-Xgv-aXVBsHLiJBa7lvnIf7Fb6MeIB5vGQJ3ZHedxAxEng/exec'; 
 
 let products = [];
 let reviews = [];
-let cart = [];
-let currentRating = 0;
 
-// ============================================================
-// 2. FUNGSI UTILITAS & NAVIGASI
-// ============================================================
-function formatRupiah(angka) {
-    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-function killLoader() {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => { if(loader.parentNode) loader.remove(); }, 300);
-    }
-}
-
+// 2. FUNGSI NAVIGASI & SIDEBAR
 function showPage(pageId) {
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
@@ -2094,7 +2076,6 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
 }
 
-// Fungsi Sidebar & Keranjang (Satu Versi Solid)
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
     const overlay = document.getElementById('menuOverlay');
@@ -2104,107 +2085,81 @@ function toggleMenu() {
     }
 }
 
-function toggleCart() {
-    const cartSidebar = document.getElementById('cartSidebar');
-    const cartOverlay = document.getElementById('cartOverlay');
-    if (cartSidebar) {
-        cartSidebar.classList.toggle('active');
-        if (cartOverlay) cartOverlay.style.display = cartSidebar.classList.contains('active') ? 'block' : 'none';
-    }
-}
+// 3. FUNGSI LOGIN (PASTIKAN ID SESUAI DENGAN HTML ANDA)
+async function handleLogin(event) {
+    if(event) event.preventDefault();
+    const email = document.getElementById('loginEmail')?.value;
+    const pass = document.getElementById('loginPass')?.value;
 
-// ============================================================
-// 3. SINKRONISASI DATA (API)
-// ============================================================
-async function syncAllAppData() {
+    if(!email || !pass) return alert("Isi email dan password!");
+
     try {
-        // Ambil Data Produk
-        const resIkan = await fetch(`${API_URL}?action=getIkan`);
-        const dataIkan = await resIkan.json();
-        if (dataIkan.success) {
-            products = dataIkan.data.map((item, index) => ({
-                id: index + 1,
-                nama: item.nama,
-                kategori: item.kategori,
-                harga: parseInt(item.harga) || 0,
-                link_foto: item.link_foto,
-                size: item.jenis || "5 cm",
-                type: (item.jenis || '').split(' ')[0]
-            }));
-            renderProductsToGrid('homeProductGrid', products);
-            renderProductsToGrid('productGrid', products);
-        }
-
-        // Ambil Data Ulasan
-        const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
-        const dataUlasan = await resUlasan.json();
-        if (dataUlasan.success) {
-            reviews = dataUlasan.data;
-            renderReviewsLocally();
+        const response = await fetch(`${API_URL}?action=login&email=${email}&pass=${pass}`);
+        const result = await response.json();
+        
+        if(result.success) {
+            alert("Login Berhasil! Selamat datang " + result.user.nama);
+            document.getElementById('loginModal').style.display = 'none';
+            // Simpan status login sederhana
+            localStorage.setItem('userBiip', JSON.stringify(result.user));
+        } else {
+            alert("Login Gagal: " + result.message);
         }
     } catch (e) {
-        console.error("Gagal sinkronisasi:", e);
+        alert("Koneksi ke server gagal.");
     }
 }
 
-// ============================================================
-// 4. FUNGSI RENDER UI
-// ============================================================
-function renderProductsToGrid(gridId, data) {
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
-    grid.innerHTML = data.map(p => `
-        <div class="product-card">
-            <span class="product-badge">${p.type} ${p.size}</span>
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Flowerhorn'">
-            <div class="product-info">
-                <span class="category-tag">${p.kategori}</span>
-                <h3>${p.nama}</h3>
-                <div class="product-price-row">
-                    <p class="price">${formatRupiah(p.harga)}</p>
-                    <button class="add-to-cart-btn" onclick="addToCart(${p.id})">
-                        <i class="fas fa-cart-plus"></i> Tambah
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
+function closeLogin() {
+    const modal = document.getElementById('loginModal');
+    if(modal) modal.style.display = 'none';
 }
 
-function renderReviewsLocally() {
-    const grid = document.getElementById('reviewsGrid');
-    if (!grid) return;
-    grid.innerHTML = reviews.slice(0, 3).map(r => `
-        <div class="review-card">
-            <div class="review-header">
-                <div class="review-avatar">${r.nama ? r.nama.charAt(0).toUpperCase() : '?'}</div>
-                <div>
-                    <h4>${r.nama}</h4>
-                    <div class="review-stars">${'⭐'.repeat(r.bintang || 5)}</div>
-                </div>
-            </div>
-            <p class="review-text">"${r.komentar}"</p>
-        </div>
-    `).join('');
+// 4. SYNC DATA DENGAN ERROR HANDLING
+async function syncAllAppData() {
+    console.log("Menghubungkan ke AppScript...");
+    try {
+        const response = await fetch(`${API_URL}?action=getIkan`);
+        const result = await response.json();
+        
+        if (result.success) {
+            products = result.data;
+            renderProducts();
+        }
+    } catch (e) {
+        console.error("Gagal mengambil data produk:", e);
+    }
 }
 
-// ============================================================
-// 5. INISIALISASI & GLOBAL CLICK
-// ============================================================
+function renderProducts() {
+    const grids = ['homeProductGrid', 'productGrid'];
+    grids.forEach(gridId => {
+        const el = document.getElementById(gridId);
+        if(!el) return;
+        el.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img src="${p.link_foto}" class="product-img">
+                <div class="product-info">
+                    <h3>${p.nama}</h3>
+                    <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+                    <button class="add-to-cart-btn">Tambah</button>
+                </div>
+            </div>
+        `).join('');
+    });
+}
+
+// 5. INIT
 document.addEventListener('DOMContentLoaded', () => {
-    killLoader();
+    const loader = document.getElementById('loader');
+    if(loader) setTimeout(() => loader.remove(), 500);
     showPage('home');
     syncAllAppData();
 });
 
 window.onclick = function(e) {
-    const menuOverlay = document.getElementById('menuOverlay');
-    const cartOverlay = document.getElementById('cartOverlay');
-    const loginModal = document.getElementById('loginModal');
-
-    if (e.target === menuOverlay) toggleMenu();
-    if (e.target === cartOverlay) toggleCart();
-    if (e.target === loginModal && typeof closeLogin === 'function') closeLogin();
+    if (e.target.id === 'menuOverlay') toggleMenu();
+    if (e.target.id === 'loginModal') closeLogin();
 };
 </script>
 </body>
