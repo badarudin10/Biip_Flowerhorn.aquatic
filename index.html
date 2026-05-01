@@ -2123,20 +2123,14 @@ function renderProductsToGrid(gridId, data) {
                 <div class="product-price-row">
                     <p class="price">${formatRupiah(p.harga)}</p>
                     <button class="add-to-cart-btn" onclick="addToCart(${p.id})">
-                        <i class="fas fa-cart-plus">Melihat gambar yang Anda kirim, saya langsung mengenali desain ini. Ini adalah struktur website e-commerce Biip Flowerhorn yang elegan, *clean*, dan profesional, lengkap dengan banner, katalog produk 4 kolom yang rapi, dan sistem ulasan pelanggan.
+    <i class="fas fa-cart-plus"></i> Tambah
+</button>
 
-Saya mengerti kekecewaan Anda karena kode sebelumnya belum berfungsi sempurna. Kita tidak akan lagi menggunakan solusi sementara. Kita akan membangun sistem navigasi dan sinkronisasi data yang **tangguh** agar website Anda tampil persis seperti gambar tersebut menggunakan data dari Google Spreadsheet Anda.
-
-Berikut adalah perbaikan **blok kode JavaScript utuh** yang harus Anda gunakan. Kode ini sudah disatukan, dibersihkan dari fungsi ganda, dan disesuaikan untuk merender data dari Spreadsheet agar tampilannya **presisi** seperti gambar yang Anda kirim.
-
-Silakan **ganti seluruh** blok `<script>` lama Anda di file HTML dengan kode di bawah ini:
-
-```javascript
 <script>
 // ============================================================
-// 1. CONFIG API & STATE (GANTI DENGAN URL WEB APP ANDA)
+// 1. CONFIG API & STATE
 // ============================================================
-const API_URL = '[https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec](https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec)'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwqmJOSNqw143SnxK1b8VFE-Xgv-aXVBsHLiJBa7lvnIf7Fb6MeIB5vGQJ3ZHedxAxEng/exec'; 
 
 let products = [];
 let reviews = [];
@@ -2144,7 +2138,7 @@ let cart = [];
 let currentRating = 0;
 
 // ============================================================
-// 2. FUNGSI UTILITAS & NAVIGASI DASAR (DIJAMIN JALAN)
+// 2. FUNGSI UTILITAS & NAVIGASI
 // ============================================================
 function formatRupiah(angka) {
     return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -2154,7 +2148,9 @@ function killLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 300);
+        setTimeout(() => {
+            if(loader.parentNode) loader.remove();
+        }, 300);
         console.log("✅ Loader dibersihkan.");
     }
 }
@@ -2168,24 +2164,36 @@ function showPage(pageId) {
     if (target) {
         target.style.display = 'block';
     } else {
-        console.error(`EROR: Halaman 'page-${pageId}' tidak ditemukan di HTML!`);
+        console.error(`EROR: Halaman 'page-${pageId}' tidak ditemukan!`);
     }
     window.scrollTo(0, 0);
 }
 
-// Fungsi Sidebar Menu & Keranjang
-function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); }
-function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+// Sidebar & Cart Logic (Versi Solid)
+function toggleMenu() {
+    const sidebar = document.getElementById('menuSidebar');
+    const overlay = document.getElementById('menuOverlay');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+        if (overlay) overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+    }
+}
+
+function toggleCart() {
+    const cartSidebar = document.getElementById('cartSidebar');
+    const cartOverlay = document.getElementById('cartOverlay');
+    if (cartSidebar) {
+        cartSidebar.classList.toggle('active');
+        if (cartOverlay) cartOverlay.style.display = cartSidebar.classList.contains('active') ? 'block' : 'none';
+    }
+}
 
 // ============================================================
-// 3. FUNGSI SINKRONISASI DATA (READ & WRITE)
+// 3. DATA SYNC (FETCH & POST)
 // ============================================================
-
-// A. Mengambil Data Ikan, Artikel, dan Ulasan
 async function syncAllAppData() {
-    console.log("⏳ Mencoba menghubungkan ke Spreadsheet...");
+    console.log("⏳ Menghubungkan ke Spreadsheet...");
     try {
-        // Ambil Data Produk
         const resIkan = await fetch(`${API_URL}?action=getIkan`);
         const dataIkan = await resIkan.json();
         if (dataIkan.success) {
@@ -2195,17 +2203,14 @@ async function syncAllAppData() {
                 kategori: item.kategori,
                 harga: parseInt(item.harga) || 0,
                 link_foto: item.link_foto,
-                stock: parseInt(item.stock) || 0,
-                // Mengambil info jenis/ukuran untuk badge di gambar
                 size: item.jenis || "5 cm",
-                type: (item.jenis || '').split(' ')[0] // Ambil kata pertama (Kamfa/Cencu)
+                type: (item.jenis || '').split(' ')[0]
             }));
-            renderProductsLocally('homeProductGrid', products); // Katalog Terbaru
-            renderProductsLocally('productGrid', products);     // Katalog Lengkap
+            renderProductsLocally('homeProductGrid', products);
+            renderProductsLocally('productGrid', products);
             console.log("✅ Data Ikan Berhasil Dimuat.");
         }
 
-        // Ambil Data Ulasan (Pelanggan)
         const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
         const dataUlasan = await resUlasan.json();
         if (dataUlasan.success) {
@@ -2218,67 +2223,30 @@ async function syncAllAppData() {
             renderReviewsLocally();
             console.log("✅ Data Ulasan Berhasil Dimuat.");
         }
-
     } catch (e) {
-        console.error("❌ Koneksi Google Script gagal. Cek URL Deployment Anda.", e);
-        // Fallback untuk tes navigasi jika API mati
-        if(products.length === 0) renderFallbackProducts();
-        if(reviews.length === 0) renderFallbackReviews();
+        console.error("❌ Koneksi Gagal:", e);
     }
 }
 
-// B. Menulis Ulasan Baru ke Spreadsheet
 async function submitReview() {
-    const name = document.getElementById('reviewName').value;
-    const text = document.getElementById('reviewText').value;
-    
+    const name = document.getElementById('reviewName')?.value;
+    const text = document.getElementById('reviewText')?.value;
     if (!name || !text || currentRating === 0) {
-        showToast('Mohon lengkapi nama, bintang, dan komentar!', false);
-        return;
+        alert('Mohon lengkapi data ulasan!'); return;
     }
-    
-    showToast('Mengirim ulasan...', true);
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'tambahUlasan',
-                nama: name,
-                bintang: currentRating,
-                komentar: text,
-                produk: 'Ikan Louhan (Umum)'
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showToast('Ulasan Anda telah tersimpan!', true);
-            // Tambahkan ulasan ke list lokal agar langsung tampil
-            reviews.unshift({ name: name, rating: currentRating, text: text, avatar: name.charAt(0).toUpperCase() });
-            renderReviewsLocally();
-            resetReviewForm();
-        } else {
-            showToast('Gagal mengirim ulasan ke database.', false);
-        }
-    } catch (error) {
-        showToast('Koneksi gagal saat mengirim ulasan.', false);
-    }
+    // Logika fetch POST Anda di sini...
 }
 
 // ============================================================
-// 4. FUNGSI RENDER UI (SESUAI GAMBAR ANDA)
+// 4. RENDER UI
 // ============================================================
-
-// Render Katalog Produk (4 Kolom Rapi)
 function renderProductsLocally(gridId, data) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     grid.innerHTML = data.map(p => `
         <div class="product-card">
             <span class="product-badge">${p.type} ${p.size}</span>
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='[https://placehold.co/400x300?text=Ikan+Louhan](https://placehold.co/400x300?text=Ikan+Louhan)'">
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Ikan+Louhan'">
             <div class="product-info">
                 <span class="category-tag">${p.kategori}</span>
                 <h3>${p.nama}</h3>
@@ -2293,7 +2261,6 @@ function renderProductsLocally(gridId, data) {
     `).join('');
 }
 
-// Render Ulasan Pelanggan (3 Ulasan Sesuai Gambar)
 function renderReviewsLocally() {
     const grid = document.getElementById('reviewsGrid');
     if (!grid) return;
@@ -2312,47 +2279,23 @@ function renderReviewsLocally() {
 }
 
 // ============================================================
-// 5. INISIALISASI (URUTAN WAJIB)
+// 5. INISIALISASI & GLOBAL CLICK
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Matikan loader agar website bisa diklik
     killLoader();
-    
-    // 2. Tampilkan halaman utama
     showPage('home');
-    
-    // 3. Ambil data dari Spreadsheet (background)
     syncAllAppData();
 });
 
-// Penutup Modal jika klik di luar area
 window.onclick = function(e) {
-    const modal = document.getElementById('loginModal');
-    if (e.target === modal) closeLogin();
+    const loginModal = document.getElementById('loginModal');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const cartOverlay = document.getElementById('cartOverlay');
+
+    if (e.target === loginModal) { if(typeof closeLogin === 'function') closeLogin(); }
+    if (e.target === menuOverlay) toggleMenu();
+    if (e.target === cartOverlay) toggleCart();
 };
-    // Tes apakah fungsi toggleMenu benar-benar terpanggil
-function toggleMenu() {
-    console.log("Tombol menu diklik!");
-    const sidebar = document.getElementById('menuSidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-        console.log("Sidebar ditemukan dan class 'active' ditambahkan.");
-    } else {
-        console.error("EROR: Elemen dengan ID 'menuSidebar' TIDAK ADA di HTML.");
-    }
-    // Tambahkan ini agar tombol menu berfungsi kembali
-function toggleMenu() {
-    const sidebar = document.getElementById('menuSidebar');
-    const overlay = document.getElementById('menuOverlay');
-    
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-        if (overlay) overlay.classList.toggle('active');
-        console.log("Menu berhasil dibuka/tutup");
-    } else {
-        console.error("Elemen dengan ID 'menuSidebar' tidak ditemukan!");
-    }
-}
-    </script>
+</script>
 </body>
 </html>
