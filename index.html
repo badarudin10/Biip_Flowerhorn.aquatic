@@ -2061,11 +2061,18 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwTCkr9DpzlsCqyRqTzI4Klwt3o0XBUKZdcg3jzc5RrkO4-_Pimxd3F6mc7wVd55kYbAA/exec';
+// ============================================================
+// 1. CONFIG & STATE
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbwTCkr9DpzlsCqyRqTzI4Klwt3o0XBUKZdcg3jzc5RrkO4-_Pimxd3F6mc7wVd55kYbAA/exec'; 
+
 let products = [];
 let articles = [];
+let cart = JSON.parse(localStorage.getItem('biipCart')) || [];
 
-// FUNGSI MENU (Sangat penting agar tidak mati)
+// ============================================================
+// 2. SISTEM NAVIGASI & MENU
+// ============================================================
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
     const overlay = document.getElementById('menuOverlay');
@@ -2080,44 +2087,118 @@ function showPage(pageId) {
     pages.forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if (target) target.style.display = 'block';
+    
+    // Tutup sidebar otomatis jika terbuka
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
+    
     window.scrollTo(0, 0);
 }
 
-// SINKRONISASI 5 TAB (Ikan, Artikel, Ulasan)
+function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
+// ============================================================
+// 3. SINKRONISASI DATA (TAB 1, 2, & 5)
+// ============================================================
 async function syncAllAppData() {
-    console.log("Menghubungi AppScript...");
-    
-    // Action yang diminta sesuai endpoint API Anda
+    console.log("Menghubungkan ke API Biip...");
     const endpoints = ['getIkan', 'getArtikel', 'getUlasan'];
     
     for (let action of endpoints) {
         try {
-            console.log(`Mengambil data: ${action}...`);
             const response = await fetch(`${API_URL}?action=${action}`);
             const result = await response.json();
             
             if (result.success) {
-                console.log(`✅ ${action} berhasil:`, result.data.length, "data ditemukan.");
                 if (action === 'getIkan') { products = result.data; renderProducts(); }
                 if (action === 'getArtikel') { articles = result.data; renderArticles(); }
-            } else {
-                console.warn(`⚠️ ${action} gagal: ${result.message}`);
+                if (action === 'getUlasan') { renderReviews(result.data); }
             }
         } catch (error) {
-            console.error(`❌ Error pada ${action}:`, error);
+            console.error(`Gagal memuat ${action}:`, error);
         }
     }
-    // Jika semua sudah selesai, matikan loader
     killLoader();
 }
 
+// ============================================================
+// 4. SISTEM LOGIN (TAB 4: USERS)
+// ============================================================
+async function handleLogin(event) {
+    if(event) event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+
+    try {
+        // AppScript Anda menggunakan action 'loginUser' di doPost
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'loginUser',
+                email: email,
+                password: pass
+            })
+        });
+        const result = await response.json();
+        
+        if(result.success) {
+            alert("Selamat datang, " + result.user.nama);
+            localStorage.setItem('userSession', JSON.stringify(result.user));
+            closeLogin();
+            location.reload();
+        } else {
+            alert("Gagal: " + result.message);
+        }
+    } catch (e) {
+        alert("Terjadi kesalahan koneksi login.");
+    }
+}
+
+// ============================================================
+// 5. SISTEM PESANAN (TAB 3: ORDERS)
+// ============================================================
+async function checkout() {
+    const user = JSON.parse(localStorage.getItem('userSession'));
+    if(!user) return alert("Silakan login terlebih dahulu untuk memesan.");
+    if(cart.length === 0) return alert("Keranjang masih kosong.");
+
+    const orderData = {
+        action: 'tambahOrder',
+        nama: user.nama,
+        email: user.email,
+        telepon: user.telepon || '-',
+        pesanan: cart.map(i => `${i.nama} (${i.qty})`).join(', '),
+        total: cart.reduce((sum, i) => sum + (i.harga * i.qty), 0)
+    };
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+        const result = await res.json();
+        if(result.success) {
+            alert("Pesanan berhasil dikirim! Order ID: " + result.order_id);
+            cart = [];
+            localStorage.removeItem('biipCart');
+            showPage('home');
+        }
+    } catch (e) { alert("Gagal mengirim pesanan."); }
+}
+
+// ============================================================
+// 6. RENDER UI
+// ============================================================
 function renderProducts() {
     const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
     if (!grid) return;
     grid.innerHTML = products.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
+            <span class="product-badge">${p.jenis || ''}</span>
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Ikan+Biip'">
             <div class="product-info">
+                <small>${p.kategori}</small>
                 <h3>${p.nama}</h3>
                 <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
                 <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">Beli</button>
@@ -2131,10 +2212,33 @@ function renderArticles() {
     if (!grid) return;
     grid.innerHTML = articles.map(a => `
         <div class="article-card">
-            <h3>${a.judul}</h3>
-            <p>${a.isi ? a.isi.substring(0, 50) : ''}...</p>
+            <img src="${a.link_foto}" class="article-img">
+            <div class="article-info">
+                <h3>${a.judul}</h3>
+                <p>${a.isi_artikel ? a.isi_artikel.substring(0, 60) : ''}...</p>
+                <button onclick="alert('Baca artikel lengkap di dashboard')">Baca Selengkapnya</button>
+            </div>
         </div>
     `).join('');
+}
+
+function renderReviews(reviews) {
+    const grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    grid.innerHTML = reviews.slice(0, 3).map(r => `
+        <div class="review-card">
+            <div class="review-stars">${'⭐'.repeat(r.bintang)}</div>
+            <p>"${r.komentar}"</p>
+            <h4>- ${r.nama}</h4>
+        </div>
+    `).join('');
+}
+
+function addToCart(nama, harga) {
+    const item = cart.find(i => i.nama === nama);
+    if(item) { item.qty++; } else { cart.push({nama, harga, qty: 1}); }
+    localStorage.setItem('biipCart', JSON.stringify(cart));
+    alert(nama + " masuk keranjang!");
 }
 
 function killLoader() {
@@ -2145,16 +2249,13 @@ function killLoader() {
     }
 }
 
-// INISIALISASI
+// ============================================================
+// 7. INITIALIZE
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllAppData();
 });
-
-// Fungsi penunjang agar tidak error saat diklik
-function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
-function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
-function addToCart(n, h) { console.log("Tambah ke keranjang:", n, h); }
 
 window.onclick = function(e) {
     if (e.target.id === 'menuOverlay') toggleMenu();
