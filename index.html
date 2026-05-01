@@ -2061,17 +2061,20 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwl07Y1M-1OJp9gLCIJtHqJ82xkv_GKyU6EL-SWRf45LQNPV77LTC1Bw5E64iI-ZlIEWQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbyOBGZW3Kw3v9g-hLQ7tnR1okCWUGVRoWG3Hw9KJm_X2PfOF1RtorWrqjCwhH0C5h9LdA/exec'; 
 
-// 1. NAVIGASI (Mandiri agar tidak freeze)
+// 1. NAVIGASI (Mandiri agar tombol tidak mati)
 function showPage(pageId) {
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if(target) target.style.display = 'block';
+    
+    const sidebar = document.getElementById('menuSidebar');
+    if(sidebar) sidebar.classList.remove('active');
 }
 
-// 2. LOAD DATA (Ikan, Artikel, Ulasan)
+// 2. LOAD DATA (GET) - 5 TAB
 async function loadAllData() {
     try {
         const [resIkan, resArt, resUlasan] = await Promise.all([
@@ -2084,22 +2087,23 @@ async function loadAllData() {
         if (resArt.success) renderArtikel(resArt.data);
         if (resUlasan.success) renderUlasan(resUlasan.data);
     } catch (e) {
-        console.error("Gagal koneksi server", e);
+        console.error("Gagal sinkron data", e);
     } finally {
         const loader = document.getElementById('loader');
         if (loader) loader.style.display = 'none';
     }
 }
 
+// 3. RENDERER (Menampilkan Data)
 function renderIkan(items) {
     const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
     if (!grid) return;
     grid.innerHTML = items.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
+            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=Produk+Ikan'">
             <h3>${p.nama}</h3>
             <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-            <button onclick="buatOrder('${p.nama}', ${p.harga})">Pesan</button>
+            <button onclick="buatOrder('${p.nama}', ${p.harga})">Beli Sekarang</button>
         </div>
     `).join('');
 }
@@ -2109,9 +2113,9 @@ function renderArtikel(items) {
     if (!grid) return;
     grid.innerHTML = items.map(a => `
         <div class="article-card">
-            <img src="${a.link_foto}" style="width:100%">
+            <img src="${a.link_foto}" style="width:100%; border-radius:8px;">
             <h3>${a.judul}</h3>
-            <p>${a.isi_artikel || ''}</p>
+            <p>${a.isi_artikel || a.isi || ''}</p>
         </div>
     `).join('');
 }
@@ -2119,25 +2123,32 @@ function renderArtikel(items) {
 function renderUlasan(items) {
     const grid = document.getElementById('reviewsGrid');
     if (!grid) return;
-    grid.innerHTML = items.map(u => `<div><b>${u.nama}:</b> ${u.komentar}</div>`).join('');
+    grid.innerHTML = items.map(u => `
+        <div class="review-item">
+            <strong>${u.nama}</strong>: ${u.komentar}
+        </div>
+    `).join('');
 }
 
-// 3. POST DATA (Orders)
+// 4. KIRIM ORDER (POST)
 async function buatOrder(namaProduk, harga) {
-    const namaUser = prompt("Nama Anda:");
+    const namaUser = prompt("Masukkan Nama Anda:");
     if(!namaUser) return;
     
-    const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'tambahOrder', nama: namaUser, pesanan: namaProduk, total: harga })
-    });
-    const result = await res.json();
-    if(result.success) alert("Order berhasil dikirim ke tab Orders!");
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'tambahOrder', nama: namaUser, pesanan: namaProduk, total: harga })
+        });
+        const result = await res.json();
+        if(result.success) alert("Pesanan Berhasil Dikirim!");
+    } catch (e) { alert("Gagal mengirim pesanan"); }
 }
 
+// 5. INISIALISASI
 document.addEventListener('DOMContentLoaded', () => {
-    showPage('home');
-    loadAllData();
+    showPage('home'); // Tampilkan home dulu agar tombol aktif
+    loadAllData();    // Baru ambil data
 });
 </script>
 </html>
