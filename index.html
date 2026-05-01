@@ -2061,13 +2061,11 @@
     </div>
 
 <script>
-// 1. KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbwTCkr9DpzlsCqyRqTzI4Klwt3o0XBUKZdcg3jzc5RrkO4-_Pimxd3F6mc7wVd55kYbAA/exec'; 
-
+const API_URL = 'https://script.google.com/macros/s/AKfycbwTCkr9DpzlsCqyRqTzI4Klwt3o0XBUKZdcg3jzc5RrkO4-_Pimxd3F6mc7wVd55kYbAA/exec';
 let products = [];
 let articles = [];
 
-// 2. FUNGSI NAVIGASI & MENU (Agar Tombol Menu Tidak Mati)
+// FUNGSI MENU (Sangat penting agar tidak mati)
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
     const overlay = document.getElementById('menuOverlay');
@@ -2082,123 +2080,86 @@ function showPage(pageId) {
     pages.forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if (target) target.style.display = 'block';
-    if (sidebar.classList.contains('active')) toggleMenu(); // Tutup menu setelah pilih halaman
     window.scrollTo(0, 0);
 }
 
-function openLogin() {
-    const modal = document.getElementById('loginModal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeLogin() {
-    const modal = document.getElementById('loginModal');
-    if (modal) modal.style.display = 'none';
-}
-
-// 3. SINKRONISASI DATA (Memanggil Endpoint: getIkan, getArtikel, getUlasan)
+// SINKRONISASI 5 TAB (Ikan, Artikel, Ulasan)
 async function syncAllAppData() {
-    try {
-        console.log("Menghubungkan ke API Biip Flowerhorn...");
-        
-        // Panggil Ikan & Artikel secara paralel agar cepat
-        const [resIkan, resArt] = await Promise.all([
-            fetch(`${API_URL}?action=getIkan`).then(res => res.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(res => res.json())
-        ]);
-
-        if (resIkan.success) {
-            products = resIkan.data;
-            renderProducts();
-        }
-        
-        if (resArt.success) {
-            articles = resArt.data;
-            renderArticles();
-        }
-
-        console.log("Semua data berhasil dimuat.");
-    } catch (error) {
-        console.error("Gagal sinkronisasi data:", error);
-    }
-}
-
-// 4. RENDER UI (Sesuai Struktur Tabel Spreadsheet Anda)
-function renderProducts() {
-    const grids = ['homeProductGrid', 'productGrid'];
-    grids.forEach(gridId => {
-        const container = document.getElementById(gridId);
-        if (!container) return;
-        
-        container.innerHTML = products.map(p => `
-            <div class="product-card">
-                <span class="product-badge">${p.jenis || ''}</span>
-                <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Ikan+Biip'">
-                <div class="product-info">
-                    <span class="category-tag">${p.kategori}</span>
-                    <h3>${p.nama}</h3>
-                    <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-                    <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">Tambah</button>
-                </div>
-            </div>
-        `).join('');
-    });
-}
-
-function renderArticles() {
-    const container = document.getElementById('articleGrid');
-    if (!container) return;
+    console.log("Menghubungi AppScript...");
     
-    container.innerHTML = articles.map(a => `
-        <div class="article-card">
-            <img src="${a.link_foto}" class="article-img">
-            <div class="article-info">
-                <small>${a.tanggal}</small>
-                <h3>${a.judul}</h3>
-                <p>${a.isi ? a.isi.substring(0, 70) : ''}...</p>
-                <button onclick="viewArticle('${a.judul}')">Baca</button>
+    // Action yang diminta sesuai endpoint API Anda
+    const endpoints = ['getIkan', 'getArtikel', 'getUlasan'];
+    
+    for (let action of endpoints) {
+        try {
+            console.log(`Mengambil data: ${action}...`);
+            const response = await fetch(`${API_URL}?action=${action}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log(`✅ ${action} berhasil:`, result.data.length, "data ditemukan.");
+                if (action === 'getIkan') { products = result.data; renderProducts(); }
+                if (action === 'getArtikel') { articles = result.data; renderArticles(); }
+            } else {
+                console.warn(`⚠️ ${action} gagal: ${result.message}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error pada ${action}:`, error);
+        }
+    }
+    // Jika semua sudah selesai, matikan loader
+    killLoader();
+}
+
+function renderProducts() {
+    const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
+    if (!grid) return;
+    grid.innerHTML = products.map(p => `
+        <div class="product-card">
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
+            <div class="product-info">
+                <h3>${p.nama}</h3>
+                <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+                <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">Beli</button>
             </div>
         </div>
     `).join('');
 }
 
-// 5. LOGIN HANDLING (Tab Users)
-async function handleLogin(event) {
-    if(event) event.preventDefault();
-    const email = document.getElementById('loginEmail')?.value;
-    const pass = document.getElementById('loginPass')?.value;
-
-    try {
-        const res = await fetch(`${API_URL}?action=login&email=${email}&pass=${pass}`);
-        const result = await res.json();
-        if(result.success) {
-            alert("Selamat datang, " + result.user.nama);
-            localStorage.setItem('userSession', JSON.stringify(result.user));
-            closeLogin();
-            location.reload();
-        } else {
-            alert("Login Gagal: " + result.message);
-        }
-    } catch (e) { alert("Server tidak merespons."); }
+function renderArticles() {
+    const grid = document.getElementById('articleGrid');
+    if (!grid) return;
+    grid.innerHTML = articles.map(a => `
+        <div class="article-card">
+            <h3>${a.judul}</h3>
+            <p>${a.isi ? a.isi.substring(0, 50) : ''}...</p>
+        </div>
+    `).join('');
 }
 
-// 6. INITIALIZE
-document.addEventListener('DOMContentLoaded', () => {
-    // Hilangkan Loader
+function killLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.opacity = '0';
         setTimeout(() => loader.remove(), 500);
     }
-    
+}
+
+// INISIALISASI
+document.addEventListener('DOMContentLoaded', () => {
+    showPage('home');
     syncAllAppData();
 });
 
-// Tutup modal/menu jika klik di area kosong
+// Fungsi penunjang agar tidak error saat diklik
+function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+function addToCart(n, h) { console.log("Tambah ke keranjang:", n, h); }
+
 window.onclick = function(e) {
     if (e.target.id === 'menuOverlay') toggleMenu();
     if (e.target.id === 'loginModal') closeLogin();
 };
 </script>
-</body>
 </html>
+</body>
