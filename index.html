@@ -2062,72 +2062,6 @@
 
 <script>
 // ============================================================
-// 1. CONFIG API & STATE (GANTI DENGAN URL WEB APP ANDA)
-// ============================================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxpwQ7kOl_OqA9MH0gWC_bk0y_Yx7fEl707JWSIsY7fV2zLANetABQ5ExNfFW0CZGqJ/exec'; 
-
-let products = [];
-let cart = [];
-
-// ============================================================
-// 2. FUNGSI UTILITAS & NAVIGASI
-// ============================================================
-function formatRupiah(angka) {
-    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-function killLoader() {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 300);
-    }
-}
-
-function showPage(pageId) {
-    const pages = document.querySelectorAll('[id^="page-"]');
-    pages.forEach(p => p.style.display = 'none');
-    
-    const target = document.getElementById('page-' + pageId);
-    if (target) {
-        target.style.display = 'block';
-    }
-    window.scrollTo(0, 0);
-}
-
-// Sesuai atribut onclick di HTML Anda
-function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); }
-function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
-
-// ============================================================
-// 3. FUNGSI RENDER (MENYESUAIKAN TAMPILAN GAMBAR)
-// ============================================================
-
-// A. Render Produk Terbaru (4 Kolom Rapi)
-function renderProductsToGrid(gridId, data) {
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
-    
-    if (data.length === 0) {
-        grid.innerHTML = '<p style="text-align:center;width:100%;color:var(--gray);">Memuat produk...</p>';
-        return;
-    }
-
-    grid.innerHTML = data.map(p => `
-        <div class="product-card">
-            <span class="product-badge">${p.type} ${p.size}</span>
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Flowerhorn'">
-            <div class="product-info">
-                <span class="category-tag">${p.kategori}</span>
-                <h3>${p.nama}</h3>
-                <div class="product-price-row">
-                    <p class="price">${formatRupiah(p.harga)}</p>
-                    <button class="add-to-cart-btn" onclick="addToCart(${p.id})">
-    <i class="fas fa-cart-plus"></i> Tambah
-</button>
-
-<script>
-// ============================================================
 // 1. CONFIG API & STATE
 // ============================================================
 const API_URL = 'https://script.google.com/macros/s/AKfycbwqmJOSNqw143SnxK1b8VFE-Xgv-aXVBsHLiJBa7lvnIf7Fb6MeIB5vGQJ3ZHedxAxEng/exec'; 
@@ -2148,28 +2082,19 @@ function killLoader() {
     const loader = document.getElementById('loader');
     if (loader) {
         loader.style.opacity = '0';
-        setTimeout(() => {
-            if(loader.parentNode) loader.remove();
-        }, 300);
-        console.log("✅ Loader dibersihkan.");
+        setTimeout(() => { if(loader.parentNode) loader.remove(); }, 300);
     }
 }
 
 function showPage(pageId) {
-    console.log("Navigasi ke halaman:", pageId);
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
-    
     const target = document.getElementById('page-' + pageId);
-    if (target) {
-        target.style.display = 'block';
-    } else {
-        console.error(`EROR: Halaman 'page-${pageId}' tidak ditemukan!`);
-    }
+    if (target) target.style.display = 'block';
     window.scrollTo(0, 0);
 }
 
-// Sidebar & Cart Logic (Versi Solid)
+// Fungsi Sidebar & Keranjang (Satu Versi Solid)
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
     const overlay = document.getElementById('menuOverlay');
@@ -2189,11 +2114,11 @@ function toggleCart() {
 }
 
 // ============================================================
-// 3. DATA SYNC (FETCH & POST)
+// 3. SINKRONISASI DATA (API)
 // ============================================================
 async function syncAllAppData() {
-    console.log("⏳ Menghubungkan ke Spreadsheet...");
     try {
+        // Ambil Data Produk
         const resIkan = await fetch(`${API_URL}?action=getIkan`);
         const dataIkan = await resIkan.json();
         if (dataIkan.success) {
@@ -2206,47 +2131,32 @@ async function syncAllAppData() {
                 size: item.jenis || "5 cm",
                 type: (item.jenis || '').split(' ')[0]
             }));
-            renderProductsLocally('homeProductGrid', products);
-            renderProductsLocally('productGrid', products);
-            console.log("✅ Data Ikan Berhasil Dimuat.");
+            renderProductsToGrid('homeProductGrid', products);
+            renderProductsToGrid('productGrid', products);
         }
 
+        // Ambil Data Ulasan
         const resUlasan = await fetch(`${API_URL}?action=getUlasan`);
         const dataUlasan = await resUlasan.json();
         if (dataUlasan.success) {
-            reviews = dataUlasan.data.map(item => ({
-                name: item.nama,
-                rating: parseInt(item.bintang),
-                text: item.komentar,
-                avatar: item.nama.charAt(0).toUpperCase()
-            }));
+            reviews = dataUlasan.data;
             renderReviewsLocally();
-            console.log("✅ Data Ulasan Berhasil Dimuat.");
         }
     } catch (e) {
-        console.error("❌ Koneksi Gagal:", e);
+        console.error("Gagal sinkronisasi:", e);
     }
 }
 
-async function submitReview() {
-    const name = document.getElementById('reviewName')?.value;
-    const text = document.getElementById('reviewText')?.value;
-    if (!name || !text || currentRating === 0) {
-        alert('Mohon lengkapi data ulasan!'); return;
-    }
-    // Logika fetch POST Anda di sini...
-}
-
 // ============================================================
-// 4. RENDER UI
+// 4. FUNGSI RENDER UI
 // ============================================================
-function renderProductsLocally(gridId, data) {
+function renderProductsToGrid(gridId, data) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     grid.innerHTML = data.map(p => `
         <div class="product-card">
             <span class="product-badge">${p.type} ${p.size}</span>
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Ikan+Louhan'">
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Flowerhorn'">
             <div class="product-info">
                 <span class="category-tag">${p.kategori}</span>
                 <h3>${p.nama}</h3>
@@ -2267,13 +2177,13 @@ function renderReviewsLocally() {
     grid.innerHTML = reviews.slice(0, 3).map(r => `
         <div class="review-card">
             <div class="review-header">
-                <div class="review-avatar">${r.avatar}</div>
+                <div class="review-avatar">${r.nama ? r.nama.charAt(0).toUpperCase() : '?'}</div>
                 <div>
-                    <h4>${r.name}</h4>
-                    <div class="review-stars">${'⭐'.repeat(r.rating)}</div>
+                    <h4>${r.nama}</h4>
+                    <div class="review-stars">${'⭐'.repeat(r.bintang || 5)}</div>
                 </div>
             </div>
-            <p class="review-text">"${r.text}"</p>
+            <p class="review-text">"${r.komentar}"</p>
         </div>
     `).join('');
 }
@@ -2288,13 +2198,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.onclick = function(e) {
-    const loginModal = document.getElementById('loginModal');
     const menuOverlay = document.getElementById('menuOverlay');
     const cartOverlay = document.getElementById('cartOverlay');
+    const loginModal = document.getElementById('loginModal');
 
-    if (e.target === loginModal) { if(typeof closeLogin === 'function') closeLogin(); }
     if (e.target === menuOverlay) toggleMenu();
     if (e.target === cartOverlay) toggleCart();
+    if (e.target === loginModal && typeof closeLogin === 'function') closeLogin();
 };
 </script>
 </body>
