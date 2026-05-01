@@ -2061,9 +2061,9 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxovGbVTftMBES9NJYgTCeDl8Utna8d2EnzLx23KgeDatPX7NRv4HPhNsrP3q0bnBoSGQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbw606GkffOcS88p3mCCkC2IiVleALphr_7X2RG_qVSlCMdjnxFLEr0cmm5Pq9ktBCeFqA/exec'; 
 
-// --- 1. NAVIGASI (Agar tombol tetap hidup) ---
+// --- 1. NAVIGASI (Selalu diletakkan paling atas) ---
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
     if (sidebar) sidebar.classList.toggle('active');
@@ -2079,41 +2079,43 @@ function showPage(pageId) {
     if (sidebar && sidebar.classList.contains('active')) toggleMenu();
 }
 
-// --- 2. KONEKSI SEMUA DATA ---
-async function syncAllData() {
-    const loader = document.getElementById('loader');
+// --- 2. AMBIL DATA SEMUA TAB ---
+async function syncSemuaData() {
     try {
-        // Ambil Ikan, Artikel, dan Ulasan secara bersamaan
+        console.log("Memulai sinkronisasi...");
+        
+        // Panggil Ikan, Artikel, dan Ulasan secara paralel agar cepat
         const [resIkan, resArt, resUlasan] = await Promise.all([
             fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
             fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
             fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
         ]);
 
-        if (resIkan.success) renderProducts(resIkan.data);
-        if (resArt.success) renderArticles(resArt.data);
-        if (resUlasan.success) renderReviews(resUlasan.data);
+        if (resIkan.success) renderIkan(resIkan.data);
+        if (resArt.success) renderArtikel(resArt.data);
+        if (resUlasan.success) renderUlasan(resUlasan.data);
 
     } catch (error) {
-        console.error("Gagal sinkronisasi data:", error);
+        console.error("Gagal sinkron data:", error);
     } finally {
+        const loader = document.getElementById('loader');
         if (loader) loader.style.display = 'none';
     }
 }
 
-function renderProducts(items) {
+function renderIkan(items) {
     const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
     if (!grid) return;
     grid.innerHTML = items.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=Ikan+Biip'">
             <h3>${p.nama}</h3>
             <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
         </div>
     `).join('');
 }
 
-function renderArticles(items) {
+function renderArtikel(items) {
     const grid = document.getElementById('articleGrid');
     if (!grid) return;
     grid.innerHTML = items.map(a => `
@@ -2124,21 +2126,10 @@ function renderArticles(items) {
     `).join('');
 }
 
-function renderReviews(items) {
-    const grid = document.getElementById('reviewsGrid');
-    if (!grid) return;
-    grid.innerHTML = items.map(r => `
-        <div class="review-card">
-            <p>"${r.komentar}"</p>
-            <small>- ${r.nama}</small>
-        </div>
-    `).join('');
-}
-
 // --- 3. JALANKAN ---
 document.addEventListener('DOMContentLoaded', () => {
-    showPage('home'); // Tombol menu langsung bisa diklik
-    syncAllData();    // Baru ambil data
+    showPage('home'); // Pastikan tombol menu langsung aktif
+    syncSemuaData();  // Ambil data di latar belakang
 });
 </script>
 </html>
