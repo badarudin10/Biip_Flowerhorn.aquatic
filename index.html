@@ -2061,124 +2061,56 @@
     </div>
 
 <script>
-// 1. MASUKKAN URL API ANDA DI SINI
-const API_URL = 'https://script.google.com/macros/s/AKfycbxarxlum6tagZXmSVxRJymAv7lJ8WihIqKJyi8JykNsZ3ejTYqtnRLEbrawS9BbPn4Hkw/exec'; 
+// MASUKKAN URL DEPLOY BARU DI SINI
+const API_URL = 'https://script.google.com/macros/s/AKfycbwNgyf0wrIPe-B6j85PfksKACgIw6XG8SjCE-rnhpB-l5KRjjzJpNc6cLb5F5hwZqpL6A/exec'; 
 
-let products = [];
-let articles = [];
+async function loadData() {
+    console.log("Mencoba terhubung...");
+    
+    // Set timeout agar tidak loading selamanya jika gagal
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); 
 
-// 2. FUNGSI NAVIGASI & MENU (Agar tombol tidak mati)
+    try {
+        const response = await fetch(`${API_URL}?action=getIkan`, { signal: controller.signal });
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            renderData(result.data);
+        } else {
+            document.getElementById('productGrid').innerHTML = "<p>Data kosong di Spreadsheet.</p>";
+        }
+    } catch (error) {
+        console.error("Gagal koneksi:", error);
+        document.getElementById('productGrid').innerHTML = "<p>Gagal terhubung. Cek URL AppScript.</p>";
+    } finally {
+        clearTimeout(timeoutId);
+        // MATIKAN LOADER SECARA PAKSA
+        const loader = document.getElementById('loader');
+        if (loader) loader.style.display = 'none';
+    }
+}
+
+function renderData(items) {
+    const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = items.map(p => `
+        <div class="product-card">
+            <img src="${p.link_foto}" style="width:100%; height:200px; object-fit:cover;">
+            <h3>${p.nama}</h3>
+            <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+        </div>
+    `).join('');
+}
+
+// Fungsi menu agar tidak error
 function toggleMenu() {
     const sidebar = document.getElementById('menuSidebar');
-    const overlay = document.getElementById('menuOverlay');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-        if (overlay) overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
-    }
+    if (sidebar) sidebar.classList.toggle('active');
 }
 
-function showPage(pageId) {
-    const pages = document.querySelectorAll('[id^="page-"]');
-    pages.forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if (target) target.style.display = 'block';
-    
-    // Tutup sidebar otomatis
-    const sidebar = document.getElementById('menuSidebar');
-    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
-    window.scrollTo(0, 0);
-}
-
-// 3. SINKRONISASI DATA (Ikan & Artikel)
-async function syncAllData() {
-    console.log("Menghubungkan ke Biip Spreadsheet...");
-    try {
-        // Ambil data secara bersamaan agar cepat
-        const [resIkan, resArt] = await Promise.all([
-            fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(r => r.json())
-        ]);
-
-        if (resIkan.success) {
-            products = resIkan.data;
-            renderProducts();
-        }
-        if (resArt.success) {
-            articles = resArt.data;
-            renderArticles();
-        }
-        
-    } catch (error) {
-        console.error("Gagal terhubung:", error);
-    } finally {
-        killLoader();
-    }
-}
-
-// 4. RENDER TAMPILAN
-function renderProducts() {
-    // Mencari ID grid produk di halaman Home atau Produk
-    const container = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
-    if (!container) return;
-    
-    if (products.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px;">Data produk belum tersedia.</p>';
-        return;
-    }
-
-    container.innerHTML = products.map(p => `
-        <div class="product-card">
-            <span class="product-badge">${p.jenis || 'Flowerhorn'}</span>
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
-            <div class="product-info">
-                <span class="category-tag">${p.kategori}</span>
-                <h3>${p.nama}</h3>
-                <p class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-                <button class="add-to-cart-btn" onclick="addToCart('${p.nama}', ${p.harga})">Beli</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderArticles() {
-    const container = document.getElementById('articleGrid');
-    if (!container) return;
-    
-    container.innerHTML = articles.map(a => `
-        <div class="article-card">
-            <img src="${a.link_foto}" class="article-img">
-            <div class="article-info">
-                <small>${a.tanggal || ''}</small>
-                <h3>${a.judul}</h3>
-                <button onclick="alert('Baca artikel lengkap: ${a.judul}')">Baca Selengkapnya</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function addToCart(nama, harga) {
-    alert("Berhasil ditambah: " + nama + "\nTotal: Rp " + harga.toLocaleString('id-ID'));
-}
-
-function killLoader() {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.style.display = 'none', 500);
-    }
-}
-
-// 5. JALANKAN SAAT START
-document.addEventListener('DOMContentLoaded', () => {
-    showPage('home'); // Pastikan ID halaman utama adalah page-home
-    syncAllData();
-});
-
-// Penutup modal & overlay
-window.onclick = function(e) {
-    if (e.target.id === 'menuOverlay') toggleMenu();
-    if (e.target.id === 'loginModal') document.getElementById('loginModal').style.display = 'none';
-};
+document.addEventListener('DOMContentLoaded', loadData);
 </script>
 </html>
 </body>
