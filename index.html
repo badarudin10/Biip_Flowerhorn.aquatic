@@ -2061,56 +2061,85 @@
     </div>
 
 <script>
-// MASUKKAN URL DEPLOY BARU DI SINI
-const API_URL = 'https://script.google.com/macros/s/AKfycbwNgyf0wrIPe-B6j85PfksKACgIw6XG8SjCE-rnhpB-l5KRjjzJpNc6cLb5F5hwZqpL6A/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxovGbVTftMBES9NJYgTCeDl8Utna8d2EnzLx23KgeDatPX7NRv4HPhNsrP3q0bnBoSGQ/exec'; 
 
-async function loadData() {
-    console.log("Mencoba terhubung...");
+// --- 1. NAVIGASI (Agar tombol tetap hidup) ---
+function toggleMenu() {
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar) sidebar.classList.toggle('active');
+}
+
+function showPage(pageId) {
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.style.display = 'block';
     
-    // Set timeout agar tidak loading selamanya jika gagal
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); 
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
+}
 
+// --- 2. KONEKSI SEMUA DATA ---
+async function syncAllData() {
+    const loader = document.getElementById('loader');
     try {
-        const response = await fetch(`${API_URL}?action=getIkan`, { signal: controller.signal });
-        const result = await response.json();
-        
-        if (result.success && result.data.length > 0) {
-            renderData(result.data);
-        } else {
-            document.getElementById('productGrid').innerHTML = "<p>Data kosong di Spreadsheet.</p>";
-        }
+        // Ambil Ikan, Artikel, dan Ulasan secara bersamaan
+        const [resIkan, resArt, resUlasan] = await Promise.all([
+            fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
+            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
+            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
+        ]);
+
+        if (resIkan.success) renderProducts(resIkan.data);
+        if (resArt.success) renderArticles(resArt.data);
+        if (resUlasan.success) renderReviews(resUlasan.data);
+
     } catch (error) {
-        console.error("Gagal koneksi:", error);
-        document.getElementById('productGrid').innerHTML = "<p>Gagal terhubung. Cek URL AppScript.</p>";
+        console.error("Gagal sinkronisasi data:", error);
     } finally {
-        clearTimeout(timeoutId);
-        // MATIKAN LOADER SECARA PAKSA
-        const loader = document.getElementById('loader');
         if (loader) loader.style.display = 'none';
     }
 }
 
-function renderData(items) {
+function renderProducts(items) {
     const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
     if (!grid) return;
-    
     grid.innerHTML = items.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" style="width:100%; height:200px; object-fit:cover;">
+            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
             <h3>${p.nama}</h3>
             <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
         </div>
     `).join('');
 }
 
-// Fungsi menu agar tidak error
-function toggleMenu() {
-    const sidebar = document.getElementById('menuSidebar');
-    if (sidebar) sidebar.classList.toggle('active');
+function renderArticles(items) {
+    const grid = document.getElementById('articleGrid');
+    if (!grid) return;
+    grid.innerHTML = items.map(a => `
+        <div class="article-card">
+            <h3>${a.judul}</h3>
+            <p>${a.isi_artikel ? a.isi_artikel.substring(0, 50) : ''}...</p>
+        </div>
+    `).join('');
 }
 
-document.addEventListener('DOMContentLoaded', loadData);
+function renderReviews(items) {
+    const grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    grid.innerHTML = items.map(r => `
+        <div class="review-card">
+            <p>"${r.komentar}"</p>
+            <small>- ${r.nama}</small>
+        </div>
+    `).join('');
+}
+
+// --- 3. JALANKAN ---
+document.addEventListener('DOMContentLoaded', () => {
+    showPage('home'); // Tombol menu langsung bisa diklik
+    syncAllData();    // Baru ambil data
+});
 </script>
 </html>
 </body>
