@@ -2330,6 +2330,16 @@ window.onclick = function(e) {
     const modal = document.getElementById('loginModal');
     if (e.target === modal) closeLogin();
 };
+    // Tes apakah fungsi toggleMenu benar-benar terpanggil
+function toggleMenu() {
+    console.log("Tombol menu diklik!");
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+        console.log("Sidebar ditemukan dan class 'active' ditambahkan.");
+    } else {
+        console.error("EROR: Elemen dengan ID 'menuSidebar' TIDAK ADA di HTML.");
+    }
 </script>
 </body>
 </html>
