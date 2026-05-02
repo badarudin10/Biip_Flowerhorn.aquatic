@@ -2064,7 +2064,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwZzHbRhniToAbhzhx9ogl-
 let cart = [];
 let currentRating = 0;
 
-// --- 1. NAVIGASI GLOBAL ---
+// --- 1. NAVIGASI UTAMA & DETAIL ---
 function showPage(pageId) {
     document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
@@ -2074,80 +2074,87 @@ function showPage(pageId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// --- 2. PUSAT BANTUAN (FOOTER INTERAKTIF) ---
+function showArticleDetail(judul, isi, img) {
+    const container = document.getElementById('articleDetailContent');
+    container.innerHTML = `
+        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px; max-height:400px; object-fit:cover;">
+        <h1 style="margin-bottom:15px; font-family:'Playfair Display', serif;">${judul}</h1>
+        <div style="line-height:2; white-space:pre-wrap; text-align:justify; color:#475569;">${isi}</div>
+    `;
+    showPage('article-detail');
+}
+
 async function showHelpDetail(kategori) {
-    // Menampilkan loading sederhana
     showToast("Memuat " + kategori + "...");
-    const res = await fetch(`${API_URL}?action=getInformasi`);
+    const res = await fetch(`${API_URL}?action=getArtikel`); // Menggunakan tab informasi/artikel
     const result = await res.json();
-    if(result.success) {
-        const info = result.data.find(i => i.kategori.toLowerCase() === kategori.toLowerCase());
-        if(info) {
-            document.getElementById('articleDetailContent').innerHTML = `
-                <h1 style="margin-bottom:20px; color:var(--primary);">${info.kategori}</h1>
-                <div style="line-height:2; white-space:pre-wrap; text-align:justify;">${info.konten}</div>
-            `;
-            showPage('article-detail');
-        }
+    const info = result.data.find(i => i.judul === kategori || i.kategori === kategori);
+    if(info) {
+        showArticleDetail(info.judul || info.kategori, info.isi_artikel || info.konten, info.link_foto || '');
     }
 }
 
-// --- 3. SISTEM RATING (STICKY STARS) ---
-function setRating(n) {
-    currentRating = n;
-    const stars = document.querySelectorAll('#starInput i');
-    stars.forEach((star, index) => {
-        if(index < n) {
-            star.classList.add('active');
-            star.style.color = '#f59e0b'; // Kuning menyala
-        } else {
-            star.classList.remove('active');
-            star.style.color = '#e2e8f0'; // Abu-abu kembali
-        }
+// --- 2. LOGIN & REGISTER (FIXED SYNC) ---
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    if(!email || !password) return showToast("Isi email dan password", "error");
+
+    const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'loginUser', email, password })
     });
+    const result = await res.json();
+    if(result.success) {
+        showToast("Selamat Datang, " + result.name);
+        document.getElementById('menuUser').innerHTML = `<b>${result.name}</b><br>Member Biip`;
+        closeLogin();
+    } else {
+        showToast("Email/Password Salah!", "error");
+    }
 }
 
-// --- 4. KERANJANG & CHECKOUT (RINCIAN KURIR & BANK) ---
+// --- 3. KERANJANG & CHECKOUT (WA FIXED) ---
 function updateCartUI() {
     const container = document.getElementById('cartItems');
     let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
     
-    // Ganti tampilan Ongkir dengan Pilihan Kurir & Bank
+    if(cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">Keranjang Kosong</p>';
+        document.getElementById('cartFooter').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('cartFooter').style.display = 'block';
     document.getElementById('cartFooter').innerHTML = `
-        <div class="form-group">
-            <label>Pilih Ekspedisi:</label>
-            <select id="kurirSelect" class="form-control">
-                <option value="JNE">JNE</option>
-                <option value="JNT">JNT</option>
-                <option value="TIKI">TIKI</option>
-                <option value="PAXEL">PAXEL</option>
-                <option value="GOJEK INSTAN">GOJEK INSTAN</option>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:0.85rem; font-weight:600;">Metode Pengiriman:</label>
+            <select id="kurir" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                <option>JNE</option><option>JNT</option><option>TIKI</option><option>PAXEL</option><option>GOJEK INSTAN</option>
             </select>
         </div>
-        <div class="form-group" style="margin-top:10px;">
-            <label>Metode Pembayaran:</label>
-            <select id="bankSelect" class="form-control">
-                <option value="BANK BCA">BANK BCA</option>
-                <option value="DANA">DANA</option>
+        <div style="margin-bottom:15px;">
+            <label style="font-size:0.85rem; font-weight:600;">Metode Pembayaran:</label>
+            <select id="bank" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                <option>BANK BCA</option><option>DANA</option>
             </select>
         </div>
-        <p style="font-size:0.8rem; color:var(--gray); margin:10px 0;">*Kebijakan: Pengiriman dilakukan H+1 setelah konfirmasi pembayaran.</p>
-        <div class="summary-row total">
-            <span>Total Bayar:</span>
-            <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+        <div style="border-top:1px solid #eee; padding-top:10px; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>Total Bayar:</span><span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+            </div>
         </div>
-        <button class="checkout-btn" onclick="processCheckout()">
-            <i class="fab fa-whatsapp"></i> Konfirmasi & Pesan via WA
+        <button class="checkout-btn" onclick="confirmOrder()" style="width:100%; background:#22c55e;">
+            <i class="fab fa-whatsapp"></i> Konfirmasi Pesanan ke WA
         </button>
     `;
 }
 
-async function processCheckout() {
-    const nama = prompt("Konfirmasi Nama Penerima:");
+async function confirmOrder() {
+    const nama = prompt("Nama Lengkap Penerima:");
     if(!nama) return;
-
-    const kurir = document.getElementById('kurirSelect').value;
-    const bank = document.getElementById('bankSelect').value;
+    const kurir = document.getElementById('kurir').value;
+    const bank = document.getElementById('bank').value;
     const items = cart.map(i => i.nama).join(', ');
     const total = cart.reduce((sum, i) => sum + i.harga, 0);
 
@@ -2155,24 +2162,32 @@ async function processCheckout() {
         method: 'POST',
         body: JSON.stringify({ action: 'tambahOrder', nama, item: items, total, pembayaran: bank, ekspedisi: kurir })
     });
-
-    if((await res.json()).success) {
-        const waMsg = `Halo Biip Aquatic,\nSaya *${nama}* ingin konfirmasi pesanan:\n\n*Produk:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Metode Bayar:* ${bank}\n*Kurir:* ${kurir}\n\nMohon rincian nomor rekeningnya, terima kasih.`;
-        window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
-        cart = []; updateCartUI(); toggleCart();
-    }
+    
+    const waMsg = `Halo Biip Aquatic, saya *${nama}*.\n\n*Pesanan:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Metode:* ${bank}\n*Kurir:* ${kurir}`;
+    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
+    cart = []; updateCartUI(); toggleCart();
 }
 
-// --- 5. SEARCH GLOBAL (ANTI-AUTOFILL) ---
-function searchGlobal(query) {
-    // Logika pencarian yang tidak menyimpan data user ke input
+// --- 4. RATING (STICKY) ---
+function setRating(n) {
+    currentRating = n;
+    const stars = document.querySelectorAll('#starInput i');
+    stars.forEach((s, i) => {
+        s.style.color = i < n ? '#f59e0b' : '#e2e8f0';
+    });
+}
+
+// --- 5. SEARCH & INIT ---
+function searchGlobal(q) {
     const input = document.getElementById('menuSearchInput');
-    input.setAttribute('autocomplete', 'off');
-    // ... logika filter produk & artikel ...
+    input.setAttribute('autocomplete', 'off'); // Anti-autofill data user
+    // ... logika filter ...
 }
 
-// Tambahkan trigger di footer HTML Anda:
-// <a href="#" onclick="showHelpDetail('Garansi')">Garansi</a>
+document.addEventListener('DOMContentLoaded', () => { 
+    showPage('home'); 
+    syncAllData(); // Memanggil fungsi fetch data Anda
+});
 </script>
 </html>
 </body>
