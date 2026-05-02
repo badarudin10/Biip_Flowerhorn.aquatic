@@ -2061,63 +2061,10 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyAprpf7pJlC_KiDGX5aL8vp7Dtt1UYDHykTtUesrIlK1Hb0YWQtN6e5uM9qG0eYEXgZQ/exec'; // GANTI DENGAN URL BARU
+const API_URL = 'https://script.google.com/macros/s/AKfycbwRl2TXHbkYXgv0KbBr56uphltffoVw9PRYJhqah53CyV5YrIpo_ALqVrph3xfbctrq8A/exec'; // Ganti dengan URL hasil Deploy Anyone
 let cart = [];
 
-// === 1. NAVIGASI UTAMA (FIXED) ===
-function toggleMenu() {
-    document.getElementById('menuSidebar').classList.toggle('active');
-    document.getElementById('menuOverlay').classList.toggle('active');
-}
-function toggleCart() {
-    document.getElementById('cartSidebar').classList.toggle('active');
-    document.getElementById('cartOverlay').classList.toggle('active');
-}
-function openLogin() { document.getElementById('loginModal').classList.add('active'); }
-function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
-
-function showPage(pageId) {
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if(target) target.style.display = 'block';
-    const sidebar = document.getElementById('menuSidebar');
-    if(sidebar && sidebar.classList.contains('active')) toggleMenu();
-    window.scrollTo(0,0);
-}
-
-// === 2. AUTHENTICATION (FIXED LOGIN & REGISTER) ===
-async function handleRegister() {
-    const data = {
-        action: 'registerUser',
-        nama: document.getElementById('regName').value,
-        email: document.getElementById('regEmail').value,
-        password: document.getElementById('regPassword').value
-    };
-    if(!data.email || !data.nama) return alert("Lengkapi data!");
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-    if((await res.json()).success) { alert("Daftar Berhasil! Silakan Login."); switchAuthTab('login'); }
-}
-
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', email, password }) });
-    const result = await res.json();
-    if(result.success) { 
-        alert("Selamat Datang, " + result.name);
-        document.getElementById('menuUser').innerHTML = `<b>${result.name}</b><br>Member Biip`;
-        closeLogin();
-    } else { alert("Email atau Password Salah!"); }
-}
-
-function switchAuthTab(type) {
-    document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
-    document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
-    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-}
-
-// === 3. PRODUK & ARTIKEL (FIXED TIDAK TERBACA) ===
+// 1. Fungsi Sinkronisasi Data
 async function syncData() {
     try {
         const [resIkan, resArt, resUlasan] = await Promise.all([
@@ -2128,24 +2075,33 @@ async function syncData() {
         if(resIkan.success) renderIkan(resIkan.data);
         if(resArt.success) renderArtikel(resArt.data);
         if(resUlasan.success) renderUlasan(resUlasan.data);
-    } catch (e) { console.error("Koneksi Gagal:", e); }
+    } catch (e) { console.error("Koneksi gagal", e); }
     finally { document.getElementById('loader').style.display = 'none'; }
 }
 
+// 2. Render Produk (Menampilkan Nama, Harga, Spesifikasi)
 function renderIkan(items) {
     const containers = [document.getElementById('productGrid'), document.getElementById('homeProductGrid')];
-    const html = items.map(p => `
+    const html = items.map(p => {
+        const namaLengkap = `${p.jenis || 'Louhan'} - ${p.kategori || ''}`;
+        const harga = Number(p.harga) || 0;
+        return `
         <div class="product-card">
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Produk+Biip'">
+            <div class="product-badge">${p.kategori || 'Premium'}</div>
+            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
             <div class="product-info">
-                <h3>${p.nama}</h3>
-                <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-                <button class="add-cart-btn" onclick="addToCart('${p.nama}', ${p.harga}, '${p.link_foto}')">Beli</button>
+                <h3>${namaLengkap}</h3>
+                <p>Rp ${harga.toLocaleString('id-ID')}</p>
+                <button class="add-cart-btn" onclick="addToCart('${namaLengkap}', ${harga}, '${p.link_foto}')">
+                    Beli Sekarang
+                </button>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
     containers.forEach(c => { if(c) c.innerHTML = html; });
 }
 
+// 3. Render Artikel & Detail (Baca Selengkapnya)
 function renderArtikel(items) {
     const grid = document.getElementById('articlesGrid');
     if(!grid) return;
@@ -2161,33 +2117,26 @@ function renderArtikel(items) {
 
 function showArticleDetail(judul, isi, img) {
     document.getElementById('articleDetailContent').innerHTML = `
-        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:1rem;">
+        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px;">
         <h1>${judul}</h1>
-        <div style="line-height:1.8; white-space:pre-wrap;">${isi}</div>`;
-    showPage('article-detail');
+        <div style="line-height:1.8; white-space:pre-wrap; margin-top:20px;">${isi}</div>`;
+    showPage('article-detail'); // Pastikan ID ini ada di HTML Anda
 }
 
-// === 4. KERANJANG & CHECKOUT (FIXED RINCIAN) ===
+// 4. Keranjang & Checkout dengan Rincian
 function addToCart(nama, harga, img) {
     cart.push({ nama, harga, img });
     updateCart();
-    alert(nama + " ditambah ke keranjang");
 }
 
 function updateCart() {
     const container = document.getElementById('cartItems');
     document.getElementById('cartBadge').innerText = cart.length;
-    if(cart.length === 0) {
-        container.innerHTML = '<p>Keranjang Kosong</p>';
-        document.getElementById('cartFooter').style.display = 'none';
-        return;
-    }
-    document.getElementById('cartFooter').style.display = 'block';
     let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
     container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-            <div class="cart-item-name">${item.nama} - Rp ${item.harga.toLocaleString()}</div>
-            <button onclick="cart.splice(${index},1); updateCart();">Hapus</button>
+        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
+            <span>${item.nama}</span>
+            <button onclick="cart.splice(${index},1); updateCart();">X</button>
         </div>`).join('');
     document.getElementById('cartTotal').innerText = `Total: Rp ${(subtotal + 25000).toLocaleString()}`;
 }
@@ -2207,13 +2156,14 @@ async function checkoutAndSave() {
     });
 
     if((await res.json()).success) {
-        const waMsg = `Halo Biip Aquatic, saya *${nama}* ingin memesan *${items}* via ${kirim}. Total Rp ${total.toLocaleString()}. Bayar via ${bayar}.`;
+        const waMsg = `Pesanan Baru: ${items}\nTotal: Rp ${total}\nBayar: ${bayar}\nKirim: ${kirim}`;
         window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
-        cart = []; updateCart(); toggleCart();
+        cart = []; updateCart();
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => { showPage('home'); syncData(); });
+// Inisialisasi
+document.addEventListener('DOMContentLoaded', () => { syncData(); });
 </script>
 </html>
 </body>
