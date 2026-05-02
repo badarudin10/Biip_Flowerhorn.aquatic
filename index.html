@@ -2061,21 +2061,37 @@
     </div>
 
 <script>
+// 1. URL DARI APPS SCRIPT YANG SUDAH ANDA TES TADI
 const API_URL = 'https://script.google.com/macros/s/AKfycbzmzrGGj3gKE8Wc4H2w8g0aZLJwWhUIjqp46dNRRv_hkod1HBiY2KINPaos7EJFWILDWA/exec'; 
+
 let allProducts = [];
 let cart = [];
-let currentRating = 0;
 
-// === 1. NAVIGASI & UI ===
-function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); document.getElementById('menuOverlay').classList.toggle('active'); }
-function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); document.getElementById('cartOverlay').classList.toggle('active'); }
+// === 2. NAVIGASI (Fix toggleMenu not defined) ===
+function toggleMenu() {
+    const sidebar = document.getElementById('menuSidebar');
+    const overlay = document.getElementById('menuOverlay');
+    if (sidebar) sidebar.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active');
+}
+
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('active');
+    document.getElementById('cartOverlay').classList.toggle('active');
+}
+
 function openLogin() { document.getElementById('loginModal').classList.add('active'); }
 function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
 
 function showPage(pageId) {
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
-    document.getElementById('page-' + pageId).style.display = 'block';
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.style.display = 'block';
+    
+    // Tutup menu otomatis
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
     window.scrollTo(0,0);
 }
 
@@ -2086,14 +2102,7 @@ function showToast(msg, type='success') {
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// === 2. AUTHENTICATION (USERS TAB) ===
-function switchAuthTab(type) {
-    document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
-    document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
-    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-}
-
+// === 3. AUTH (REGISTER & LOGIN) ===
 async function handleRegister() {
     const data = {
         action: 'registerUser',
@@ -2101,9 +2110,12 @@ async function handleRegister() {
         email: document.getElementById('regEmail').value,
         password: document.getElementById('regPassword').value
     };
+    if(!data.email || !data.password) return showToast("Isi semua data", "error");
+    
+    showToast("Mendaftarkan...");
     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
     const result = await res.json();
-    if(result.success) { showToast("Pendaftaran Berhasil! Silakan Login."); switchAuthTab('login'); }
+    if(result.success) { showToast("Daftar Berhasil! Silakan Login."); switchAuthTab('login'); }
 }
 
 async function handleLogin() {
@@ -2116,12 +2128,21 @@ async function handleLogin() {
     const result = await res.json();
     if(result.success) { 
         showToast(`Selamat datang, ${result.name}`);
-        document.getElementById('menuUser').innerHTML = `<div><b>${result.name}</b><br>Member Biip</div>`;
+        document.getElementById('menuUser').innerHTML = `
+            <div class="menu-user-avatar"><i class="fas fa-user-check"></i></div>
+            <div><div style="font-weight:600;">${result.name}</div><div style="font-size:0.8rem;opacity:0.8;">Member Premium</div></div>`;
         closeLogin();
-    } else { showToast("Email/Password Salah", "error"); }
+    } else { showToast("Email atau Password salah", "error"); }
 }
 
-// === 3. DATA SPREADSHEET (IKAN, ARTIKEL, ULASAN) ===
+function switchAuthTab(type) {
+    document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// === 4. SINKRONISASI DATA (5 TAB) ===
 async function syncAllData() {
     document.getElementById('loader').style.display = 'flex';
     try {
@@ -2130,10 +2151,12 @@ async function syncAllData() {
             fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
             fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
         ]);
+
         if (resIkan.success) { allProducts = resIkan.data; renderIkan(allProducts); }
         if (resArt.success) renderArtikel(resArt.data);
         if (resUlasan.success) renderUlasan(resUlasan.data);
-    } catch (e) { console.error(e); }
+
+    } catch (e) { console.error("Sync Error:", e); }
     finally { document.getElementById('loader').style.display = 'none'; }
 }
 
@@ -2141,14 +2164,16 @@ function renderIkan(items) {
     const containers = [document.getElementById('productGrid'), document.getElementById('homeProductGrid')];
     const html = items.map(p => `
         <div class="product-card">
+            <div class="product-badge">${p.kategori || 'Premium'}</div>
             <div class="product-img-wrap">
                 <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Produk+Biip'">
             </div>
             <div class="product-info">
-                <div class="product-name">${p.nama}</div>
+                <div class="product-category-tag">${p.jenis || 'Louhan'}</div>
+                <div class="product-name">${p.jenis} - ${p.kategori}</div>
                 <div class="product-price">Rp ${Number(p.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${p.nama}', ${p.harga}, '${p.link_foto}')">
-                    <i class="fas fa-shopping-cart"></i> Tambah
+                <button class="add-cart-btn" onclick="addToCart('${p.jenis}', ${p.harga}, '${p.link_foto}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah Keranjang
                 </button>
             </div>
         </div>`).join('');
@@ -2163,10 +2188,20 @@ function renderArtikel(items) {
             <img src="${a.link_foto}" class="article-img">
             <div class="article-content">
                 <h3 class="article-title">${a.judul}</h3>
-                <p class="article-excerpt">${a.isi_artikel.substring(0, 100)}...</p>
+                <p class="article-excerpt">${a.isi_artikel ? a.isi_artikel.substring(0, 80) : ''}...</p>
                 <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
             </div>
         </div>`).join('');
+}
+
+function showArticleDetail(judul, isi, img) {
+    const detailContent = document.getElementById('articleDetailContent');
+    detailContent.innerHTML = `
+        <img src="${img}" style="width:100%; border-radius:20px; margin-bottom:2rem;">
+        <h1 style="font-family:'Playfair Display', serif; margin-bottom:1.5rem;">${judul}</h1>
+        <div style="line-height:2; color:var(--gray); white-space: pre-wrap;">${isi}</div>
+    `;
+    showPage('article-detail');
 }
 
 function renderUlasan(items) {
@@ -2174,12 +2209,15 @@ function renderUlasan(items) {
     if(!grid) return;
     grid.innerHTML = items.map(u => `
         <div class="review-card">
-            <div class="review-header"><strong>${u.nama}</strong> <div class="review-stars">${'★'.repeat(u.rating || 5)}</div></div>
-            <p class="review-text">"${u.ulasan || u.komentar}"</p>
+            <div class="review-header">
+                <div class="review-avatar">${u.nama ? u.nama.charAt(0) : 'B'}</div>
+                <div class="review-meta"><h4>${u.nama}</h4><div class="review-stars">★★★★★</div></div>
+            </div>
+            <p class="review-text">"${u.komentar || u.ulasan}"</p>
         </div>`).join('');
 }
 
-// === 4. KERANJANG & ORDERS (ORDERS TAB) ===
+// === 5. KERANJANG ===
 function addToCart(nama, harga, img) {
     cart.push({ nama, harga, img });
     updateCart();
@@ -2190,13 +2228,11 @@ function updateCart() {
     const container = document.getElementById('cartItems');
     const badge = document.getElementById('cartBadge');
     badge.innerText = cart.length;
-    
     if(cart.length === 0) {
         container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Kosong</p></div>`;
         document.getElementById('cartFooter').style.display = 'none';
         return;
     }
-
     document.getElementById('cartFooter').style.display = 'block';
     let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
     container.innerHTML = cart.map((item, index) => `
@@ -2208,7 +2244,6 @@ function updateCart() {
             </div>
             <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
         </div>`).join('');
-    
     document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
     document.getElementById('cartTotal').innerText = `Rp ${(subtotal + 25000).toLocaleString()}`;
 }
@@ -2216,33 +2251,24 @@ function updateCart() {
 function removeFromCart(index) { cart.splice(index, 1); updateCart(); }
 
 async function checkoutAndSave() {
-    if(cart.length === 0) return;
     const nama = prompt("Nama Penerima:");
     if(!nama) return;
-    
     const items = cart.map(i => i.nama).join(', ');
     const total = cart.reduce((sum, i) => sum + i.harga, 0) + 25000;
-
+    
     showToast("Menyimpan pesanan...");
     const res = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ action: 'tambahOrder', nama, item: items, total })
     });
-    
     if((await res.json()).success) {
-        sendWAOrder(nama, items, total);
-        cart = [];
-        updateCart();
-        toggleCart();
+        const text = `Halo Biip Aquatic, saya ${nama} memesan: ${items}. Total: Rp ${total.toLocaleString()}.`;
+        window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(text)}`);
+        cart = []; updateCart(); toggleCart();
     }
 }
 
-function sendWAOrder(nama, items, total) {
-    const text = `Halo Biip Aquatic, saya ${nama} ingin memesan: ${items}. Total: Rp ${total.toLocaleString()}.`;
-    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(text)}`);
-}
-
-// === 5. INITIALIZE ===
+// === INITIALIZE ===
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
