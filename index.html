@@ -2061,10 +2061,10 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzU3t9hcT3Ia7eY4SqMKXgKUt2yZuvgxZ1KPUDoPywCr1uN3jB3-9yrryBkPLnVU7n42g/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbz5es7GEe43yIRUumr3b7J0TtF1G-sEO-ZPnCwUjf3clNDJyXg4hAG9yBC1-ioJZlTC3Q/exec'; // GANTI DENGAN URL HASIL DEPLOY DI ATAS
 let cart = [];
 
-// === NAVIGASI UTAMA ===
+// === 1. NAVIGASI & UI (Didefinisikan di awal agar tidak Error) ===
 function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); document.getElementById('menuOverlay').classList.toggle('active'); }
 function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); document.getElementById('cartOverlay').classList.toggle('active'); }
 function openLogin() { document.getElementById('loginModal').classList.add('active'); }
@@ -2073,11 +2073,12 @@ function closeLogin() { document.getElementById('loginModal').classList.remove('
 function showPage(pageId) {
     document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
     document.getElementById('page-' + pageId).style.display = 'block';
-    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
     window.scrollTo(0,0);
 }
 
-// === AUTHENTICATION (LOGIN/REGISTER) ===
+// === 2. AUTHENTICATION (REGISTER & LOGIN FIX) ===
 async function handleRegister() {
     const data = {
         action: 'registerUser',
@@ -2085,36 +2086,46 @@ async function handleRegister() {
         email: document.getElementById('regEmail').value,
         password: document.getElementById('regPassword').value
     };
+    if(!data.email || !data.nama) return alert("Lengkapi data!");
     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-    if((await res.json()).success) { alert("Daftar Berhasil!"); switchAuthTab('login'); }
+    if((await res.json()).success) { alert("Daftar Berhasil! Silakan Login."); switchAuthTab('login'); }
 }
 
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPassword').value;
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', email, password: pass }) });
+    const password = document.getElementById('loginPassword').value;
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', email, password }) });
     const result = await res.json();
     if(result.success) { 
         alert("Selamat Datang, " + result.name);
-        document.getElementById('menuUser').innerHTML = `<b>${result.name}</b>`;
+        document.getElementById('menuUser').innerHTML = `<b>${result.name}</b><br>Member Biip`;
         closeLogin();
     } else { alert("Email atau Password Salah!"); }
 }
 
-// === ARTIKEL (BACA SELENGKAPNYA) ===
+function switchAuthTab(type) {
+    document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+// === 3. ARTIKEL (FIX BACA SELENGKAPNYA) ===
 function showArticleDetail(judul, isi, img) {
-    document.getElementById('articleDetailContent').innerHTML = `
-        <img src="${img}" style="width:100%; border-radius:15px;">
-        <h1 style="margin: 1rem 0;">${judul}</h1>
+    const detailContent = document.getElementById('articleDetailContent');
+    detailContent.innerHTML = `
+        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:1rem;">
+        <h1 style="margin-bottom:1rem;">${judul}</h1>
         <div style="line-height:1.8; white-space:pre-wrap;">${isi}</div>`;
     showPage('article-detail');
 }
 
-// === CHECKOUT & WHATSAPP ===
+// === 4. CHECKOUT (RINCIAN BAYAR & KIRIM) ===
 async function checkoutAndSave() {
+    if(cart.length === 0) return alert("Keranjang kosong!");
     const nama = prompt("Nama Lengkap Penerima:");
-    const bayar = prompt("Metode Pembayaran (BCA/DANA):");
-    const kirim = prompt("Ekspedisi (JNE/TIKI/GOJEK):");
+    const bayar = prompt("Metode Pembayaran (BCA / DANA / MANDIRI):");
+    const kirim = prompt("Ekspedisi (JNE / TIKI / GOJEK):");
     
     if(!nama || !bayar || !kirim) return alert("Data harus lengkap!");
 
@@ -2127,38 +2138,51 @@ async function checkoutAndSave() {
     });
 
     if((await res.json()).success) {
-        const waMsg = `Halo Biip Aquatic, saya *${nama}*.\n*Pesanan:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Bayar:* ${bayar}\n*Kirim:* ${kirim}`;
+        const waMsg = `Halo Biip Aquatic, saya *${nama}*.\n\n*Pesanan:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Metode:* ${bayar}\n*Ekspedisi:* ${kirim}\n\nMohon diproses, terima kasih.`;
         window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
         cart = []; updateCart(); toggleCart();
     }
 }
 
-// === LOAD DATA ===
+// === 5. SINKRONISASI DATA ===
 async function syncData() {
-    const [resIkan, resArt, resUlasan] = await Promise.all([
-        fetch(API_URL + '?action=getIkan').then(r => r.json()),
-        fetch(API_URL + '?action=getArtikel').then(r => r.json()),
-        fetch(API_URL + '?action=getUlasan').then(r => r.json())
-    ]);
-    if(resIkan.success) renderIkan(resIkan.data);
-    if(resArt.success) renderArtikel(resArt.data);
-    if(resUlasan.success) renderUlasan(resUlasan.data);
-    document.getElementById('loader').style.display = 'none';
+    try {
+        const [resIkan, resArt, resUlasan] = await Promise.all([
+            fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
+            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
+            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
+        ]);
+        if(resIkan.success) renderIkan(resIkan.data);
+        if(resArt.success) renderArtikel(resArt.data);
+        if(resUlasan.success) renderUlasan(resUlasan.data);
+    } catch (e) { console.error("Koneksi Gagal:", e); }
+    finally { document.getElementById('loader').style.display = 'none'; }
 }
 
 function renderArtikel(items) {
-    document.getElementById('articlesGrid').innerHTML = items.map(a => `
+    const grid = document.getElementById('articlesGrid');
+    if(!grid) return;
+    grid.innerHTML = items.map(a => `
         <div class="article-card" onclick="showArticleDetail('${a.judul}', '${a.isi_artikel}', '${a.link_foto}')">
             <img src="${a.link_foto}" class="article-img">
             <div class="article-content">
                 <h3>${a.judul}</h3>
-                <p>${a.isi_artikel.substring(0,100)}...</p>
+                <p>${a.isi_artikel.substring(0,80)}...</p>
                 <span class="read-more">Baca Selengkapnya</span>
             </div>
         </div>`).join('');
 }
 
-// Tambahkan sisa fungsi renderIkan, renderUlasan, updateCart sesuai kode sebelumnya...
+function renderUlasan(items) {
+    const grid = document.getElementById('reviewsGrid');
+    if(!grid) return;
+    grid.innerHTML = items.map(u => `
+        <div class="review-card">
+            <strong>${u.nama}</strong>: <p>"${u.komentar || u.ulasan}"</p>
+        </div>`).join('');
+}
+
+// Fungsi renderIkan dan updateCart (Tetap Gunakan yang lama)
 document.addEventListener('DOMContentLoaded', () => { showPage('home'); syncData(); });
 </script>
 </html>
