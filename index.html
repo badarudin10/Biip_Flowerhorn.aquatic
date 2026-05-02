@@ -2061,51 +2061,45 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwRl2TXHbkYXgv0KbBr56uphltffoVw9PRYJhqah53CyV5YrIpo_ALqVrph3xfbctrq8A/exec'; // Ganti dengan URL hasil Deploy Anyone
+const API_URL = 'https://script.google.com/macros/s/AKfycby8825Snt0iq9MtTXtRnOBZtk9uqJ2iCZiwDsuacz6kSRkYT0ubkRVANtuUaqqOKN1xUQ/exec'; 
 let cart = [];
 
-// 1. Fungsi Sinkronisasi Data
+function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); document.getElementById('menuOverlay').classList.toggle('active'); }
+function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); document.getElementById('cartOverlay').classList.toggle('active'); }
+function showPage(pId) { 
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+    document.getElementById('page-' + pId).style.display = 'block';
+    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
+}
+
 async function syncData() {
     try {
-        const [resIkan, resArt, resUlasan] = await Promise.all([
+        const [resIkan, resArt] = await Promise.all([
             fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
-            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
+            fetch(`${API_URL}?action=getArtikel`).then(r => r.json())
         ]);
         if(resIkan.success) renderIkan(resIkan.data);
         if(resArt.success) renderArtikel(resArt.data);
-        if(resUlasan.success) renderUlasan(resUlasan.data);
-    } catch (e) { console.error("Koneksi gagal", e); }
+    } catch (e) { console.error(e); }
     finally { document.getElementById('loader').style.display = 'none'; }
 }
 
-// 2. Render Produk (Menampilkan Nama, Harga, Spesifikasi)
 function renderIkan(items) {
-    const containers = [document.getElementById('productGrid'), document.getElementById('homeProductGrid')];
-    const html = items.map(p => {
-        const namaLengkap = `${p.jenis || 'Louhan'} - ${p.kategori || ''}`;
-        const harga = Number(p.harga) || 0;
-        return `
+    const html = items.map(p => `
         <div class="product-card">
-            <div class="product-badge">${p.kategori || 'Premium'}</div>
             <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
             <div class="product-info">
-                <h3>${namaLengkap}</h3>
-                <p>Rp ${harga.toLocaleString('id-ID')}</p>
-                <button class="add-cart-btn" onclick="addToCart('${namaLengkap}', ${harga}, '${p.link_foto}')">
-                    Beli Sekarang
-                </button>
+                <h3>${p.jenis || 'Louhan'} - ${p.kategori || ''}</h3>
+                <p>Rp ${Number(p.harga || 0).toLocaleString('id-ID')}</p>
+                <button onclick="addToCart('${p.jenis}', ${p.harga}, '${p.link_foto}')">Tambah Keranjang</button>
             </div>
-        </div>`;
-    }).join('');
-    containers.forEach(c => { if(c) c.innerHTML = html; });
+        </div>`).join('');
+    document.getElementById('productGrid').innerHTML = html;
+    if(document.getElementById('homeProductGrid')) document.getElementById('homeProductGrid').innerHTML = html;
 }
 
-// 3. Render Artikel & Detail (Baca Selengkapnya)
 function renderArtikel(items) {
-    const grid = document.getElementById('articlesGrid');
-    if(!grid) return;
-    grid.innerHTML = items.map(a => `
+    document.getElementById('articlesGrid').innerHTML = items.map(a => `
         <div class="article-card" onclick="showArticleDetail('${a.judul}', '${a.isi_artikel}', '${a.link_foto}')">
             <img src="${a.link_foto}" class="article-img">
             <div class="article-content">
@@ -2117,53 +2111,19 @@ function renderArtikel(items) {
 
 function showArticleDetail(judul, isi, img) {
     document.getElementById('articleDetailContent').innerHTML = `
-        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px;">
+        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:15px;">
         <h1>${judul}</h1>
-        <div style="line-height:1.8; white-space:pre-wrap; margin-top:20px;">${isi}</div>`;
-    showPage('article-detail'); // Pastikan ID ini ada di HTML Anda
+        <div style="line-height:1.8; white-space:pre-wrap;">${isi}</div>`;
+    showPage('article-detail');
 }
 
-// 4. Keranjang & Checkout dengan Rincian
-function addToCart(nama, harga, img) {
-    cart.push({ nama, harga, img });
-    updateCart();
-}
-
-function updateCart() {
-    const container = document.getElementById('cartItems');
+function addToCart(n, h, i) {
+    cart.push({ nama: n, harga: h, img: i });
     document.getElementById('cartBadge').innerText = cart.length;
-    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    container.innerHTML = cart.map((item, index) => `
-        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
-            <span>${item.nama}</span>
-            <button onclick="cart.splice(${index},1); updateCart();">X</button>
-        </div>`).join('');
-    document.getElementById('cartTotal').innerText = `Total: Rp ${(subtotal + 25000).toLocaleString()}`;
+    alert(n + " ditambah!");
 }
 
-async function checkoutAndSave() {
-    const nama = prompt("Nama Penerima:");
-    const bayar = prompt("Metode Bayar (BCA/DANA):");
-    const kirim = prompt("Ekspedisi (JNE/TIKI):");
-    if(!nama || !bayar || !kirim) return;
-
-    const items = cart.map(i => i.nama).join(', ');
-    const total = cart.reduce((sum, i) => sum + i.harga, 0) + 25000;
-
-    const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'tambahOrder', nama, item: items, total, pembayaran: bayar, ekspedisi: kirim })
-    });
-
-    if((await res.json()).success) {
-        const waMsg = `Pesanan Baru: ${items}\nTotal: Rp ${total}\nBayar: ${bayar}\nKirim: ${kirim}`;
-        window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
-        cart = []; updateCart();
-    }
-}
-
-// Inisialisasi
-document.addEventListener('DOMContentLoaded', () => { syncData(); });
+document.addEventListener('DOMContentLoaded', () => { showPage('home'); syncData(); });
 </script>
 </html>
 </body>
