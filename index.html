@@ -2061,69 +2061,192 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycby8825Snt0iq9MtTXtRnOBZtk9uqJ2iCZiwDsuacz6kSRkYT0ubkRVANtuUaqqOKN1xUQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbzM05aZHA3TqwrKNmxwHjGOaK1OjxIZ6qxlPyhxXsBnw6Yr0f5qPs0edoVK04Isg2se5Q/exec'; 
+let allProducts = [];
 let cart = [];
+let currentRating = 0;
 
+// === 1. NAVIGASI & UI ===
 function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); document.getElementById('menuOverlay').classList.toggle('active'); }
 function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); document.getElementById('cartOverlay').classList.toggle('active'); }
-function showPage(pId) { 
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
-    document.getElementById('page-' + pId).style.display = 'block';
-    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
+function openLogin() { document.getElementById('loginModal').classList.add('active'); }
+function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+
+function showPage(pageId) {
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
+    document.getElementById('page-' + pageId).style.display = 'block';
+    window.scrollTo(0,0);
 }
 
-async function syncData() {
+function showToast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.className = `toast show ${type}`;
+    document.getElementById('toastMessage').innerText = msg;
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// === 2. AUTHENTICATION (USERS TAB) ===
+function switchAuthTab(type) {
+    document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+async function handleRegister() {
+    const data = {
+        action: 'registerUser',
+        nama: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+    };
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+    const result = await res.json();
+    if(result.success) { showToast("Pendaftaran Berhasil! Silakan Login."); switchAuthTab('login'); }
+}
+
+async function handleLogin() {
+    const data = {
+        action: 'loginUser',
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+    };
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
+    const result = await res.json();
+    if(result.success) { 
+        showToast(`Selamat datang, ${result.name}`);
+        document.getElementById('menuUser').innerHTML = `<div><b>${result.name}</b><br>Member Biip</div>`;
+        closeLogin();
+    } else { showToast("Email/Password Salah", "error"); }
+}
+
+// === 3. DATA SPREADSHEET (IKAN, ARTIKEL, ULASAN) ===
+async function syncAllData() {
+    document.getElementById('loader').style.display = 'flex';
     try {
-        const [resIkan, resArt] = await Promise.all([
+        const [resIkan, resArt, resUlasan] = await Promise.all([
             fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(r => r.json())
+            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
+            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
         ]);
-        if(resIkan.success) renderIkan(resIkan.data);
-        if(resArt.success) renderArtikel(resArt.data);
+        if (resIkan.success) { allProducts = resIkan.data; renderIkan(allProducts); }
+        if (resArt.success) renderArtikel(resArt.data);
+        if (resUlasan.success) renderUlasan(resUlasan.data);
     } catch (e) { console.error(e); }
     finally { document.getElementById('loader').style.display = 'none'; }
 }
 
 function renderIkan(items) {
+    const containers = [document.getElementById('productGrid'), document.getElementById('homeProductGrid')];
     const html = items.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Biip+Aquatic'">
+            <div class="product-img-wrap">
+                <img src="${p.link_foto}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=Produk+Biip'">
+            </div>
             <div class="product-info">
-                <h3>${p.jenis || 'Louhan'} - ${p.kategori || ''}</h3>
-                <p>Rp ${Number(p.harga || 0).toLocaleString('id-ID')}</p>
-                <button onclick="addToCart('${p.jenis}', ${p.harga}, '${p.link_foto}')">Tambah Keranjang</button>
+                <div class="product-name">${p.nama}</div>
+                <div class="product-price">Rp ${Number(p.harga).toLocaleString('id-ID')}</div>
+                <button class="add-cart-btn" onclick="addToCart('${p.nama}', ${p.harga}, '${p.link_foto}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah
+                </button>
             </div>
         </div>`).join('');
-    document.getElementById('productGrid').innerHTML = html;
-    if(document.getElementById('homeProductGrid')) document.getElementById('homeProductGrid').innerHTML = html;
+    containers.forEach(c => { if(c) c.innerHTML = html; });
 }
 
 function renderArtikel(items) {
-    document.getElementById('articlesGrid').innerHTML = items.map(a => `
+    const grid = document.getElementById('articlesGrid');
+    if(!grid) return;
+    grid.innerHTML = items.map(a => `
         <div class="article-card" onclick="showArticleDetail('${a.judul}', '${a.isi_artikel}', '${a.link_foto}')">
             <img src="${a.link_foto}" class="article-img">
             <div class="article-content">
-                <h3>${a.judul}</h3>
-                <span class="read-more">Baca Selengkapnya</span>
+                <h3 class="article-title">${a.judul}</h3>
+                <p class="article-excerpt">${a.isi_artikel.substring(0, 100)}...</p>
+                <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
             </div>
         </div>`).join('');
 }
 
-function showArticleDetail(judul, isi, img) {
-    document.getElementById('articleDetailContent').innerHTML = `
-        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:15px;">
-        <h1>${judul}</h1>
-        <div style="line-height:1.8; white-space:pre-wrap;">${isi}</div>`;
-    showPage('article-detail');
+function renderUlasan(items) {
+    const grid = document.getElementById('reviewsGrid');
+    if(!grid) return;
+    grid.innerHTML = items.map(u => `
+        <div class="review-card">
+            <div class="review-header"><strong>${u.nama}</strong> <div class="review-stars">${'★'.repeat(u.rating || 5)}</div></div>
+            <p class="review-text">"${u.ulasan || u.komentar}"</p>
+        </div>`).join('');
 }
 
-function addToCart(n, h, i) {
-    cart.push({ nama: n, harga: h, img: i });
-    document.getElementById('cartBadge').innerText = cart.length;
-    alert(n + " ditambah!");
+// === 4. KERANJANG & ORDERS (ORDERS TAB) ===
+function addToCart(nama, harga, img) {
+    cart.push({ nama, harga, img });
+    updateCart();
+    showToast(`${nama} ditambah ke keranjang`);
 }
 
-document.addEventListener('DOMContentLoaded', () => { showPage('home'); syncData(); });
+function updateCart() {
+    const container = document.getElementById('cartItems');
+    const badge = document.getElementById('cartBadge');
+    badge.innerText = cart.length;
+    
+    if(cart.length === 0) {
+        container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Kosong</p></div>`;
+        document.getElementById('cartFooter').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('cartFooter').style.display = 'block';
+    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
+    container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+            <img src="${item.img}">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.nama}</div>
+                <div class="cart-item-price">Rp ${item.harga.toLocaleString()}</div>
+            </div>
+            <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
+        </div>`).join('');
+    
+    document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
+    document.getElementById('cartTotal').innerText = `Rp ${(subtotal + 25000).toLocaleString()}`;
+}
+
+function removeFromCart(index) { cart.splice(index, 1); updateCart(); }
+
+async function checkoutAndSave() {
+    if(cart.length === 0) return;
+    const nama = prompt("Nama Penerima:");
+    if(!nama) return;
+    
+    const items = cart.map(i => i.nama).join(', ');
+    const total = cart.reduce((sum, i) => sum + i.harga, 0) + 25000;
+
+    showToast("Menyimpan pesanan...");
+    const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'tambahOrder', nama, item: items, total })
+    });
+    
+    if((await res.json()).success) {
+        sendWAOrder(nama, items, total);
+        cart = [];
+        updateCart();
+        toggleCart();
+    }
+}
+
+function sendWAOrder(nama, items, total) {
+    const text = `Halo Biip Aquatic, saya ${nama} ingin memesan: ${items}. Total: Rp ${total.toLocaleString()}.`;
+    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(text)}`);
+}
+
+// === 5. INITIALIZE ===
+document.addEventListener('DOMContentLoaded', () => {
+    showPage('home');
+    syncAllData();
+});
 </script>
 </html>
 </body>
