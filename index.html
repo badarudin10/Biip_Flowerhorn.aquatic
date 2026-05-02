@@ -2061,49 +2061,54 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwlaKLgMSbR6Y5tjc8xtHOMPHBENGqmBy7IOotVc85V3zogjhj1c1WwnG0uOqU2Ce6UqQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwodI4ArT1ofYrXLkiUVzMvb7JBfODD0r-KqeVRgQpgXxSFKZytRiE4AF0FwluYepTlcQ/exec'; 
 
-// 1. NAVIGASI (Mandiri agar tombol tidak mati)
+// === 1. FUNGSI NAVIGASI (Dahulukan agar tombol tidak freeze) ===
+function toggleMenu() {
+    const sidebar = document.getElementById('menuSidebar');
+    if (sidebar) sidebar.classList.toggle('active');
+}
+
 function showPage(pageId) {
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
-    if(target) target.style.display = 'block';
-    
+    if (target) target.style.display = 'block';
+    // Tutup sidebar otomatis
     const sidebar = document.getElementById('menuSidebar');
-    if(sidebar) sidebar.classList.remove('active');
+    if (sidebar && sidebar.classList.contains('active')) toggleMenu();
 }
 
-// 2. LOAD DATA (GET) - 5 TAB
-async function loadAllData() {
+// === 2. FUNGSI SINKRONISASI 5 TAB ===
+async function syncAllData() {
     try {
-        const [resIkan, resArt, resUlasan] = await Promise.all([
+        // Ambil data Ikan dan Artikel secara bersamaan
+        const [resIkan, resArt] = await Promise.all([
             fetch(`${API_URL}?action=getIkan`).then(r => r.json()),
-            fetch(`${API_URL}?action=getArtikel`).then(r => r.json()),
-            fetch(`${API_URL}?action=getUlasan`).then(r => r.json())
+            fetch(`${API_URL}?action=getArtikel`).then(r => r.json())
         ]);
 
         if (resIkan.success) renderIkan(resIkan.data);
         if (resArt.success) renderArtikel(resArt.data);
-        if (resUlasan.success) renderUlasan(resUlasan.data);
-    } catch (e) {
-        console.error("Gagal sinkron data", e);
+        
+    } catch (error) {
+        console.error("Gagal terhubung ke database:", error);
     } finally {
         const loader = document.getElementById('loader');
         if (loader) loader.style.display = 'none';
     }
 }
 
-// 3. RENDERER (Menampilkan Data)
 function renderIkan(items) {
     const grid = document.getElementById('productGrid') || document.getElementById('homeProductGrid');
     if (!grid) return;
     grid.innerHTML = items.map(p => `
         <div class="product-card">
-            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/400x300?text=Produk+Ikan'">
-            <h3>${p.nama}</h3>
-            <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-            <button onclick="buatOrder('${p.nama}', ${p.harga})">Beli Sekarang</button>
+            <img src="${p.link_foto}" onerror="this.src='https://placehold.co/300x200?text=Biip+Aquatic'">
+            <div class="product-info">
+                <h3>${p.nama}</h3>
+                <p>Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+            </div>
         </div>
     `).join('');
 }
@@ -2113,42 +2118,16 @@ function renderArtikel(items) {
     if (!grid) return;
     grid.innerHTML = items.map(a => `
         <div class="article-card">
-            <img src="${a.link_foto}" style="width:100%; border-radius:8px;">
             <h3>${a.judul}</h3>
-            <p>${a.isi_artikel || a.isi || ''}</p>
+            <p>${a.isi_artikel || ''}</p>
         </div>
     `).join('');
 }
 
-function renderUlasan(items) {
-    const grid = document.getElementById('reviewsGrid');
-    if (!grid) return;
-    grid.innerHTML = items.map(u => `
-        <div class="review-item">
-            <strong>${u.nama}</strong>: ${u.komentar}
-        </div>
-    `).join('');
-}
-
-// 4. KIRIM ORDER (POST)
-async function buatOrder(namaProduk, harga) {
-    const namaUser = prompt("Masukkan Nama Anda:");
-    if(!namaUser) return;
-    
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'tambahOrder', nama: namaUser, pesanan: namaProduk, total: harga })
-        });
-        const result = await res.json();
-        if(result.success) alert("Pesanan Berhasil Dikirim!");
-    } catch (e) { alert("Gagal mengirim pesanan"); }
-}
-
-// 5. INISIALISASI
+// === 3. STARTUP ===
 document.addEventListener('DOMContentLoaded', () => {
-    showPage('home'); // Tampilkan home dulu agar tombol aktif
-    loadAllData();    // Baru ambil data
+    showPage('home'); // Aktifkan halaman dulu agar user bisa klik menu
+    syncAllData();    // Baru ambil data di background
 });
 </script>
 </html>
