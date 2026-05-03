@@ -2061,48 +2061,101 @@
 
 <script>
 // 1. KONFIGURASI UTAMA
-const API_URL = 'https://script.google.com/macros/s/AKfycbwHC_pUMz_rwEuKEw2vRL-VkW9Y2BxRwWAXD1BhOXYYi7wfALo88vINeWR5I29x4g8QTw/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxOYWHtwEvo3Alolajnjqe0Db7RxJdpXs1ijD2h_Ae94B7UMbG2seA-dIi4NYCGAbHRtg/exec'; 
 let allProducts = [], cart = [], currentRating = 0;
 
-// 2. FUNGSI NAVIGASI & DETAIL (Pusat Bantuan & Artikel)
+// 2. NAVIGASI & PUSAT BANTUAN
 function showPage(pageId) {
-    const pages = document.querySelectorAll('[id^="page-"]');
-    pages.forEach(p => p.style.display = 'none');
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if(target) target.style.display = 'block';
-    // Otomatis tutup sidebar jika terbuka
     const sidebar = document.getElementById('menuSidebar');
-    if(sidebar && sidebar.classList.contains('active')) toggleMenu();
+    if(sidebar && sidebar.classList.contains('active')) toggleMenu(); // Tutup sidebar otomatis
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function showArticleDetail(judul, isi, img) {
-    const container = document.getElementById('articleDetailContent');
-    if(container) {
-        container.innerHTML = `
-            <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px; max-height:400px; object-fit:cover;">
-            <h1>${judul}</h1>
-            <div style="line-height:1.8; white-space:pre-wrap; text-align:justify;">${isi}</div>`;
-        showPage('article-detail');
-    }
-}
-
-// Fungsi untuk link di Footer (Pusat Bantuan)
 async function showHelpDetail(kategori) {
-    showToast("Memuat informasi...");
+    showToast("Memuat " + kategori + "...");
     try {
         const res = await fetch(`${API_URL}?action=getArtikel`);
         const result = await res.json();
-        const info = result.data.find(i => i.judul === kategori || i.kategori === kategori);
+        // Mencari data berdasarkan judul (Panduan Pemesanan, Kebijakan Pengiriman, atau Garansi)
+        const info = result.data.find(i => i.judul.toLowerCase() === kategori.toLowerCase());
         if(info) {
-            showArticleDetail(info.judul || info.kategori, info.isi_artikel || info.konten, info.link_foto || '');
+            document.getElementById('articleDetailContent').innerHTML = `
+                <h1 style="margin-bottom:20px;">${info.judul}</h1>
+                <div style="line-height:1.8; white-space:pre-wrap; text-align:justify;">${info.isi_artikel}</div>
+            `;
+            showPage('article-detail');
         } else {
             showToast("Informasi belum tersedia", "error");
         }
     } catch(e) { showToast("Gagal memuat data", "error"); }
 }
 
-// 3. FUNGSI SINKRONISASI (Kabel Utama)
+// 3. RATING BINTANG KUNING (STICKY)
+function setRating(n) {
+    currentRating = n;
+    const stars = document.querySelectorAll('#starInput i');
+    stars.forEach((star, i) => {
+        star.style.color = i < n ? '#f59e0b' : '#e2e8f0'; // Kuning jika aktif
+    });
+}
+
+// 4. KERANJANG & CHECKOUT WA (TANPA TULISAN ONGKIR)
+function updateCartUI() {
+    const container = document.getElementById('cartItems');
+    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
+    
+    if(cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">Keranjang Kosong</p>';
+        document.getElementById('cartFooter').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('cartFooter').style.display = 'block';
+    document.getElementById('cartFooter').innerHTML = `
+        <div style="margin-bottom:10px;">
+            <label style="font-weight:bold; font-size:12px;">Metode Pengiriman:</label>
+            <select id="kurir" style="width:100%; padding:5px; border-radius:5px;">
+                <option>JNE</option><option>JNT</option><option>TIKI</option><option>PAXEL</option><option>GOJEK INSTAN</option>
+            </select>
+        </div>
+        <div style="margin-bottom:10px;">
+            <label style="font-weight:bold; font-size:12px;">Metode Pembayaran:</label>
+            <select id="bank" style="width:100%; padding:5px; border-radius:5px;">
+                <option>BANK BCA</option><option>DANA</option>
+            </select>
+        </div>
+        <p style="font-size:11px; color:gray; margin-bottom:10px;">*Kebijakan: Pengiriman dilakukan setelah konfirmasi pembayaran.</p>
+        <div style="display:flex; justify-content:space-between; font-weight:bold;">
+            <span>Total Bayar:</span><span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+        </div>
+        <button class="checkout-btn" onclick="confirmCheckout()" style="width:100%; margin-top:10px; background:#22c55e;">
+            <i class="fab fa-whatsapp"></i> Konfirmasi via WA
+        </button>
+    `;
+}
+
+async function confirmCheckout() {
+    const nama = prompt("Nama Penerima:");
+    if(!nama) return;
+    const kurir = document.getElementById('kurir').value;
+    const bank = document.getElementById('bank').value;
+    const items = cart.map(i => i.nama).join(', ');
+    const total = cart.reduce((s, i) => s + i.harga, 0);
+
+    const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'tambahOrder', nama, item: items, total, pembayaran: bank, ekspedisi: kurir })
+    });
+    
+    const waMsg = `Halo Biip Aquatic, saya *${nama}*.\n\n*Pesanan:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Metode:* ${bank}\n*Kurir:* ${kurir}`;
+    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(waMsg)}`);
+    cart = []; updateCartUI(); toggleCart();
+}
+
+// 5. SINKRONISASI & PENCARIAN (ANTI-ERROR)
 async function syncAllData() {
     try {
         const res = await fetch(`${API_URL}?action=getIkan`);
@@ -2110,26 +2163,17 @@ async function syncAllData() {
         if(result.success) {
             allProducts = result.data;
             if(typeof renderIkan === 'function') renderIkan(allProducts);
-            console.log("Data Ikan Sinkron");
         }
-    } catch(e) { console.error("Error Sinkronisasi:", e); }
-}
-
-// 4. FUNGSI RATING & PENCARIAN (Anti-Error)
-function setRating(n) {
-    currentRating = n;
-    document.querySelectorAll('#starInput i').forEach((s, i) => {
-        s.style.color = i < n ? '#f59e0b' : '#e2e8f0';
-    });
+    } catch(e) { console.error("Gagal sinkronisasi data", e); }
 }
 
 function searchFromMenu(query) {
     const input = document.getElementById('menuSearchInput');
-    if(input) input.setAttribute('autocomplete', 'off'); // Matikan autofill data user
+    if(input) input.setAttribute('autocomplete', 'off'); // Anti-autofill data user
     console.log("Mencari:", query);
 }
 
-// 5. INISIALISASI (Dijalankan saat halaman siap)
+// INISIALISASI AWAL
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
