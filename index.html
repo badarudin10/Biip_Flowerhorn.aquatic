@@ -2060,60 +2060,26 @@
     </div>
 
 <script>
-// 1. KONFIGURASI (Kunci Utama)
-const API_URL = 'https://script.google.com/macros/s/AKfycbwX-ph8q8v-zSQCar31c0jWvnEUTscdwcDSlwfYL_qCJFZaqbNrzueqYGa379y1WhhwAQ/exec'; 
-let allProducts = [], allArticles = [], cart = [], currentRating = 0;
+// 1. Ganti dengan URL /exec terbaru Anda
+const API_URL = 'https://script.google.com/macros/s/AKfycbyUJKnDqBp5gxeSHMQ-X4FOs9MxeOtjxTNyY-_wjJVvkd-Ji6qVjrHxqm2-R9qTGQgwPw/exec'; 
+let allProducts = [], allArticles = [], cart = [];
 
-// 2. FUNGSI SINKRONISASI (Yang Anda ragukan, tapi ini Jantungnya)
-async function syncAllData() {
-    try {
-        console.log("Mencoba menghubungkan ke Spreadsheet...");
-        const resIkan = await fetch(`${API_URL}?action=getIkan`);
-        const dataIkan = await resIkan.json();
-        
-        if(dataIkan.success && dataIkan.data.length > 0) {
-            allProducts = dataIkan.data;
-            renderProducts(allProducts, 'homeProductGrid');
-            renderProducts(allProducts, 'productGrid');
-            console.log("Data Ikan Berhasil Dimuat!");
-        }
-
-        const resArt = await fetch(`${API_URL}?action=getArtikel`);
-        const dataArt = await resArt.json();
-        if(dataArt.success) {
-            allArticles = dataArt.data;
-        }
-    } catch(e) { 
-        console.error("Koneksi Error:", e);
-        showToast("Gagal memuat data Spreadsheet. Cek Deployment Anda!", "error");
-    }
+// 2. FUNGSI NAVIGASI & UI (Penting agar tombol bisa diklik)
+function toggleMenu() {
+    document.getElementById('menuSidebar').classList.toggle('active');
+    document.getElementById('menuOverlay').classList.toggle('active');
 }
 
-// 3. FUNGSI RENDER (Agar Ikan Muncul di Layar)
-function renderProducts(data, targetId) {
-    const container = document.getElementById(targetId);
-    if(!container) return;
-    container.innerHTML = data.map(item => `
-        <div class="product-card">
-            <div class="product-img-wrap">
-                <img src="${item.gambar}" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
-            </div>
-            <div class="product-info">
-                <h3 class="product-name">${item.nama}</h3>
-                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.gambar}')">
-                    <i class="fas fa-shopping-cart"></i> Tambah
-                </button>
-            </div>
-        </div>
-    `).join('');
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('active');
+    document.getElementById('cartOverlay').classList.toggle('active');
 }
 
-// 4. FUNGSI NAVIGASI & UI
 function showPage(pageId) {
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('main > div').forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if(target) target.style.display = 'block';
+    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2124,29 +2090,66 @@ function showToast(msg, type = 'success') {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// 5. KERANJANG & RATING (Sesuai Rangkuman Masalah)
-function addToCart(nama, harga, gambar) {
-    cart.push({ nama, harga, gambar });
+// 3. AMBIL DATA (SINKRONISASI)
+async function syncAllData() {
+    try {
+        const resIkan = await fetch(`${API_URL}?action=getIkan`);
+        const dataIkan = await resIkan.json();
+        if(dataIkan.success) {
+            allProducts = dataIkan.data;
+            renderProducts(allProducts, 'homeProductGrid');
+            renderProducts(allProducts, 'productGrid');
+        }
+        const resArt = await fetch(`${API_URL}?action=getArtikel`);
+        const dataArt = await resArt.json();
+        if(dataArt.success) allArticles = dataArt.data;
+    } catch(e) {
+        showToast("Gagal terhubung ke database", "error");
+    }
+}
+
+function renderProducts(data, targetId) {
+    const container = document.getElementById(targetId);
+    if(!container) return;
+    container.innerHTML = data.map(item => `
+        <div class="product-card">
+            <div class="product-img-wrap"><img src="${item.gambar}" onerror="this.src='https://via.placeholder.com/300'"></div>
+            <div class="product-info">
+                <h3>${item.nama}</h3>
+                <div class="product-price">Rp ${Number(item.harga).toLocaleString()}</div>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga})">Tambah</button>
+            </div>
+        </div>`).join('');
+}
+
+// 4. BELANJA & WA
+function addToCart(nama, harga) {
+    cart.push({ nama, harga });
+    document.getElementById('cartBadge').innerText = cart.length;
     updateCartUI();
     showToast(nama + " ditambah!");
 }
 
 function updateCartUI() {
-    document.getElementById('cartBadge').innerText = cart.length;
-    // ... logika update rincian keranjang lainnya ...
+    const subtotal = cart.reduce((s, i) => s + i.harga, 0);
+    document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
+    document.getElementById('cartTotal').innerText = `Rp ${(subtotal + 25000).toLocaleString()}`;
+    document.getElementById('cartFooter').style.display = cart.length > 0 ? 'block' : 'none';
 }
 
-function setRating(n) {
-    currentRating = n;
-    document.querySelectorAll('#starInput i').forEach((s, i) => {
-        s.style.color = i < n ? '#f59e0b' : '#e2e8f0';
-    });
+function confirmCheckout() {
+    const nama = prompt("Nama Penerima:");
+    if(!nama) return;
+    const items = cart.map(i => i.nama).join(', ');
+    const total = cart.reduce((s, i) => s + i.harga, 0) + 25000;
+    const msg = `Halo Biip, saya ${nama}. Pesanan: ${items}. Total: Rp ${total.toLocaleString()}`;
+    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
 }
 
-// 6. MENJALANKAN SISTEM (Saat Web Dibuka)
+// 5. JALANKAN SAAT STARTUP
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
-    syncAllData(); // Memanggil fungsi "pendek" tadi di sini
+    syncAllData();
 });
 </script>
 </html>
