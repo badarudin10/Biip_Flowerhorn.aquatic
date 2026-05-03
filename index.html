@@ -2060,35 +2060,62 @@
     </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyR-vKz7jfSKY2PL1eKlBf0kb18e3UHFT7AgFv8pZoMozMVc_1eI2H48kiBE5Uko-29aA/exec'; 
-let allProducts = [], allArticles = [], cart = [], currentRating = 0;
+// 1. KONFIGURASI UTAMA
+const API_URL = 'https://script.google.com/macros/s/AKfycbwZzHbRhniToAbhzhx9ogl-VN5xja7UdhK9R9YHuEoQRhXZw9GaqQOlNf6up_qW_X0S1w/exec'; 
+let allProducts = [], cart = [], currentRating = 0;
 
-// 1. FUNGSI NAVIGASI & TAMPILAN DETAIL
+// 2. FUNGSI NAVIGASI & DETAIL (Pusat Bantuan & Artikel)
 function showPage(pageId) {
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if(target) target.style.display = 'block';
-    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
+    // Otomatis tutup sidebar jika terbuka
+    const sidebar = document.getElementById('menuSidebar');
+    if(sidebar && sidebar.classList.contains('active')) toggleMenu();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function showArticleDetail(judul, isi, img) {
-    document.getElementById('articleDetailContent').innerHTML = `
-        <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px; max-height:400px; object-fit:cover;">
-        <h1>${judul}</h1>
-        <div style="line-height:1.8; white-space:pre-wrap; text-align:justify;">${isi}</div>`;
-    showPage('article-detail');
+    const container = document.getElementById('articleDetailContent');
+    if(container) {
+        container.innerHTML = `
+            <img src="${img}" style="width:100%; border-radius:15px; margin-bottom:20px; max-height:400px; object-fit:cover;">
+            <h1>${judul}</h1>
+            <div style="line-height:1.8; white-space:pre-wrap; text-align:justify;">${isi}</div>`;
+        showPage('article-detail');
+    }
 }
 
-async function showHelpDetail(kat) {
-    showToast("Memuat...");
-    const res = await fetch(`${API_URL}?action=getArtikel`);
-    const data = await res.json();
-    const info = data.data.find(i => i.judul === kat || i.kategori === kat) || {judul:kat, isi_artikel:"Konten segera hadir."};
-    showArticleDetail(info.judul, info.isi_artikel, info.link_foto || '');
+// Fungsi untuk link di Footer (Pusat Bantuan)
+async function showHelpDetail(kategori) {
+    showToast("Memuat informasi...");
+    try {
+        const res = await fetch(`${API_URL}?action=getArtikel`);
+        const result = await res.json();
+        const info = result.data.find(i => i.judul === kategori || i.kategori === kategori);
+        if(info) {
+            showArticleDetail(info.judul || info.kategori, info.isi_artikel || info.konten, info.link_foto || '');
+        } else {
+            showToast("Informasi belum tersedia", "error");
+        }
+    } catch(e) { showToast("Gagal memuat data", "error"); }
 }
 
-// 2. SISTEM RATING (BINTANG TETAP KUNING)
+// 3. FUNGSI SINKRONISASI (Kabel Utama)
+async function syncAllData() {
+    try {
+        const res = await fetch(`${API_URL}?action=getIkan`);
+        const result = await res.json();
+        if(result.success) {
+            allProducts = result.data;
+            if(typeof renderIkan === 'function') renderIkan(allProducts);
+            console.log("Data Ikan Sinkron");
+        }
+    } catch(e) { console.error("Error Sinkronisasi:", e); }
+}
+
+// 4. FUNGSI RATING & PENCARIAN (Anti-Error)
 function setRating(n) {
     currentRating = n;
     document.querySelectorAll('#starInput i').forEach((s, i) => {
@@ -2096,47 +2123,17 @@ function setRating(n) {
     });
 }
 
-// 3. KERANJANG & CHECKOUT WA (TANPA ONGKIR, PILIH KURIR/BANK)
-function updateCartUI() {
-    const container = document.getElementById('cartItems');
-    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    if(cart.length === 0) { container.innerHTML = '<p>Kosong</p>'; return; }
-    
-    document.getElementById('cartFooter').innerHTML = `
-        <div style="margin-bottom:10px;">
-            <label>Ekspedisi:</label>
-            <select id="kurirSelect" class="form-control"><option>JNE</option><option>JNT</option><option>TIKI</option><option>PAXEL</option><option>GOJEK</option></select>
-        </div>
-        <div style="margin-bottom:10px;">
-            <label>Pembayaran:</label>
-            <select id="bankSelect" class="form-control"><option>BANK BCA</option><option>DANA</option></select>
-        </div>
-        <button class="checkout-btn" onclick="checkoutWA()" style="width:100%; background:#22c55e;">Kirim Pesanan ke WA</button>`;
+function searchFromMenu(query) {
+    const input = document.getElementById('menuSearchInput');
+    if(input) input.setAttribute('autocomplete', 'off'); // Matikan autofill data user
+    console.log("Mencari:", query);
 }
 
-async function checkoutWA() {
-    const nama = prompt("Nama Penerima:");
-    if(!nama) return;
-    const items = cart.map(i => i.nama).join(', ');
-    const total = cart.reduce((s, i) => s + i.harga, 0);
-    const msg = `Halo Biip, saya *${nama}*.\n*Pesanan:* ${items}\n*Total:* Rp ${total.toLocaleString()}\n*Via:* ${document.getElementById('bankSelect').value}\n*Kirim:* ${document.getElementById('kurirSelect').value}`;
-    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
-}
-
-// 4. AUTH & SEARCH (ANTI-ERROR)
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPassword').value.trim();
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action:'loginUser', email, password:pass }) });
-    const result = await res.json();
-    if(result.success) { showToast("Halo " + result.name); closeLogin(); } else { showToast("Gagal", "error"); }
-}
-
-function searchGlobal(q) { /* Fungsi pencarian aman */ }
-function searchFromMenu(v) { searchGlobal(v); }
-
-// INIT
-document.addEventListener('DOMContentLoaded', () => { showPage('home'); syncAllData(); });
+// 5. INISIALISASI (Dijalankan saat halaman siap)
+document.addEventListener('DOMContentLoaded', () => {
+    showPage('home');
+    syncAllData();
+});
 </script>
 </html>
 </body>
