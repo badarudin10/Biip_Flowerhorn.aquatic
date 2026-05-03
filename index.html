@@ -2060,11 +2060,22 @@
     </div>
 
 <script>
-// 1. KONFIGURASI & STATE UTAMA
-const API_URL = 'https://script.google.com/macros/s/AKfycbwFRDv6JkljJ-CN0OnDVVYurWCsh1GojshrQdRXIb_vhbovW8dKuU2WhYKcj7EBKD9pYg/exec'; 
+// 1. KONFIGURASI UTAMA
+const API_URL = 'https://script.google.com/macros/s/AKfycbykyGtyANQcd7fyIHiwuRSkarU1g8wnqLBock2Z1y-Qp0t7mzkgwZ_o0qaoE_7HD33wBA/exec'; // Ganti dengan URL /exec terbaru
 let allProducts = [], allArticles = [], cart = [], currentRating = 0;
 
-// 2. FUNGSI NAVIGASI & UI
+// 2. NAVIGASI HALAMAN & UI
+function showPage(pageId) {
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+    const target = document.getElementById('page-' + pageId);
+    if(target) target.style.display = 'block';
+    
+    // Tutup sidebar otomatis jika terbuka
+    const sidebar = document.getElementById('menuSidebar');
+    if(sidebar && sidebar.classList.contains('active')) toggleMenu();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function toggleMenu() {
     document.getElementById('menuSidebar').classList.toggle('active');
     document.getElementById('menuOverlay').classList.toggle('active');
@@ -2075,13 +2086,6 @@ function toggleCart() {
     document.getElementById('cartOverlay').classList.toggle('active');
 }
 
-function showPage(pageId) {
-    document.querySelectorAll('main > div').forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if(target) target.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 function showToast(msg, type = 'success') {
     const toast = document.getElementById('toast');
     const toastMsg = document.getElementById('toastMessage');
@@ -2090,105 +2094,16 @@ function showToast(msg, type = 'success') {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// 3. RENDER PRODUK & FILTER
-function renderIkan(data, targetId = 'productGrid') {
-    const container = document.getElementById(targetId);
-    if(!container) return;
-    
-    container.innerHTML = data.map(item => `
-        <div class="product-card">
-            <div class="product-img-wrap">
-                <img src="${item.gambar || 'https://via.placeholder.com/300?text=No+Image'}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Ikan+Louhan'">
-                <div class="product-overlay">
-                    <button class="product-quick-view" onclick="addToCart('${item.nama}', ${item.harga}, '${item.gambar}')">Tambah ke Keranjang</button>
-                </div>
-            </div>
-            <div class="product-info">
-                <div class="product-category-tag">${item.kategori || 'Louhan'}</div>
-                <h3 class="product-name">${item.nama}</h3>
-                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.gambar}')">
-                    <i class="fas fa-shopping-cart"></i> Beli
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function filterProducts(kat) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    const filtered = kat === 'all' ? allProducts : allProducts.filter(p => p.kategori.includes(kat));
-    renderIkan(filtered, 'homeProductGrid');
-    renderIkan(filtered, 'productGrid');
-}
-
-// 4. SISTEM KERANJANG & CHECKOUT
-function addToCart(nama, harga, gambar) {
-    cart.push({ nama, harga, gambar });
-    updateCartUI();
-    showToast(`${nama} masuk keranjang!`);
-}
-
-function updateCartUI() {
-    const badge = document.getElementById('cartBadge');
-    const container = document.getElementById('cartItems');
-    const footer = document.getElementById('cartFooter');
-    
-    badge.innerText = cart.length;
-    
-    if(cart.length === 0) {
-        container.innerHTML = '<div class="cart-empty"><i class="fas fa-fish"></i><p>Keranjang Kosong</p></div>';
-        footer.style.display = 'none';
-        return;
-    }
-
-    footer.style.display = 'block';
-    container.innerHTML = cart.map((item, idx) => `
-        <div class="cart-item">
-            <img src="${item.gambar}" onerror="this.src='https://via.placeholder.com/80'">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.nama}</div>
-                <div class="cart-item-price">Rp ${item.harga.toLocaleString()}</div>
-            </div>
-            <i class="fas fa-trash remove-item" onclick="removeFromCart(${idx})"></i>
-        </div>
-    `).join('');
-
-    const subtotal = cart.reduce((s, i) => s + i.harga, 0);
-    document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
-    document.getElementById('cartTotal').innerText = `Rp ${(subtotal + 25000).toLocaleString()}`;
-}
-
-function removeFromCart(idx) {
-    cart.splice(idx, 1);
-    updateCartUI();
-}
-
-async function sendWAOrder() {
-    if(cart.length === 0) return;
-    const namaUser = prompt("Masukkan Nama Anda:");
-    if(!namaUser) return;
-
-    const items = cart.map(i => `- ${i.nama} (Rp ${i.harga.toLocaleString()})`).join('%0A');
-    const total = cart.reduce((s, i) => s + i.harga, 0) + 25000;
-    const waMsg = `Halo Biip Aquatic, saya *${namaUser}*%0A%0APesanan Saya:%0A${items}%0A%0A*Total + Ongkir:* Rp ${total.toLocaleString()}%0A%0AMohon diproses ya Min!`;
-    
-    window.open(`https://wa.me/6285716842806?text=${waMsg}`);
-    cart = []; updateCartUI(); toggleCart();
-}
-
-// 5. PUSAT BANTUAN & ARTIKEL
+// 3. AMBIL DATA DARI SPREADSHEET (Action: getIkan & getArtikel)
 async function syncAllData() {
-    document.getElementById('loader').style.display = 'flex';
     try {
         // Ambil Data Ikan
         const resIkan = await fetch(`${API_URL}?action=getIkan`);
         const dataIkan = await resIkan.json();
         if(dataIkan.success) {
             allProducts = dataIkan.data;
-            renderIkan(allProducts, 'homeProductGrid');
-            renderIkan(allProducts, 'productGrid');
+            renderProducts(allProducts, 'homeProductGrid');
+            renderProducts(allProducts, 'productGrid');
         }
 
         // Ambil Data Artikel
@@ -2199,74 +2114,118 @@ async function syncAllData() {
             renderArticles(allArticles);
         }
     } catch(e) { 
-        console.error(e);
-        showToast("Koneksi gagal. Cek URL Web App Anda.", "error");
-    } finally {
-        document.getElementById('loader').style.display = 'none';
+        console.error("Koneksi gagal:", e);
+        showToast("Gagal memuat data dari Spreadsheet", "error");
     }
 }
 
-function renderArticles(data) {
-    const container = document.getElementById('articlesGrid');
+function renderProducts(data, targetId) {
+    const container = document.getElementById(targetId);
     if(!container) return;
-    container.innerHTML = data.map(art => `
-        <div class="article-card" onclick="openArticleDetail('${art.judul}')">
-            <div class="article-content">
-                <div class="article-date"><i class="fas fa-calendar"></i> Update 2026</div>
-                <h3 class="article-title">${art.judul}</h3>
-                <p class="article-excerpt">${art.isi_artikel.substring(0, 100)}...</p>
-                <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
+    container.innerHTML = data.map(item => `
+        <div class="product-card">
+            <div class="product-img-wrap">
+                <img src="${item.gambar}" onerror="this.src='https://via.placeholder.com/300?text=Ikan+Louhan'">
+            </div>
+            <div class="product-info">
+                <h3 class="product-name">${item.nama}</h3>
+                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.gambar}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah
+                </button>
             </div>
         </div>
     `).join('');
 }
 
-function openArticleDetail(judul) {
-    const art = allArticles.find(a => a.judul === judul);
-    if(art) {
-        document.getElementById('articleDetailContent').innerHTML = `
-            <h1 style="color:var(--primary); margin-bottom:1rem;">${art.judul}</h1>
-            <div style="line-height:1.8; text-align:justify;">${art.isi_artikel}</div>
-        `;
-        showPage('article-detail');
+// 4. KERANJANG & CHECKOUT WA (Action: tambahOrder)
+function addToCart(nama, harga, gambar) {
+    cart.push({ nama, harga, gambar });
+    updateCartUI();
+    showToast(`${nama} masuk keranjang!`);
+}
+
+function updateCartUI() {
+    const badge = document.getElementById('cartBadge');
+    const container = document.getElementById('cartItems');
+    badge.innerText = cart.length;
+    
+    if(cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center;">Keranjang Kosong</p>';
+        document.getElementById('cartFooter').style.display = 'none';
+        return;
     }
+
+    document.getElementById('cartFooter').style.display = 'block';
+    const subtotal = cart.reduce((s, i) => s + i.harga, 0);
+    document.getElementById('cartSubtotal').innerText = `Rp ${subtotal.toLocaleString()}`;
+    document.getElementById('cartTotal').innerText = `Rp ${(subtotal + 25000).toLocaleString()}`;
 }
 
-async function showHelpDetail(kat) {
-    if(allArticles.length === 0) await syncAllData();
-    openArticleDetail(kat);
+async function sendWAOrder() {
+    const nama = prompt("Nama Anda:");
+    if(!nama) return;
+    const items = cart.map(i => i.nama).join(', ');
+    const total = cart.reduce((s, i) => s + i.harga, 0) + 25000;
+
+    // Simpan ke Spreadsheet via doPost
+    await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            action: 'tambahOrder', 
+            nama: nama, 
+            item: items, 
+            total: total, 
+            pembayaran: 'Transfer', 
+            ekspedisi: 'JNE/J&T' 
+        })
+    });
+
+    const msg = `Halo Biip, saya ${nama}. Pesanan: ${items}. Total: Rp ${total.toLocaleString()}`;
+    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
 }
 
-// 6. RATING & REVIEW
+// 5. RATING & ULASAN (Action: submitReview)
 function setRating(n) {
     currentRating = n;
-    const stars = document.querySelectorAll('#starInput i');
-    stars.forEach((s, i) => s.style.color = i < n ? '#f59e0b' : '#e2e8f0');
+    document.querySelectorAll('#starInput i').forEach((s, i) => {
+        s.style.color = i < n ? '#f59e0b' : '#e2e8f0';
+    });
 }
 
 async function submitReview() {
     const nama = document.getElementById('reviewName').value;
-    const teks = document.getElementById('reviewText').value;
-    if(!nama || !teks || currentRating === 0) return showToast("Lengkapi ulasan!", "error");
+    const komentar = document.getElementById('reviewText').value;
+    if(!nama || !komentar || currentRating === 0) return showToast("Lengkapi ulasan!", "error");
 
-    showToast("Mengirim ulasan...");
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'submitReview', nama, komentar: teks, bintang: currentRating })
-        });
-        showToast("Terima kasih atas ulasannya!");
-        document.getElementById('reviewName').value = '';
-        document.getElementById('reviewText').value = '';
-        setRating(0);
-    } catch(e) { showToast("Gagal kirim ulasan", "error"); }
+    await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'submitReview', nama, komentar, bintang: currentRating })
+    });
+    
+    showToast("Terima kasih atas ulasannya!");
+    document.getElementById('reviewName').value = '';
+    document.getElementById('reviewText').value = '';
+    setRating(0);
 }
 
-// 7. LOGIN & REGISTER (STUB)
-function openLogin() { document.getElementById('loginModal').classList.add('active'); }
-function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+// 6. PUSAT BANTUAN & PENCARIAN
+async function showHelpDetail(kat) {
+    showToast("Memuat...");
+    const art = allArticles.find(a => a.judul.toLowerCase().includes(kat.toLowerCase()));
+    if(art) {
+        document.getElementById('articleDetailContent').innerHTML = `<h1>${art.judul}</h1><p>${art.isi_artikel}</p>`;
+        showPage('article-detail');
+    } else {
+        showToast("Artikel tidak ditemukan", "error");
+    }
+}
 
-// INISIALISASI
+function searchFromMenu(v) {
+    console.log("Mencari: " + v); // Fungsi pencarian global bisa dikembangkan di sini
+}
+
+// 7. INIT AWAL
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
