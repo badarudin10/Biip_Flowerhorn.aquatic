@@ -2059,86 +2059,117 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbw4xmEP9DqQ4ZFGLwjVNOAlpjJnCzwQzJRpb5JZcj_CSiJWXGPc8E2bcXR-CGiqUCm_kg/exec'; // Ganti dengan URL deployment terbaru
-let allProducts = [], allArticles = [], cart = [];
+// KONFIGURASI
+const API_URL = 'https://script.google.com/macros/s/AKfycby0IqdcpscjTigxxkmsahWlWCrYs0xT68W2cKGQVOILLjkEzssbSZUJ326KIcdeJBameg/exec'; 
+let allProducts = [], allArticles = [], cart = [], currentRating = 0;
 
-// 1. SINKRONISASI DATA (Membaca Tab ikan & artikel)
+// 1. SISTEM LOGIN
+async function handleLogin(e) {
+    if(e) e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'loginUser', email, password })
+        });
+        const result = await res.json();
+        if(result.success) {
+            alert("Selamat datang, " + result.nama);
+            localStorage.setItem('user_biip', result.nama);
+            showPage('home');
+        } else {
+            alert("Email atau Password salah!");
+        }
+    } catch(e) { alert("Server tidak merespon"); }
+}
+
+// 2. SINKRONISASI DATA (Membaca kolom link_foto & stock)
 async function syncAllData() {
     try {
-        const resIkan = await fetch(`${API_URL}?action=getIkan`);
-        const dataIkan = await resIkan.json();
-        if(dataIkan.success) {
-            allProducts = dataIkan.data;
+        const res = await fetch(`${API_URL}?action=getIkan`);
+        const result = await res.json();
+        if(result.success) {
+            allProducts = result.data;
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
-
         const resArt = await fetch(`${API_URL}?action=getArtikel`);
         const dataArt = await resArt.json();
         if(dataArt.success) allArticles = dataArt.data;
-    } catch(e) {
-        console.error("Koneksi Gagal:", e);
-        if(document.getElementById('toast')) showToast("Database Belum Terhubung", "error");
-    }
+    } catch(e) { console.error("Gagal muat data"); }
 }
 
-// 2. TAMPILKAN PRODUK (Gunakan link_foto sesuai Tab 1)
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="product-card">
-            <div class="product-img-wrap">
-                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
-            </div>
+            <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Ikan+Louhan'">
             <div class="product-info">
                 <h3>${item.nama}</h3>
-                <p style="font-size:0.8rem; color:gray;">${item.kategori} | Stok: ${item.stock}</p>
-                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga})">Tambah</button>
+                <p>Jenis: ${item.jenis} | Stok: ${item.stock}</p>
+                <div class="product-price">Rp ${Number(item.harga).toLocaleString()}</div>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah
+                </button>
             </div>
         </div>`).join('');
 }
 
-// 3. FUNGSI PENCARIAN (Agar tidak error searchFromMenu is not defined)
-function searchFromMenu(query) {
-    const filtered = allProducts.filter(p => 
-        p.nama.toLowerCase().includes(query.toLowerCase()) || 
-        p.kategori.toLowerCase().includes(query.toLowerCase())
-    );
-    renderProducts(filtered, 'homeProductGrid');
-    renderProducts(filtered, 'productGrid');
+// 3. SISTEM KERANJANG (Bisa di-klik)
+function addToCart(nama, harga, foto) {
+    cart.push({ nama, harga, foto });
+    updateCartUI();
+    alert(nama + " ditambahkan ke keranjang");
 }
 
-// 4. NAVIGASI & UI DASAR
-function showPage(pageId) {
-    document.querySelectorAll('main > div').forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if(target) target.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function toggleMenu() {
-    document.getElementById('menuSidebar').classList.toggle('active');
-    document.getElementById('menuOverlay').classList.toggle('active');
-}
-
-function addToCart(nama, harga) {
-    cart.push({ nama, harga });
-    document.getElementById('cartBadge').innerText = cart.length;
-    alert(nama + " masuk keranjang!");
-}
-
-function showToast(msg, type) {
-    const toast = document.getElementById('toast');
-    if(toast) {
-        document.getElementById('toastMessage').innerText = msg;
-        toast.className = `toast show ${type}`;
-        setTimeout(() => toast.classList.remove('show'), 3000);
+function updateCartUI() {
+    const badge = document.getElementById('cartBadge');
+    if(badge) badge.innerText = cart.length;
+    
+    const container = document.getElementById('cartItems');
+    if(!container) return;
+    
+    if(cart.length === 0) {
+        container.innerHTML = '<p>Keranjang Kosong</p>';
+    } else {
+        container.innerHTML = cart.map((item, idx) => `
+            <div class="cart-item">
+                <img src="${item.foto}" width="50">
+                <span>${item.nama} - Rp ${item.harga.toLocaleString()}</span>
+                <button onclick="cart.splice(${idx},1); updateCartUI();">Hapus</button>
+            </div>`).join('');
     }
 }
 
-// 5. INISIALISASI
+// 4. ULASAN (Bintang Kuning)
+function setRating(n) {
+    currentRating = n;
+    const stars = document.querySelectorAll('.star-input i');
+    stars.forEach((s, i) => {
+        if(i < n) {
+            s.classList.replace('fa-regular', 'fa-solid');
+            s.style.color = '#ffcc00'; // Kuning
+        } else {
+            s.classList.replace('fa-solid', 'fa-regular');
+            s.style.color = '#ccc';
+        }
+    });
+}
+
+// 5. NAVIGASI & UI
+function showPage(id) {
+    document.querySelectorAll('main > div').forEach(d => d.style.display = 'none');
+    const target = document.getElementById('page-' + id);
+    if(target) target.style.display = 'block';
+}
+
+function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); }
+function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+function searchFromMenu(q) { /* Logika cari */ }
+
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
