@@ -2059,10 +2059,10 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-// MASUKKAN URL /exec HASIL NEW DEPLOYMENT DI SINI
-const API_URL = 'https://script.google.com/macros/s/AKfycbzATfjV8moy7yXeBiUoRoPZb0yxetRhfV1nHzfJybzdBIKrk1tE57Int8-h9pjFET7Yyg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwVUsBYzOD8IxZll5_ExXcH_w0BWZpd_FBtmyKwEqN-VZbZsekQJCPxT2B0VREIggludQ/exec';
 let allProducts = [], cart = [], currentRating = 0;
 
+// 1. Sinkronisasi Data Produk & Artikel
 async function syncAllData() {
     try {
         const res = await fetch(`${API_URL}?action=getIkan`);
@@ -2072,51 +2072,76 @@ async function syncAllData() {
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
-    } catch(e) { console.error("Koneksi Gagal"); }
+    } catch(e) { console.error("Database belum tersambung."); }
 }
 
+// 2. Render Produk (Menggunakan link_foto & stock)
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="product-card">
             <div class="product-img-wrap">
-                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Cek+URL+Gambar'">
+                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Cek+Link+Foto'">
             </div>
             <div class="product-info">
-                <h3>${item.nama}</h3>
-                <p>${item.jenis} | Stok: ${item.stock}</p>
-                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
+                <h3>${item.nama || 'Ikan Louhan'}</h3>
+                <p>Jenis: ${item.jenis || '-'} | Stok: ${item.stock || 0}</p>
+                <div class="product-price">Rp ${item.harga ? Number(item.harga).toLocaleString('id-ID') : '0'}</div>
                 <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga})">Tambah</button>
             </div>
         </div>`).join('');
 }
 
+// 3. Sistem Login (Tab: users)
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'loginUser', email, password })
+    });
+    const result = await res.json();
+    if(result.success) {
+        alert("Selamat datang, " + result.nama);
+        showPage('home');
+    } else { alert("Login gagal!"); }
+}
+
+// 4. Sistem Ulasan (Bintang Kuning)
 function setRating(n) {
     currentRating = n;
-    document.querySelectorAll('.star-rating-input i').forEach((s, i) => {
-        s.style.color = i < n ? '#ffcc00' : '#ccc';
-        s.className = i < n ? 'fas fa-star' : 'far fa-star';
+    const stars = document.querySelectorAll('.star-input i');
+    stars.forEach((s, i) => {
+        s.style.color = (i < n) ? '#ffcc00' : '#ccc';
+        s.className = (i < n) ? 'fas fa-star' : 'far fa-star';
     });
 }
 
+// 5. Fungsi Navigasi & Keranjang
 function showPage(id) {
-    const sections = document.querySelectorAll('main > div, #page-home, #page-products, #page-articles');
-    sections.forEach(s => s.style.display = 'none');
+    document.querySelectorAll('main > div, section').forEach(s => s.style.display = 'none');
     const target = document.getElementById('page-' + id) || document.getElementById(id);
-    if (target) target.style.display = 'block';
+    if(target) target.style.display = 'block';
+    window.scrollTo(0,0);
 }
 
 function addToCart(nama, harga) {
     cart.push({ nama, harga });
     document.getElementById('cartBadge').innerText = cart.length;
-    alert(nama + " masuk keranjang!");
+    alert(nama + " masuk keranjang.");
+}
+
+function searchFromMenu(q) {
+    const filtered = allProducts.filter(p => p.nama.toLowerCase().includes(q.toLowerCase()));
+    renderProducts(filtered, 'productGrid');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
 });
-</script> 
+</script>
 </html>
 </body>
