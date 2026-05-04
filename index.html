@@ -2059,50 +2059,44 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycby7ufW0SgDsbAnIMTxShTcfCsANpFOqo2Gl4oFRuL9hreVWVmaeHHaQ6bHde6TaN122qg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyEosGncFgQ00k7rTajhoNuBbKF7xs0pza8yqoYN9ARAPK0i5QbYGp-Nt3qiCuEQDqs1w/exec';
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
 
 // 1. Sinkronisasi SEMUA Data (6 Tab)
 async function syncAllData() {
     try {
-        // Memanggil semua data secara bersamaan agar cepat
-        const [resIkan, resArt, resUlas, resInfo] = await Promise.all([
-            fetch(`${API_URL}?action=getIkan`),
-            fetch(`${API_URL}?action=getArtikel`),
-            fetch(`${API_URL}?action=getUlasan`),
-            fetch(`${API_URL}?action=getInformasi`)
-        ]);
-
+        // 1. Ambil Ikan
+        const resIkan = await fetch(API_URL + "?action=getIkan");
         const dIkan = await resIkan.json();
-        const dArt = await resArt.json();
-        const dUlas = await resUlas.json();
-        const dInfo = await resInfo.json();
-
         if(dIkan.success) {
             allProducts = dIkan.data;
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
-        
+
+        // 2. Ambil Artikel
+        const resArt = await fetch(API_URL + "?action=getArtikel");
+        const dArt = await resArt.json();
         if(dArt.success) {
             allArticles = dArt.data;
             renderArticles(allArticles);
         }
 
-        if(dUlas.success) {
-            renderReviews(dUlas.data);
-        }
+        // 3. Ambil Informasi & Ulasan
+        const resInfo = await fetch(API_URL + "?action=getInformasi");
+        const dInfo = await resInfo.json();
+        if(dInfo.success) allInformation = dInfo.data;
 
-        if(dInfo.success) {
-            allInformation = dInfo.data;
-        }
+        const resUlas = await fetch(API_URL + "?action=getUlasan");
+        const dUlas = await resUlas.json();
+        if(dUlas.success) renderReviews(dUlas.data);
 
-    } catch(e) { 
-        console.error("Koneksi Database Gagal:", e);
-        alert("Gagal menyambung ke database. Pastikan koneksi internet stabil.");
+    } catch(e) {
+        console.error("Detail Error:", e);
+        // Jika tetap muncul notif ini, berarti URL API_URL Akang masih salah atau belum 'Anyone'
+        alert("Database belum merespon. Pastikan URL Deployment sudah benar.");
     }
 }
-
 // 2. Render Produk
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
