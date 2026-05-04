@@ -2059,26 +2059,10 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-// 1. KUNCI UTAMA (Pastikan URL /exec ini yang terbaru dari Apps Script)
-const API_URL = 'https://script.google.com/macros/s/AKfycbxOYWHtwEvo3Alolajnjqe0Db7RxJdpXs1ijD2h_Ae94B7UMbG2seA-dIi4NYCGAbHRtg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbw4xmEP9DqQ4ZFGLwjVNOAlpjJnCzwQzJRpb5JZcj_CSiJWXGPc8E2bcXR-CGiqUCm_kg/exec'; // Ganti dengan URL deployment terbaru
 let allProducts = [], allArticles = [], cart = [];
 
-// 2. FUNGSI PENCARIAN (Menghilangkan error "ReferenceError")
-function searchFromMenu(query) {
-    if (!query) {
-        renderProducts(allProducts, 'homeProductGrid');
-        renderProducts(allProducts, 'productGrid');
-        return;
-    }
-    const filtered = allProducts.filter(p => 
-        (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) || 
-        (p.kategori && p.kategori.toLowerCase().includes(query.toLowerCase()))
-    );
-    renderProducts(filtered, 'homeProductGrid');
-    renderProducts(filtered, 'productGrid');
-}
-
-// 3. FUNGSI SINKRONISASI DATA
+// 1. SINKRONISASI DATA (Membaca Tab ikan & artikel)
 async function syncAllData() {
     try {
         const resIkan = await fetch(`${API_URL}?action=getIkan`);
@@ -2088,43 +2072,55 @@ async function syncAllData() {
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
+
         const resArt = await fetch(`${API_URL}?action=getArtikel`);
         const dataArt = await resArt.json();
         if(dataArt.success) allArticles = dataArt.data;
     } catch(e) {
-        console.error("Gagal koneksi:", e);
+        console.error("Koneksi Gagal:", e);
+        if(document.getElementById('toast')) showToast("Database Belum Terhubung", "error");
     }
 }
 
-// 4. RENDER PRODUK KE LAYAR
+// 2. TAMPILKAN PRODUK (Gunakan link_foto sesuai Tab 1)
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="product-card">
             <div class="product-img-wrap">
-                <img src="${item.gambar || 'https://via.placeholder.com/300'}" onerror="this.src='https://via.placeholder.com/300'">
+                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
             </div>
             <div class="product-info">
                 <h3>${item.nama}</h3>
+                <p style="font-size:0.8rem; color:gray;">${item.kategori} | Stok: ${item.stock}</p>
                 <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
                 <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga})">Tambah</button>
             </div>
         </div>`).join('');
 }
 
-// 5. NAVIGASI & UI DASAR
-function toggleMenu() {
-    document.getElementById('menuSidebar').classList.toggle('active');
-    document.getElementById('menuOverlay').classList.toggle('active');
+// 3. FUNGSI PENCARIAN (Agar tidak error searchFromMenu is not defined)
+function searchFromMenu(query) {
+    const filtered = allProducts.filter(p => 
+        p.nama.toLowerCase().includes(query.toLowerCase()) || 
+        p.kategori.toLowerCase().includes(query.toLowerCase())
+    );
+    renderProducts(filtered, 'homeProductGrid');
+    renderProducts(filtered, 'productGrid');
 }
 
+// 4. NAVIGASI & UI DASAR
 function showPage(pageId) {
     document.querySelectorAll('main > div').forEach(p => p.style.display = 'none');
     const target = document.getElementById('page-' + pageId);
     if(target) target.style.display = 'block';
-    if(document.getElementById('menuSidebar').classList.contains('active')) toggleMenu();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleMenu() {
+    document.getElementById('menuSidebar').classList.toggle('active');
+    document.getElementById('menuOverlay').classList.toggle('active');
 }
 
 function addToCart(nama, harga) {
@@ -2133,7 +2129,16 @@ function addToCart(nama, harga) {
     alert(nama + " masuk keranjang!");
 }
 
-// 6. JALANKAN SAAT WEB DIBUKA
+function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    if(toast) {
+        document.getElementById('toastMessage').innerText = msg;
+        toast.className = `toast show ${type}`;
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+}
+
+// 5. INISIALISASI
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
