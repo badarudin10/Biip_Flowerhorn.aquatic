@@ -2059,62 +2059,126 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyVbqe1t6V1aGmC2XJXFyweqf7FqmMde29eduPb4hXyWfT8f9IrtfjHqGszJnnrtn6v-A/exec';
-let allProducts = [], allArticles = [], cart = [], currentRating = 0;
+const API_URL = 'https://script.google.com/macros/s/AKfycby7ufW0SgDsbAnIMTxShTcfCsANpFOqo2Gl4oFRuL9hreVWVmaeHHaQ6bHde6TaN122qg/exec';
+let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
 
-// 1. Sinkronisasi 6 Tab
+// 1. Sinkronisasi SEMUA Data (6 Tab)
 async function syncAllData() {
     try {
-        const [resIkan, resArt] = await Promise.all([
+        // Memanggil semua data secara bersamaan agar cepat
+        const [resIkan, resArt, resUlas, resInfo] = await Promise.all([
             fetch(`${API_URL}?action=getIkan`),
-            fetch(`${API_URL}?action=getArtikel`)
+            fetch(`${API_URL}?action=getArtikel`),
+            fetch(`${API_URL}?action=getUlasan`),
+            fetch(`${API_URL}?action=getInformasi`)
         ]);
+
         const dIkan = await resIkan.json();
         const dArt = await resArt.json();
+        const dUlas = await resUlas.json();
+        const dInfo = await resInfo.json();
 
         if(dIkan.success) {
             allProducts = dIkan.data;
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
-        if(dArt.success) allArticles = dArt.data;
-    } catch(e) { console.error("Koneksi Gagal"); }
+        
+        if(dArt.success) {
+            allArticles = dArt.data;
+            renderArticles(allArticles);
+        }
+
+        if(dUlas.success) {
+            renderReviews(dUlas.data);
+        }
+
+        if(dInfo.success) {
+            allInformation = dInfo.data;
+        }
+
+    } catch(e) { 
+        console.error("Koneksi Database Gagal:", e);
+        alert("Gagal menyambung ke database. Pastikan koneksi internet stabil.");
+    }
 }
 
-// 2. Render Produk (link_foto & stock)
+// 2. Render Produk
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="product-card">
-            <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300'">
+            <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Gambar+Ikan'">
             <div class="product-info">
-                <h3>${item.nama}</h3>
-                <p>Jenis: ${item.jenis} | Stok: ${item.stock}</p>
-                <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">Tambah</button>
+                <h3>${item.nama || 'Louhan Premium'}</h3>
+                <p>Jenis: ${item.jenis || '-'} | Stok: ${item.stock || 0}</p>
+                <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah
+                </button>
             </div>
         </div>`).join('');
 }
 
-// 3. Login & Auth (Tab: users)
+// 3. Render Artikel
+function renderArticles(data) {
+    const container = document.getElementById('articlesGrid');
+    if(!container) return;
+    container.innerHTML = data.map(item => `
+        <div class="article-card" onclick="showArticleDetail('${item.judul}')">
+            <img src="${item.link_foto}" class="article-img">
+            <div class="article-content">
+                <h3 class="article-title">${item.judul}</h3>
+                <p class="article-excerpt">${item.isi_artikel ? item.isi_artikel.substring(0, 80) : ''}...</p>
+                <span class="read-more">Baca Selengkapnya</span>
+            </div>
+        </div>`).join('');
+}
+
+// 4. Render Ulasan
+function renderReviews(data) {
+    const container = document.getElementById('reviewsGrid');
+    if(!container) return;
+    container.innerHTML = data.map(item => `
+        <div class="review-card">
+            <div class="review-header">
+                <div class="review-avatar">${item.nama ? item.nama.charAt(0) : '?'}</div>
+                <div class="review-meta">
+                    <h4>${item.nama}</h4>
+                    <div class="review-stars">${'★'.repeat(item.bintang)}${'☆'.repeat(5-item.bintang)}</div>
+                </div>
+            </div>
+            <p class="review-text">"${item.komentar}"</p>
+        </div>`).join('');
+}
+
+// 5. Login & Auth (Fixed ID)
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    const nama = document.getElementById('loginNama').value;
-    const res = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'loginUser', email, password, nama })
-    });
-    const result = await res.json();
-    if(result.success) {
-        localStorage.setItem('biip_user', result.nama);
-        alert("Halo Kang " + result.nama);
-        location.reload();
-    } else { alert("Email/Password salah!"); }
+    
+    if(!email || !password) return alert("Email dan Password harus diisi!");
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'loginUser', email, password })
+        });
+        const result = await res.json();
+        if(result.success) {
+            localStorage.setItem('biip_user', result.nama);
+            alert("Halo Kang " + result.nama + ", selamat datang kembali!");
+            location.reload();
+        } else { 
+            alert("Email atau Password salah!"); 
+        }
+    } catch(e) {
+        alert("Terjadi kesalahan saat login.");
+    }
 }
 
-// 4. Bintang Ulasan (Kuning Tetap)
+// 6. Bintang Ulasan (Kuning Tetap)
 function setRating(n) {
     currentRating = n;
     const stars = document.querySelectorAll('.star-rating-input i');
@@ -2124,47 +2188,74 @@ function setRating(n) {
     });
 }
 
-// 5. Checkout & WA (Tab: orders)
+// 7. Checkout & WA (Otomatis Tanggal di AppScript)
 async function sendWAOrder() {
-    const namaUser = localStorage.getItem('biip_user') || prompt("Nama Penerima:");
-    if(!namaUser || cart.length === 0) return;
+    const namaUser = localStorage.getItem('biip_user') || prompt("Masukkan Nama Penerima:");
+    if(!namaUser || cart.length === 0) return alert("Lengkapi data dan keranjang!");
 
-    const items = cart.map(i => i.nama).join(', ');
-    const total = cart.reduce((a, b) => a + b.harga, 0);
+    const itemsText = cart.map(i => i.nama).join(', ');
+    const subtotal = cart.reduce((a, b) => a + b.harga, 0);
+    const total = subtotal + 25000; // Contoh Ongkir
 
-    // Simpan ke Tab orders
-    await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ 
-            action: 'tambahOrder',
-            nama_penerima: namaUser, 
-            item: items, 
-            total: total, 
-            pembayaran: 'Transfer/DANA', 
-            ekspedisi: 'JNE/TIKI/PAXEL/GOJEK' 
-        })
-    });
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: 'tambahOrder',
+                nama_penerima: namaUser, 
+                item: itemsText, 
+                total: total, 
+                pembayaran: 'Transfer/DANA', 
+                ekspedisi: 'JNE/TIKI/PAXEL/GOJEK' 
+            })
+        });
 
-    const msg = `Halo Admin Biip Flowerhorn, saya: ${namaUser}. Pesan: ${items}. Total: Rp ${total.toLocaleString()}`;
-    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
+        const msg = `Halo Admin Biip Flowerhorn!%0A%0ASaya: ${namaUser}%0APesan: ${itemsText}%0ATotal: Rp ${total.toLocaleString()}%0A%0AMohon diproses ya Kang!`;
+        window.open(`https://wa.me/6285716842806?text=${msg}`);
+        
+        cart = [];
+        document.getElementById('cartBadge').innerText = '0';
+    } catch(e) {
+        alert("Gagal menyimpan ke database, tapi silakan lanjut ke WhatsApp.");
+    }
 }
 
-// 6. Pusat Bantuan (Tab: artikel/informasi)
+// 8. Pusat Bantuan (Navigasi Fix)
 function showHelpDetail(keyword) {
-    const info = allArticles.find(a => a.judul.toLowerCase().includes(keyword.toLowerCase()));
+    // 1. Cari di Tab Artikel
+    let info = allArticles.find(a => 
+        a.judul && a.judul.toLowerCase().trim().includes(keyword.toLowerCase().trim())
+    );
+
     if(info) {
-        document.getElementById('articleDetailContent').innerHTML = `<h2>${info.judul}</h2><p>${info.isi_artikel}</h2><p>${link_foto}</p>`;
+        document.getElementById('articleDetailContent').innerHTML = `
+            <h2 style="color:var(--primary);margin-bottom:1rem;">${info.judul}</h2>
+            <div style="line-height:1.8;">${info.isi_artikel}</div>`;
         showPage('article-detail');
-    const info = allInformation.find(a => a.judul.toLowerCase().includes(keyword.toLowerCase()));
-    if(info) {
-        document.getElementById('informationDetailContent').innerHTML = `<h2>${info.kategori}</h2><p>${info.konten}</p>`;
-        showPage('information-detail');
+        return;
+    }
+    
+    // 2. Cari di Tab Informasi (Kolom: kategori, konten)
+    let infoLain = allInformation.find(a => 
+        a.kategori && a.kategori.toLowerCase().trim().includes(keyword.toLowerCase().trim())
+    );
+
+    if(infoLain) {
+        document.getElementById('articleDetailContent').innerHTML = `
+            <h2 style="color:var(--primary);margin-bottom:1rem;">${infoLain.kategori}</h2>
+            <div style="line-height:1.8;">${infoLain.konten}</div>`;
+        showPage('article-detail');
+    } else {
+        // Pesan ini hanya muncul jika benar-benar tidak ditemukan
+        alert("Maaf Kang, informasi '" + keyword + "' tidak ditemukan. Pastikan judul di Spreadsheet sudah sesuai.");
+    }
 }
 
 function showPage(id) {
     document.querySelectorAll('main > div, section').forEach(s => s.style.display = 'none');
     const target = document.getElementById('page-' + id) || document.getElementById(id);
     if(target) target.style.display = 'block';
+    window.scrollTo(0,0);
 }
 
 function addToCart(nama, harga, foto) {
