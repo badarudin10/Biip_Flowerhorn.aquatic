@@ -2058,129 +2058,65 @@
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">Notifikasi</span>
     </div>
- <script>
-// 1. Ganti dengan URL /exec terbaru Anda
-const API_URL = 'https://script.google.com/macros/s/AKfycbwUwbgZNN1fh0LoEF6V-Xh5ow4umS8R5O-pAczFb0sP8v2UwCKicaMMeBaPFlgJEODpIw/exec'; 
-let allProducts = [], allArticles = [], cart = [], currentRating = 0;
+<script>
+// MASUKKAN URL /exec HASIL NEW DEPLOYMENT DI SINI
+const API_URL = 'https://script.google.com/macros/s/AKfycbzATfjV8moy7yXeBiUoRoPZb0yxetRhfV1nHzfJybzdBIKrk1tE57Int8-h9pjFET7Yyg/exec'; 
+let allProducts = [], cart = [], currentRating = 0;
 
-// 2. FUNGSI NAVIGASI HALAMAN (Fix Login & Menu)
-function showPage(id) {
-    const sections = document.querySelectorAll('main > div, #page-home, #page-products, #page-articles, #page-about, #page-contact, #page-article-detail');
-    sections.forEach(s => s.style.display = 'none');
-    
-    const target = document.getElementById('page-' + id);
-    if (target) {
-        target.style.display = 'block';
-    } else {
-        // Fallback jika ID tidak pakai prefix 'page-'
-        const fallback = document.getElementById(id);
-        if(fallback) fallback.style.display = 'block';
-    }
-    
-    if(document.getElementById('menuSidebar')?.classList.contains('active')) toggleMenu();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// 3. SINKRONISASI DATA (Action: getIkan & getArtikel)
 async function syncAllData() {
     try {
-        const resIkan = await fetch(`${API_URL}?action=getIkan`);
-        const dataIkan = await resIkan.json();
-        if(dataIkan.success) {
-            allProducts = dataIkan.data;
+        const res = await fetch(`${API_URL}?action=getIkan`);
+        const result = await res.json();
+        if(result.success) {
+            allProducts = result.data;
             renderProducts(allProducts, 'homeProductGrid');
             renderProducts(allProducts, 'productGrid');
         }
-
-        const resArt = await fetch(`${API_URL}?action=getArtikel`);
-        const dataArt = await resArt.json();
-        if(dataArt.success) {
-            allArticles = dataArt.data;
-            renderArticles(allArticles);
-        }
-    } catch(e) {
-        console.error("Koneksi Gagal");
-    }
+    } catch(e) { console.error("Koneksi Gagal"); }
 }
 
-// 4. TAMPILKAN PRODUK (Sesuai Tab 1: link_foto, stock)
 function renderProducts(data, targetId) {
     const container = document.getElementById(targetId);
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="product-card">
             <div class="product-img-wrap">
-                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
+                <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Cek+URL+Gambar'">
             </div>
             <div class="product-info">
                 <h3>${item.nama}</h3>
-                <p style="font-size:0.8rem; color:gray;">${item.jenis} | Stok: ${item.stock}</p>
+                <p>${item.jenis} | Stok: ${item.stock}</p>
                 <div class="product-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
-                    <i class="fas fa-shopping-cart"></i> Tambah
-                </button>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga})">Tambah</button>
             </div>
         </div>`).join('');
 }
 
-// 5. SISTEM KERANJANG & WA (Sesuai Tab 5)
-function addToCart(nama, harga, foto) {
-    cart.push({ nama, harga, foto });
-    const badge = document.getElementById('cartBadge');
-    if(badge) badge.innerText = cart.length;
+function setRating(n) {
+    currentRating = n;
+    document.querySelectorAll('.star-rating-input i').forEach((s, i) => {
+        s.style.color = i < n ? '#ffcc00' : '#ccc';
+        s.className = i < n ? 'fas fa-star' : 'far fa-star';
+    });
+}
+
+function showPage(id) {
+    const sections = document.querySelectorAll('main > div, #page-home, #page-products, #page-articles');
+    sections.forEach(s => s.style.display = 'none');
+    const target = document.getElementById('page-' + id) || document.getElementById(id);
+    if (target) target.style.display = 'block';
+}
+
+function addToCart(nama, harga) {
+    cart.push({ nama, harga });
+    document.getElementById('cartBadge').innerText = cart.length;
     alert(nama + " masuk keranjang!");
 }
 
-async function sendWAOrder() {
-    const namaUser = prompt("Nama Penerima:");
-    if(!namaUser) return;
-    const items = cart.map(i => i.nama).join(', ');
-    const total = cart.reduce((s, i) => s + i.harga, 0) + 25000;
-
-    await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ 
-            action: 'tambahOrder', 
-            nama_penerima: namaUser, 
-            item: items, 
-            total: total, 
-            pembayaran: 'Transfer', 
-            ekspedisi: 'Kurir' 
-        })
-    });
-
-    const msg = `Halo Biip, saya ${namaUser}. Pesanan: ${items}. Total: Rp ${total.toLocaleString()}`;
-    window.open(`https://wa.me/6285716842806?text=${encodeURIComponent(msg)}`);
-}
-
-// 6. ULASAN (Bintang Kuning)
-function setRating(n) {
-    currentRating = n;
-    const stars = document.querySelectorAll('.star-rating-input i, .star-input i');
-    stars.forEach((s, i) => {
-        if(i < n) {
-            s.classList.replace('fa-regular', 'fa-solid');
-            s.style.color = '#ffcc00';
-        } else {
-            s.classList.replace('fa-solid', 'fa-regular');
-            s.style.color = '#ccc';
-        }
-    });
-}
-
-// 7. FUNGSI UI LAINNYA
-function toggleMenu() { document.getElementById('menuSidebar').classList.toggle('active'); document.getElementById('menuOverlay').classList.toggle('active'); }
-function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); document.getElementById('cartOverlay').classList.toggle('active'); }
-function searchFromMenu(q) { 
-    const filter = allProducts.filter(p => p.nama.toLowerCase().includes(q.toLowerCase()));
-    renderProducts(filter, 'productGrid'); 
-}
-
-// INIT
 document.addEventListener('DOMContentLoaded', () => {
     showPage('home');
     syncAllData();
 });
-</script>   
+</script> 
 </html>
 </body>
