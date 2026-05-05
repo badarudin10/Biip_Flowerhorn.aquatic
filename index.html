@@ -2086,7 +2086,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbwuFTZsLQir1LDFmaalRVe2gv7Shhzn7yQSCTGZyU1Urb1_uhZIDJaiemAaY2Kd6qGcwg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbypTy26ZHfXuQrqg7asRsLe1OglE7acRfeK4SU9eQ0OyDPW95K_Y8pDWMNytj16WcvhIg/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2335,6 +2335,41 @@ function showToast(msg, type) {
         toast.className = `toast show ${type}`;
         message.innerText = msg;
         setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+}
+// 1. Fungsi Pencarian (Menjawab Error: searchFromMenu is not defined)
+function searchFromMenu(query) {
+    if(!query) return;
+    const filtered = allProducts.filter(p => 
+        p.nama.toLowerCase().includes(query.toLowerCase()) || 
+        (p.jenis && p.jenis.toLowerCase().includes(query.toLowerCase()))
+    );
+    renderProducts(filtered, 'productGrid');
+    showPage('products');
+}
+
+// 2. Fungsi Rating Bintang (Menjawab Error: setRating is not defined)
+function setRating(n) {
+    currentRating = n;
+    const stars = document.querySelectorAll('.star-rating i');
+    stars.forEach((star, index) => {
+        if(index < n) {
+            star.classList.replace('far', 'fas');
+            star.style.color = '#FFD700';
+        } else {
+            star.classList.replace('fas', 'far');
+            star.style.color = '#ccc';
+        }
+    });
+}
+
+// 3. Fungsi Buka/Tutup Keranjang (Menjawab Error: toggleCart is not defined)
+function toggleCart() {
+    const sidebar = document.getElementById('cartSidebar');
+    const overlay = document.getElementById('cartOverlay');
+    if(sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
     }
 }
 
