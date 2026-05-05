@@ -2059,55 +2059,78 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyEosGncFgQ00k7rTajhoNuBbKF7xs0pza8yqoYN9ARAPK0i5QbYGp-Nt3qiCuEQDqs1w/exec';
+// KONFIGURASI API
+const API_URL = 'https://script.google.com/macros/s/AKfycbxTWQizgu1nn7_iauNuRRF4OXVk37cR1xxf8p0J6sAjMdhc2cbZxkGzomUjX0srWteolw/exec';
+
+// STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
 
-// 1. Sinkronisasi SEMUA Data (6 Tab)
+/**
+ * 1. SINKRONISASI DATA (6 TAB)
+ * Mengambil data secara berurutan untuk menjaga stabilitas koneksi di HP.
+ */
 async function syncAllData() {
+    toggleLoader(true);
     try {
-        // 1. Ambil Ikan
-        const resIkan = await fetch(API_URL + "?action=getIkan");
+        // Ambil Data Produk (Ikan)
+        const resIkan = await fetch(`${API_URL}?action=getIkan`);
         const dIkan = await resIkan.json();
         if(dIkan.success) {
             allProducts = dIkan.data;
-            renderProducts(allProducts, 'homeProductGrid');
+            renderProducts(allProducts, 'homeProductGrid', 6); // Tampilkan 6 di Home
             renderProducts(allProducts, 'productGrid');
         }
 
-        // 2. Ambil Artikel
-        const resArt = await fetch(API_URL + "?action=getArtikel");
+        // Ambil Data Artikel
+        const resArt = await fetch(`${API_URL}?action=getArtikel`);
         const dArt = await resArt.json();
         if(dArt.success) {
             allArticles = dArt.data;
             renderArticles(allArticles);
         }
 
-        // 3. Ambil Informasi & Ulasan
-        const resInfo = await fetch(API_URL + "?action=getInformasi");
+        // Ambil Data Informasi (Pusat Bantuan)
+        const resInfo = await fetch(`${API_URL}?action=getInformasi`);
         const dInfo = await resInfo.json();
         if(dInfo.success) allInformation = dInfo.data;
 
-        const resUlas = await fetch(API_URL + "?action=getUlasan");
+        // Ambil Data Ulasan
+        const resUlas = await fetch(`${API_URL}?action=getUlasan`);
         const dUlas = await resUlas.json();
         if(dUlas.success) renderReviews(dUlas.data);
 
     } catch(e) {
-        console.error("Detail Error:", e);
-        // Jika tetap muncul notif ini, berarti URL API_URL Akang masih salah atau belum 'Anyone'
-        alert("Database belum merespon. Pastikan URL Deployment sudah benar.");
+        console.error("Sync Error:", e);
+        showToast("Gagal memuat data. Periksa koneksi atau URL API Anda.", "error");
+    } finally {
+        toggleLoader(false);
     }
 }
-// 2. Render Produk
-function renderProducts(data, targetId) {
+
+/**
+ * 2. RENDER PRODUK
+ */
+function renderProducts(data, targetId, limit = null) {
     const container = document.getElementById(targetId);
     if(!container) return;
-    container.innerHTML = data.map(item => `
+    
+    let displayData = limit ? data.slice(0, limit) : data;
+    
+    container.innerHTML = displayData.map(item => `
         <div class="product-card">
-            <img src="${item.link_foto}" onerror="this.src='https://via.placeholder.com/300?text=Gambar+Ikan'">
+            <div class="product-badge">Premium</div>
+            <div class="product-img-wrap">
+                <img src="${item.link_foto}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
+            </div>
             <div class="product-info">
-                <h3>${item.nama || 'Louhan Premium'}</h3>
-                <p>Jenis: ${item.jenis || '-'} | Stok: ${item.stock || 0}</p>
-                <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
+                <div class="product-meta">
+                    <span class="product-category-tag">${item.jenis || 'Louhan'}</span>
+                    <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${item.stock || 0}</span>
+                </div>
+                <h3 class="product-name">${item.nama || 'Ikan Louhan'}</h3>
+                <div class="product-price-row">
+                    <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
+                </div>
                 <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
                     <i class="fas fa-shopping-cart"></i> Tambah
                 </button>
@@ -2115,150 +2138,209 @@ function renderProducts(data, targetId) {
         </div>`).join('');
 }
 
-// 3. Render Artikel
+/**
+ * 3. RENDER ARTIKEL
+ */
 function renderArticles(data) {
     const container = document.getElementById('articlesGrid');
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="article-card" onclick="showArticleDetail('${item.judul}')">
-            <img src="${item.link_foto}" class="article-img">
+            <img src="${item.link_foto}" class="article-img" onerror="this.src='https://via.placeholder.com/350?text=Artikel+Biip'">
             <div class="article-content">
+                <div class="article-date"><i class="far fa-calendar-alt"></i> Info Perikanan</div>
                 <h3 class="article-title">${item.judul}</h3>
-                <p class="article-excerpt">${item.isi_artikel ? item.isi_artikel.substring(0, 80) : ''}...</p>
-                <span class="read-more">Baca Selengkapnya</span>
+                <p class="article-excerpt">${item.isi_artikel ? item.isi_artikel.substring(0, 100) : ''}...</p>
+                <span class="read-more">Baca Selengkapnya <i class="fas fa-arrow-right"></i></span>
             </div>
         </div>`).join('');
 }
 
-// 4. Render Ulasan
+/**
+ * 4. RENDER ULASAN (REVIEW)
+ */
 function renderReviews(data) {
     const container = document.getElementById('reviewsGrid');
     if(!container) return;
     container.innerHTML = data.map(item => `
         <div class="review-card">
             <div class="review-header">
-                <div class="review-avatar">${item.nama ? item.nama.charAt(0) : '?'}</div>
+                <div class="review-avatar">${item.nama ? item.nama.charAt(0).toUpperCase() : 'B'}</div>
                 <div class="review-meta">
                     <h4>${item.nama}</h4>
-                    <div class="review-stars">${'★'.repeat(item.bintang)}${'☆'.repeat(5-item.bintang)}</div>
+                    <div class="review-stars">
+                        ${'<i class="fas fa-star"></i>'.repeat(item.bintang || 5)}
+                    </div>
                 </div>
             </div>
-            <p class="review-text">"${item.komentar}"</p>
+            <p class="review-text">"${item.komentar || 'Ikan sangat berkualitas!'}"</p>
         </div>`).join('');
 }
 
-// 5. Login & Auth (Fixed ID)
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    if(!email || !password) return alert("Email dan Password harus diisi!");
-
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'loginUser', email, password })
-        });
-        const result = await res.json();
-        if(result.success) {
-            localStorage.setItem('biip_user', result.nama);
-            alert("Halo Kang " + result.nama + ", selamat datang kembali!");
-            location.reload();
-        } else { 
-            alert("Email atau Password salah!"); 
-        }
-    } catch(e) {
-        alert("Terjadi kesalahan saat login.");
-    }
-}
-
-// 6. Bintang Ulasan (Kuning Tetap)
-function setRating(n) {
-    currentRating = n;
-    const stars = document.querySelectorAll('.star-rating-input i');
-    stars.forEach((s, i) => {
-        s.style.color = i < n ? '#f59e0b' : '#ccc';
-        s.className = i < n ? 'fas fa-star' : 'far fa-star';
-    });
-}
-
-// 7. Checkout & WA (Otomatis Tanggal di AppScript)
-async function sendWAOrder() {
-    const namaUser = localStorage.getItem('biip_user') || prompt("Masukkan Nama Penerima:");
-    if(!namaUser || cart.length === 0) return alert("Lengkapi data dan keranjang!");
-
-    const itemsText = cart.map(i => i.nama).join(', ');
-    const subtotal = cart.reduce((a, b) => a + b.harga, 0);
-    const total = subtotal + 25000; // Contoh Ongkir
-
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: 'tambahOrder',
-                nama_penerima: namaUser, 
-                item: itemsText, 
-                total: total, 
-                pembayaran: 'Transfer/DANA', 
-                ekspedisi: 'JNE/TIKI/PAXEL/GOJEK' 
-            })
-        });
-
-        const msg = `Halo Admin Biip Flowerhorn!%0A%0ASaya: ${namaUser}%0APesan: ${itemsText}%0ATotal: Rp ${total.toLocaleString()}%0A%0AMohon diproses ya Kang!`;
-        window.open(`https://wa.me/6285716842806?text=${msg}`);
-        
-        cart = [];
-        document.getElementById('cartBadge').innerText = '0';
-    } catch(e) {
-        alert("Gagal menyimpan ke database, tapi silakan lanjut ke WhatsApp.");
-    }
-}
-
-// 8. Pusat Bantuan (Navigasi Fix)
+/**
+ * 5. PUSAT BANTUAN (SHOW HELP)
+ */
 function showHelpDetail(keyword) {
-    // 1. Cari di Tab Artikel
-    let info = allArticles.find(a => 
-        a.judul && a.judul.toLowerCase().trim().includes(keyword.toLowerCase().trim())
+    // Cari di data Informasi (Tab 6)
+    let info = allInformation.find(a => 
+        a.kategori && a.kategori.toLowerCase().trim().includes(keyword.toLowerCase().trim())
     );
 
     if(info) {
         document.getElementById('articleDetailContent').innerHTML = `
-            <h2 style="color:var(--primary);margin-bottom:1rem;">${info.judul}</h2>
-            <div style="line-height:1.8;">${info.isi_artikel}</div>`;
+            <div class="section-header">
+                <h2>${info.kategori}</h2>
+                <div class="section-line"></div>
+            </div>
+            <div style="line-height:2; font-size:1.1rem; color:var(--gray); margin-top:2rem;">
+                ${info.konten.replace(/\n/g, '<br>')}
+            </div>
+        `;
         showPage('article-detail');
-        return;
-    }
-    
-    // 2. Cari di Tab Informasi (Kolom: kategori, konten)
-    let infoLain = allInformation.find(a => 
-        a.kategori && a.kategori.toLowerCase().trim().includes(keyword.toLowerCase().trim())
-    );
-
-    if(infoLain) {
-        document.getElementById('articleDetailContent').innerHTML = `
-            <h2 style="color:var(--primary);margin-bottom:1rem;">${infoLain.kategori}</h2>
-            <div style="line-height:1.8;">${infoLain.konten}</div>`;
-        showPage('article-detail');
+        window.scrollTo(0,0);
     } else {
-        // Pesan ini hanya muncul jika benar-benar tidak ditemukan
-        alert("Maaf Kang, informasi '" + keyword + "' tidak ditemukan. Pastikan judul di Spreadsheet sudah sesuai.");
+        showToast("Informasi '" + keyword + "' belum tersedia.", "error");
     }
 }
 
-function showPage(id) {
-    document.querySelectorAll('main > div, section').forEach(s => s.style.display = 'none');
-    const target = document.getElementById('page-' + id) || document.getElementById(id);
-    if(target) target.style.display = 'block';
-    window.scrollTo(0,0);
+/**
+ * 6. DETAIL ARTIKEL
+ */
+function showArticleDetail(judul) {
+    const art = allArticles.find(a => a.judul === judul);
+    if(art) {
+        document.getElementById('articleDetailContent').innerHTML = `
+            <img src="${art.link_foto}" style="width:100%; border-radius:24px; margin-bottom:2rem;">
+            <h2 style="font-family:'Playfair Display', serif; font-size:2.5rem; margin-bottom:1rem;">${art.judul}</h2>
+            <div style="line-height:2; font-size:1.1rem; color:var(--gray);">
+                ${art.isi_artikel.replace(/\n/g, '<br>')}
+            </div>
+        `;
+        showPage('article-detail');
+    }
 }
 
+/**
+ * 7. FUNGSI KERANJANG (CART)
+ */
 function addToCart(nama, harga, foto) {
     cart.push({ nama, harga, foto });
-    document.getElementById('cartBadge').innerText = cart.length;
+    updateCartUI();
+    showToast(nama + " masuk keranjang!", "success");
 }
 
+function updateCartUI() {
+    const badge = document.getElementById('cartBadge');
+    const container = document.getElementById('cartItems');
+    const footer = document.getElementById('cartFooter');
+    const subtotalEl = document.getElementById('cartSubtotal');
+    const totalEl = document.getElementById('cartTotal');
+
+    badge.innerText = cart.length;
+
+    if(cart.length === 0) {
+        container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Keranjang masih kosong</p></div>`;
+        footer.style.display = 'none';
+        return;
+    }
+
+    footer.style.display = 'block';
+    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
+    
+    container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+            <img src="${item.foto}" onerror="this.src='https://via.placeholder.com/80'">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.nama}</div>
+                <div class="cart-item-price">Rp ${item.harga.toLocaleString('id-ID')}</div>
+            </div>
+            <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
+        </div>
+    `).join('');
+
+    subtotalEl.innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+    totalEl.innerText = `Rp ${(subtotal + 25000).toLocaleString('id-ID')}`;
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+}
+
+/**
+ * 8. CHECKOUT & WHATSAPP
+ */
+async function sendWAOrder() {
+    if(cart.length === 0) return;
+    
+    const namaUser = localStorage.getItem('biip_user') || prompt("Masukkan Nama Penerima:");
+    if(!namaUser) return;
+
+    const itemsText = cart.map(i => `- ${i.nama}`).join('%0A');
+    const subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
+    const total = subtotal + 25000;
+
+    // Kirim data ke Apps Script (Tab Orders)
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'tambahOrder',
+                nama_penerima: namaUser,
+                item: cart.map(i => i.nama).join(', '),
+                total: total,
+                pembayaran: 'Belum Bayar',
+                ekspedisi: 'JNE/TIKI/PAXEL'
+            })
+        });
+    } catch(e) { console.error("Gagal simpan order, tapi lanjut WA"); }
+
+    const msg = `Halo Admin Biip Flowerhorn!%0A%0ASaya ingin memesan:%0A${itemsText}%0A%0A*Total + Ongkir:* Rp ${total.toLocaleString('id-ID')}%0A*Nama Penerima:* ${namaUser}%0A%0AMohon instruksi pembayarannya Kang!`;
+    window.open(`https://wa.me/6285716842806?text=${msg}`);
+}
+
+/**
+ * 9. UTILITY FUNCTIONS
+ */
+function showPage(id) {
+    const pages = ['page-home', 'page-products', 'page-articles', 'page-article-detail', 'page-about', 'page-contact'];
+    pages.forEach(page => {
+        const el = document.getElementById(page);
+        if(el) el.style.display = 'none';
+    });
+    
+    const target = document.getElementById('page-' + id);
+    if(target) target.style.display = 'block';
+    
+    // Tutup menu jika terbuka
+    document.getElementById('menuSidebar').classList.remove('active');
+    document.getElementById('menuOverlay').classList.remove('active');
+}
+
+function toggleMenu() {
+    document.getElementById('menuSidebar').classList.toggle('active');
+    document.getElementById('menuOverlay').classList.toggle('active');
+}
+
+function toggleCart() {
+    document.getElementById('cartSidebar').classList.toggle('active');
+    document.getElementById('cartOverlay').classList.toggle('active');
+}
+
+function toggleLoader(show) {
+    document.getElementById('loader').style.display = show ? 'flex' : 'none';
+}
+
+function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    const message = document.getElementById('toastMessage');
+    toast.className = `toast show ${type}`;
+    message.innerText = msg;
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+// Inisialisasi Pertama
 document.addEventListener('DOMContentLoaded', () => {
-    showPage('home');
     syncAllData();
 });
 </script>
