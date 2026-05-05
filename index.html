@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbzDzYYu7HCQ3Kua6n1aP56JizimwqxLSN6eWJugwVnd97QmRTjIfim4Ba0hA4g8EnjS8g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwSJOpf8wEwsRD-aNLcc4b89w8XzSXHiAwOgq-E6l6xdLFN-7JdZI0BVKPnX8VBH_Xy-g/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2135,7 +2135,8 @@ function renderProducts(data, targetId, limit = null) {
                     <i class="fas fa-cart-plus"></i> Tambah
                 </button>
             </div>
-        </div>`).join('');
+        </div>
+    `).join('');
 }
 
 /**
@@ -2246,7 +2247,15 @@ function updateCartUI() {
     badge.innerText = cart.length;
 
     if(cart.length === 0) {
-        container.innerHTML = cart.map((item, index) => `
+        container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Keranjang masih kosong</p></div>`;
+        footer.style.display = 'none';
+        return;
+    }
+
+    footer.style.display = 'block';
+    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
+    
+    container.innerHTML = cart.map((item, index) => `
     <div class="cart-item">
         <img src="${item.foto}" onerror="this.src='https://via.placeholder.com/80'">
         <div class="cart-item-info">
@@ -2259,10 +2268,6 @@ function updateCartUI() {
         <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
     </div>
 `).join('');
-
-    subtotalEl.innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
-    totalEl.innerText = `Rp ${(subtotal + 25000).toLocaleString('id-ID')}`;
-}
 
 function removeFromCart(index) {
     cart.splice(index, 1);
