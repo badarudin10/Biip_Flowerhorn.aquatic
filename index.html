@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycby9lKwSNjHAGzDXCfOfpFWFjRO4H5GB0Z1h6RXAk076M0CUxKBpPuuhV0Kf9wTQjVNSHw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzIxrVyo887W7wu_8QtPwhRs3z5WqP8-lOX4YiQZDC7jgh7IM3KU0md0BCkZjVynhtUUA/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2388,6 +2388,31 @@ async function submitReview() {
         }
     } catch(e) {
         showToast("Gagal kirim ulasan", "error");
+    } finally {
+        toggleLoader(false);
+    }
+}
+async function handleRegister(e) {
+    if(e) e.preventDefault();
+    const nama = document.getElementById('regNama').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+
+    toggleLoader(true);
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'registerUser', nama, email, password })
+        });
+        const data = await res.json();
+        if(data.success) {
+            showToast("Pendaftaran sukses! Silakan Login.", "success");
+            showLogin(); // Pindah ke halaman login
+        } else {
+            showToast(data.message || "Gagal mendaftar", "error");
+        }
+    } catch(err) {
+        showToast("Error koneksi", "error");
     } finally {
         toggleLoader(false);
     }
