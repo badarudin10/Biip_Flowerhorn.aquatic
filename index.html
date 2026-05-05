@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbwVY9rhZi-ZIB6J7a6vhFOtMgX2_dtS0bfpnB50HL2mLLE7YlA64gikriACOTBUOXCoXw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby9lKwSNjHAGzDXCfOfpFWFjRO4H5GB0Z1h6RXAk076M0CUxKBpPuuhV0Kf9wTQjVNSHw/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2316,21 +2316,25 @@ function showToast(msg, type) {
     message.innerText = msg;
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
-// Fungsi untuk memunculkan Modal Login
-function showLoginModal() {
+// Ganti nama dari showLoginModal menjadi openLogin
+function openLogin() { 
     const modal = document.getElementById('loginModal');
     if(modal) {
         modal.style.display = 'flex';
+        modal.classList.add('active'); // Tambahkan ini agar class active CSS bekerja
     } else {
         showToast("Elemen Login belum tersedia", "error");
     }
 }
 
-function closeLoginModal() {
+// Ganti nama dari closeLoginModal menjadi closeLogin
+function closeLogin() {
     const modal = document.getElementById('loginModal');
-    if(modal) modal.style.display = 'none';
+    if(modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
 }
-
 // Fungsi Eksekusi Login ke Spreadsheet
 async function handleLogin(e) {
     if(e) e.preventDefault();
