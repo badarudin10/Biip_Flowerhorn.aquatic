@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbxVrh4hkBtR1SWC9crif8T7yPkFIl9iCqsnGzvMSNRwoaoDMeSWYVs8YK0tBroIqAWyCQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwVY9rhZi-ZIB6J7a6vhFOtMgX2_dtS0bfpnB50HL2mLLE7YlA64gikriACOTBUOXCoXw/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2315,6 +2315,78 @@ function showToast(msg, type) {
     toast.className = `toast show ${type}`;
     message.innerText = msg;
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+// Fungsi untuk memunculkan Modal Login
+function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if(modal) {
+        modal.style.display = 'flex';
+    } else {
+        showToast("Elemen Login belum tersedia", "error");
+    }
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if(modal) modal.style.display = 'none';
+}
+
+// Fungsi Eksekusi Login ke Spreadsheet
+async function handleLogin(e) {
+    if(e) e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    toggleLoader(true);
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'loginUser', email, password })
+        });
+        const data = await res.json();
+        if(data.success) {
+            localStorage.setItem('biip_user', data.nama);
+            showToast("Selamat Datang, " + data.nama, "success");
+            closeLoginModal();
+            location.reload(); // Refresh agar status login berubah
+        } else {
+            showToast("Email atau Password salah!", "error");
+        }
+    } catch(err) {
+        showToast("Gagal terhubung ke server", "error");
+    } finally {
+        toggleLoader(false);
+    }
+}
+async function submitReview() {
+    const nama = localStorage.getItem('biip_user') || "Guest";
+    const komentar = document.getElementById('reviewText').value;
+    const bintang = currentRating || 5;
+
+    if(!komentar) return showToast("Isi komentar dulu, Kang", "error");
+
+    toggleLoader(true);
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'submitReview',
+                nama: nama,
+                komentar: komentar,
+                bintang: bintang
+            })
+        });
+        const data = await res.json();
+        if(data.success) {
+            showToast("Ulasan berhasil dikirim!", "success");
+            document.getElementById('reviewText').value = '';
+            syncAllData(); // Refresh ulasan di layar
+        }
+    } catch(e) {
+        showToast("Gagal kirim ulasan", "error");
+    } finally {
+        toggleLoader(false);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => { syncAllData(); });
