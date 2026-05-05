@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbzIxrVyo887W7wu_8QtPwhRs3z5WqP8-lOX4YiQZDC7jgh7IM3KU0md0BCkZjVynhtUUA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwIQI-MKbUHr9QcKhdgFvuNPuYGcfoN4lzTwribUPiyyZmuxuDRnledZkcixi6K4R_Okw/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2416,6 +2416,21 @@ async function handleRegister(e) {
     } finally {
         toggleLoader(false);
     }
+}
+function showPage(pageId) {
+    // 1. Sembunyikan semua halaman
+    const pages = document.querySelectorAll('.page-content');
+    pages.forEach(p => p.style.display = 'none');
+
+    // 2. Tampilkan halaman yang dituju
+    const target = document.getElementById('page-' + pageId);
+    if(target) {
+        target.style.display = 'block';
+        window.scrollTo(0,0);
+    }
+    
+    // 3. Tutup sidebar otomatis (untuk HP)
+    closeSidebar();
 }
 
 document.addEventListener('DOMContentLoaded', () => { syncAllData(); });
