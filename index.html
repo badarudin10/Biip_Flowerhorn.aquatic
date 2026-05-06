@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI API
-const API_URL = 'https://script.google.com/macros/s/AKfycbyTHrgNfr_REoPWxvPvvrbGPXwGQzU5GsMRlU2X_3pT3CBp6dd71nnMmvDXbiZVX4YNLg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxtAvxiU7z2JF6QilAFhQl-m_RpEqbTqkjZKeqnAs3mlpWetOHWfCU5w81ix_BjsKmN/exec';
 
 // STATE MANAGEMENT
 let allProducts = [], allArticles = [], allInformation = [], cart = [], currentRating = 0;
@@ -2223,10 +2223,17 @@ function showArticleDetail(judul) {
 /**
  * 7. FUNGSI KERANJANG (CART)
  */
-function addToCart(nama, harga, foto) {
-    cart.push({ nama, harga, foto });
+function addToCart(nama, harga, foto, jenis, size) {
+    // Menambahkan rincian lengkap ke dalam objek keranjang
+    cart.push({ 
+        nama: nama, 
+        harga: harga, 
+        foto: foto, 
+        jenis: jenis || '-', 
+        size: size || '-' 
+    });
     updateCartUI();
-    showToast(nama + " masuk keranjang!", "success");
+    showToast(nama + " (Size: " + size + ") masuk keranjang!", "success");
 }
 
 function updateCartUI() {
@@ -2239,24 +2246,19 @@ function updateCartUI() {
     badge.innerText = cart.length;
 
     if(cart.length === 0) {
-        container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Keranjang masih kosong</p></div>`;
-        footer.style.display = 'none';
-        return;
-    }
-
-    footer.style.display = 'block';
-    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    
-    container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-            <img src="${item.foto}" onerror="this.src='https://via.placeholder.com/80'">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.nama}</div>
-                <div class="cart-item-price">Rp ${item.harga.toLocaleString('id-ID')}</div>
+       container.innerHTML = cart.map((item, index) => `
+    <div class="cart-item">
+        <img src="${item.foto}" onerror="this.src='https://via.placeholder.com/80'">
+        <div class="cart-item-info">
+            <div class="cart-item-name">${item.nama}</div>
+            <div class="cart-item-variant" style="font-size: 0.8rem; color: var(--gray);">
+                ${item.jenis} | Size: ${item.size}
             </div>
-            <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
+            <div class="cart-item-price">Rp ${item.harga.toLocaleString('id-ID')}</div>
         </div>
-    `).join('');
+        <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
+    </div>
+`).join(''); 
 
     subtotalEl.innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
     totalEl.innerText = `Rp ${(subtotal + 25000).toLocaleString('id-ID')}`;
@@ -2276,9 +2278,15 @@ async function sendWAOrder() {
     const namaUser = localStorage.getItem('biip_user') || prompt("Masukkan Nama Penerima:");
     if(!namaUser) return;
 
-    const itemsText = cart.map(i => `- ${i.nama}`).join('%0A');
+    // Menyusun teks produk secara terperinci (Nama + Jenis + Size)
+    const itemsText = cart.map(i => `• *${i.nama}* (${i.jenis} | Size: ${i.size})`).join('%0A');
+    
     const subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    const total = subtotal + 25000;
+    const total = subtotal + 25000; // Total + Ongkir
+
+    // Isi Otomatis Metode (Bisa diubah sesuai keinginan Akang)
+    const metodeBayar = "Transfer Bank (BCA/DANA)";
+    const kurir = "JNE / TIKI / PAXEL";
 
     // Kirim data ke Apps Script (Tab Orders)
     try {
@@ -2287,15 +2295,23 @@ async function sendWAOrder() {
             body: JSON.stringify({
                 action: 'tambahOrder',
                 nama_penerima: namaUser,
-                item: cart.map(i => i.nama).join(', '),
+                item: cart.map(i => `${i.nama} (${i.size})`).join(', '),
                 total: total,
-                pembayaran: 'Belum Bayar',
-                ekspedisi: 'JNE/TIKI/PAXEL'
+                pembayaran: metodeBayar,
+                ekspedisi: kurir
             })
         });
-    } catch(e) { console.error("Gagal simpan order, tapi lanjut WA"); }
+    } catch(e) { console.error("Database sibuk, lanjut WA"); }
 
-    const msg = `Halo Admin Biip Flowerhorn!%0A%0ASaya ingin memesan:%0A${itemsText}%0A%0A*Total + Ongkir:* Rp ${total.toLocaleString('id-ID')}%0A*Nama Penerima:* ${namaUser}%0A%0AMohon instruksi pembayarannya Kang!`;
+    // MENYUSUN PESAN WHATSAPP (Sesuai keinginan Akang)
+    const msg = `*Halo Admin Biip Flowerhorn!*%0A%0A` +
+                `Saya ingin memesan:%0A${itemsText}%0A%0A` +
+                `*Total + Ongkir:* Rp ${total.toLocaleString('id-ID')}%0A` +
+                `*Nama Penerima:* ${namaUser}%0A` +
+                `*Metode Bayar:* ${metodeBayar}%0A` +
+                `*Pengiriman:* ${kurir}%0A%0A` +
+                `_Mohon instruksi pembayarannya ya Kang!_`;
+
     window.open(`https://wa.me/6285716842806?text=${msg}`);
 }
 
