@@ -2060,7 +2060,7 @@
     </div>
 <script>
 // KONFIGURASI UTAMA
-const API_URL = 'https://script.google.com/macros/s/AKfycbwQckbM_KDZEuxJu_DAfw8Lkbuw55d1ngDa6eJ8n_sgePBiLRPEU816ofX7NwGmcngCAQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzGh_VByRsAEqT5pTto8CrrIhcme-lgWygMCdZ2NYBz8hQUmhmL7t5Hc_c4PLAwTvVyaw/exec';
 let allProducts = [], cart = [], currentRating = 5;
 
 // 1. NAVIGASI HALAMAN
@@ -2233,6 +2233,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Tambahkan pemanggilan syncData Akang di sini
 });
+// FUNGSI PENCARIAN (Agar error ReferenceError hilang)
+function searchFromMenu(query) {
+    if (!query) {
+        renderProducts(allProducts, 'productGrid');
+        return;
+    }
+    const filtered = allProducts.filter(p => 
+        (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) || 
+        (p.jenis && p.jenis.toLowerCase().includes(query.toLowerCase()))
+    );
+    renderProducts(filtered, 'productGrid');
+    showPage('products');
+}
+
+// FUNGSI FILTER KATEGORI (Biasanya ini juga ikut error kalau tidak ada)
+function filterFromMenu(kategori) {
+    const filtered = allProducts.filter(p => 
+        p.jenis && p.jenis.toLowerCase().trim() === kategori.toLowerCase().trim()
+    );
+    renderProducts(filtered, 'productGrid');
+    showPage('products');
+    toggleMenu(); // Tutup menu setelah klik
+}
 </script>
 </html>
 </body>
