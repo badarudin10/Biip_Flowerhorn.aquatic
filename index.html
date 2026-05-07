@@ -2059,47 +2059,76 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-// 1. KONFIGURASI (GANTI DENGAN URL DEPLOYMENT ANYONE TERBARU)
-const API_URL = 'https://script.google.com/macros/s/AKfycbxNi373D0DBULsYzNHBruAQ5CimQozdRsPv3ET_HxR6QyR0ctzq8tHx-kiaHQFQOwtLBw/exec';
+// 1. LINK API (PASTIKAN SUDAH NEW DEPLOYMENT & SET KE "ANYONE")
+const API_URL = 'https://script.google.com/macros/s/AKfycbzgQgHgeUeRzC0uZEBHcbLcgf2kWCAdALTUZ-TCf9F9iLHWv0ON2ZZJG_h0y4iRoSKvqA/exec';
 
-let allProducts = [], allArticles = [], cart = [];
+let allProducts = [];
+let cart = [];
 
-// 2. FUNGSI RENDER (Jantung Visual - Agar tidak error lagi)
+// 2. FUNGSI UNTUK MENGGAMBAR PRODUK (renderProducts)
 function renderProducts(data, targetId, limit = null) {
     const container = document.getElementById(targetId);
-    if(!container) return;
+    if (!container) return;
     
+    container.innerHTML = ''; // Bersihkan loading
     let displayData = limit ? data.slice(0, limit) : data;
     
     if (displayData.length === 0) {
-        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--gray);">Ikan tidak ditemukan...</div>`;
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;">Data tidak ditemukan...</div>`;
         return;
     }
 
-    container.innerHTML = displayData.map(item => `
-        <div class="product-card">
-            <div class="product-badge">Premium</div>
-            <div class="product-img-wrap">
-                <img src="${item.link_foto}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
-            </div>
-            <div class="product-info">
-                <div class="product-meta">
-                    <span class="product-category-tag">${item.jenis || 'Louhan'}</span>
-                    <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${item.stock || 0}</span>
+    displayData.forEach(item => {
+        container.innerHTML += `
+            <div class="product-card">
+                <div class="product-badge">Premium</div>
+                <div class="product-img-wrap">
+                    <img src="${item.link_foto}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Biip+Flowerhorn'">
                 </div>
-                <h3 class="product-name">${item.nama || 'Ikan Louhan'}</h3>
-                <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
-                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
-                    <i class="fas fa-shopping-cart"></i> Tambah
-                </button>
+                <div class="product-info">
+                    <div class="product-meta">
+                        <span class="product-category-tag">${item.jenis || 'Louhan'}</span>
+                    </div>
+                    <h3 class="product-name">${item.nama || 'Ikan Louhan'}</h3>
+                    <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
+                    <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
+                        <i class="fas fa-shopping-cart"></i> Tambah ke Keranjang
+                    </button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    });
 }
 
-// 3. FUNGSI PENCARIAN (Sudah sinkron dengan renderProducts)
+// 3. FUNGSI AMBIL DATA DARI SPREADSHEET (syncAllData)
+async function syncAllData() {
+    toggleLoader(true);
+    try {
+        // Memanggil Apps Script pintu doGet dengan action getIkan
+        const response = await fetch(`${API_URL}?action=getIkan`);
+        const result = await response.json();
+        
+        if (result.success) {
+            allProducts = result.data;
+            // Gambar di Beranda (limit 6)
+            renderProducts(allProducts, 'homeProductGrid', 6);
+            // Gambar di Halaman Produk (semua)
+            renderProducts(allProducts, 'productGrid');
+            console.log("Data Berhasil Dimuat:", allProducts.length, "ikan");
+        } else {
+            showToast("Gagal muat data: " + result.message, "error");
+        }
+    } catch (error) {
+        console.error("Error Detail:", error);
+        showToast("Koneksi Terputus / Error 403", "error");
+    } finally {
+        toggleLoader(false);
+    }
+}
+
+// 4. FUNGSI PENCARIAN (searchFromMenu)
 function searchFromMenu(query) {
-    if(!query) {
+    if (!query) {
         renderProducts(allProducts, 'homeProductGrid', 6);
         renderProducts(allProducts, 'productGrid');
         return;
@@ -2108,71 +2137,44 @@ function searchFromMenu(query) {
         (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) ||
         (p.jenis && p.jenis.toLowerCase().includes(query.toLowerCase()))
     );
-    renderProducts(filtered, 'productGrid'); // Render ke halaman produk
-    showPage('products'); // Pindah ke halaman produk secara otomatis
+    renderProducts(filtered, 'productGrid');
+    showPage('products');
 }
 
-// 4. SINKRONISASI DATA (Ambil data dari Google Sheets)
-async function syncAllData() {
-    toggleLoader(true);
-    try {
-        const res = await fetch(`${API_URL}?action=getIkan`);
-        const result = await res.json();
-        if(result.success) {
-            allProducts = result.data;
-            // Render ke Dashboard (limit 6) dan ke Halaman Produk (semua)
-            renderProducts(allProducts, 'homeProductGrid', 6);
-            renderProducts(allProducts, 'productGrid');
-        } else {
-            showToast("Gagal mengambil data ikan", "error");
-        }
-    } catch(e) {
-        console.error("Error Koneksi:", e);
-        showToast("Error 403 atau Koneksi Terputus", "error");
-    } finally {
-        toggleLoader(false);
-    }
-}
-
-// 5. NAVIGASI & UTILITY
-function showPage(id) {
+// 5. NAVIGASI HALAMAN (showPage)
+function showPage(pageId) {
     const pages = document.querySelectorAll('[id^="page-"]');
     pages.forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + id);
-    if(target) target.style.display = 'block';
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.style.display = 'block';
     window.scrollTo(0,0);
-    toggleMenu(false);
 }
 
-function toggleMenu(show) {
-    const s = document.getElementById('menuSidebar');
-    const o = document.getElementById('menuOverlay');
-    if(show === false) { 
-        s.classList.remove('active'); 
-        o.classList.remove('active'); 
-    } else { 
-        s.classList.toggle('active'); 
-        o.classList.toggle('active'); 
-    }
+// 6. UTILITY (Loader, Menu, Toast)
+function toggleMenu() {
+    document.getElementById('menuSidebar').classList.toggle('active');
+    document.getElementById('menuOverlay').classList.toggle('active');
 }
 
-function toggleLoader(sh) { 
-    const l = document.getElementById('loader');
-    if(l) l.style.display = sh ? 'flex' : 'none'; 
+function toggleLoader(show) {
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = show ? 'flex' : 'none';
 }
 
-function showToast(m, t) {
+function showToast(msg, type) {
     const toast = document.getElementById('toast');
-    const msg = document.getElementById('toastMessage');
-    if(toast && msg) {
-        msg.innerText = m;
-        toast.className = `toast show ${t}`;
+    const toastMsg = document.getElementById('toastMessage');
+    if (toast && toastMsg) {
+        toastMsg.innerText = msg;
+        toast.className = `toast show ${type}`;
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 }
 
-// Jalankan saat web dibuka
-document.addEventListener('DOMContentLoaded', syncAllData);
+// JALANKAN SAAT WEBSITE DIBUKA
+document.addEventListener('DOMContentLoaded', () => {
+    syncAllData();
+});
 </script>
 </html>
 </body>
