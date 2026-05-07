@@ -2059,203 +2059,120 @@
         <span id="toastMessage">Notifikasi</span>
     </div>
 <script>
-// KONFIGURASI UTAMA
-const API_URL = 'https://script.google.com/macros/s/AKfycbzGh_VByRsAEqT5pTto8CrrIhcme-lgWygMCdZ2NYBz8hQUmhmL7t5Hc_c4PLAwTvVyaw/exec';
-let allProducts = [], cart = [], currentRating = 5;
+// 1. KONFIGURASI (GANTI DENGAN URL DEPLOYMENT ANYONE TERBARU)
+const API_URL = 'https://script.google.com/macros/s/AKfycbxNi373D0DBULsYzNHBruAQ5CimQozdRsPv3ET_HxR6QyR0ctzq8tHx-kiaHQFQOwtLBw/exec';
 
-// 1. NAVIGASI HALAMAN
-function showPage(pageId) {
-    const pages = document.querySelectorAll('[id^="page-"]');
-    pages.forEach(p => p.style.display = 'none');
-    const target = document.getElementById('page-' + pageId);
-    if(target) target.style.display = 'block';
-    window.scrollTo(0,0);
-}
+let allProducts = [], allArticles = [], cart = [];
 
-// 2. LOGIKA MODAL (SINKRON DENGAN HTML AKANG)
-function openLogin() {
-    document.getElementById('loginModal').classList.add('active');
-    switchModalMode('login');
-}
-function closeLogin() {
-    document.getElementById('loginModal').classList.remove('active');
-}
-function switchModalMode(mode) {
-    const loginForm = document.getElementById('loginForm');
-    const regForm = document.getElementById('registerForm');
-    const tabs = document.querySelectorAll('.form-tab');
-
-    if(mode === 'register') {
-        loginForm.style.display = 'none';
-        regForm.style.display = 'block';
-        tabs[1].classList.add('active');
-        tabs[0].classList.remove('active');
-    } else {
-        loginForm.style.display = 'block';
-        regForm.style.display = 'none';
-        tabs[0].classList.add('active');
-        tabs[1].classList.remove('active');
-    }
-}
-// Alias agar sinkron dengan HTML Akang yang menggunakan switchAuthTab
-function switchAuthTab(mode) { switchModalMode(mode); }
-
-// 3. AUTHENTICATION (REGISTER & LOGIN)
-async function handleRegister() {
-    const nama = document.getElementById('regName').value; // Sesuai ID di HTML Akang
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-
-    if(!nama || !email || !password) return showToast("Lengkapi data, Kang!", "error");
+// 2. FUNGSI RENDER (Jantung Visual - Agar tidak error lagi)
+function renderProducts(data, targetId, limit = null) {
+    const container = document.getElementById(targetId);
+    if(!container) return;
     
-    toggleLoader(true);
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'registerUser', nama, email, password })
-        });
-        const data = await res.json();
-        if(data.success) {
-            showToast("Pendaftaran Berhasil! Silakan Login", "success");
-            switchModalMode('login');
-        } else { showToast(data.message, "error"); }
-    } catch(e) { showToast("Gagal terhubung ke server", "error"); }
-    finally { toggleLoader(false); }
-}
-
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    toggleLoader(true);
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'loginUser', email, password })
-        });
-        const data = await res.json();
-        if(data.success) {
-            localStorage.setItem('biip_user', data.nama);
-            showToast("Selamat datang, " + data.nama, "success");
-            location.reload();
-        } else { showToast("Email/Password salah", "error"); }
-    } catch(e) { showToast("Koneksi gagal", "error"); }
-    finally { toggleLoader(false); }
-}
-
-// 4. KERANJANG & CHECKOUT
-function addToCart(nama, harga, foto) {
-    cart.push({ nama, harga, foto });
-    updateCartUI();
-    showToast(nama + " masuk keranjang", "success");
-}
-
-function updateCartUI() {
-    const badge = document.getElementById('cartBadge');
-    const container = document.getElementById('cartItems');
-    const footer = document.getElementById('cartFooter');
-    const subtotalEl = document.getElementById('cartSubtotal');
-    const totalEl = document.getElementById('cartTotal');
-
-    badge.innerText = cart.length;
-    if(cart.length === 0) {
-        container.innerHTML = `<div class="cart-empty"><i class="fas fa-fish"></i><p>Keranjang kosong</p></div>`;
-        footer.style.display = 'none';
+    let displayData = limit ? data.slice(0, limit) : data;
+    
+    if (displayData.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--gray);">Ikan tidak ditemukan...</div>`;
         return;
     }
 
-    footer.style.display = 'block';
-    let subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-            <img src="${item.foto}">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${item.nama}</div>
-                <div class="cart-item-price">Rp ${item.harga.toLocaleString('id-ID')}</div>
+    container.innerHTML = displayData.map(item => `
+        <div class="product-card">
+            <div class="product-badge">Premium</div>
+            <div class="product-img-wrap">
+                <img src="${item.link_foto}" class="product-img" onerror="this.src='https://via.placeholder.com/300?text=Biip+Aquatic'">
             </div>
-            <i class="fas fa-trash remove-item" onclick="removeFromCart(${index})"></i>
-        </div>`).join('');
-
-    subtotalEl.innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
-    totalEl.innerText = `Rp ${(subtotal + 25000).toLocaleString('id-ID')}`;
+            <div class="product-info">
+                <div class="product-meta">
+                    <span class="product-category-tag">${item.jenis || 'Louhan'}</span>
+                    <span class="product-stock"><i class="fas fa-check-circle"></i> Stok: ${item.stock || 0}</span>
+                </div>
+                <h3 class="product-name">${item.nama || 'Ikan Louhan'}</h3>
+                <div class="product-price">Rp ${Number(item.harga || 0).toLocaleString('id-ID')}</div>
+                <button class="add-cart-btn" onclick="addToCart('${item.nama}', ${item.harga}, '${item.link_foto}')">
+                    <i class="fas fa-shopping-cart"></i> Tambah
+                </button>
+            </div>
+        </div>
+    `).join('');
 }
 
-async function checkoutAndSave() {
-    const user = localStorage.getItem('biip_user');
-    if(!user) return showToast("Login dulu ya, Kang!", "error");
-    
-    toggleLoader(true);
-    const subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    const total = subtotal + 25000;
-    const items = cart.map(i => i.nama).join(", ");
-
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'tambahOrder', nama_penerima: user, item: items, total: total })
-        });
-        sendWAOrder(); // Lanjut ke WA setelah simpan database
-    } catch(e) { sendWAOrder(); }
-    finally { toggleLoader(false); }
-}
-
-function sendWAOrder() {
-    const user = localStorage.getItem('biip_user') || "Pembeli";
-    const subtotal = cart.reduce((sum, item) => sum + item.harga, 0);
-    const msg = `*Halo Admin Biip Flowerhorn!*%0ASaya ingin pesan:%0A${cart.map(i=>"- "+i.nama).join("%0A")}%0A%0A*Total:* Rp ${(subtotal+25000).toLocaleString('id-ID')}%0A*Nama:* ${user}`;
-    window.open(`https://wa.me/6285716842806?text=${msg}`);
-}
-
-// 5. UTILITY
-function toggleMenu() {
-    document.getElementById('menuSidebar').classList.toggle('active');
-    document.getElementById('menuOverlay').classList.toggle('active');
-}
-function toggleCart() {
-    document.getElementById('cartSidebar').classList.toggle('active');
-    document.getElementById('cartOverlay').classList.toggle('active');
-}
-function toggleLoader(sh) { document.getElementById('loader').style.display = sh ? 'flex' : 'none'; }
-function showToast(m, t) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMessage').innerText = m;
-    toast.className = `toast show ${t}`;
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// Inisialisasi
-document.addEventListener('DOMContentLoaded', () => {
-    const user = localStorage.getItem('biip_user');
-    if(user) {
-        document.getElementById('menuUser').innerHTML = `
-            <div class="menu-user-avatar"><i class="fas fa-user-check"></i></div>
-            <div><div style="font-weight:600;">${user}</div><div style="font-size:0.8rem;opacity:0.8;">Pelanggan Setia</div></div>`;
-    }
-    // Tambahkan pemanggilan syncData Akang di sini
-});
-// FUNGSI PENCARIAN (Agar error ReferenceError hilang)
+// 3. FUNGSI PENCARIAN (Sudah sinkron dengan renderProducts)
 function searchFromMenu(query) {
-    if (!query) {
+    if(!query) {
+        renderProducts(allProducts, 'homeProductGrid', 6);
         renderProducts(allProducts, 'productGrid');
         return;
     }
     const filtered = allProducts.filter(p => 
-        (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) || 
+        (p.nama && p.nama.toLowerCase().includes(query.toLowerCase())) ||
         (p.jenis && p.jenis.toLowerCase().includes(query.toLowerCase()))
     );
-    renderProducts(filtered, 'productGrid');
-    showPage('products');
+    renderProducts(filtered, 'productGrid'); // Render ke halaman produk
+    showPage('products'); // Pindah ke halaman produk secara otomatis
 }
 
-// FUNGSI FILTER KATEGORI (Biasanya ini juga ikut error kalau tidak ada)
-function filterFromMenu(kategori) {
-    const filtered = allProducts.filter(p => 
-        p.jenis && p.jenis.toLowerCase().trim() === kategori.toLowerCase().trim()
-    );
-    renderProducts(filtered, 'productGrid');
-    showPage('products');
-    toggleMenu(); // Tutup menu setelah klik
+// 4. SINKRONISASI DATA (Ambil data dari Google Sheets)
+async function syncAllData() {
+    toggleLoader(true);
+    try {
+        const res = await fetch(`${API_URL}?action=getIkan`);
+        const result = await res.json();
+        if(result.success) {
+            allProducts = result.data;
+            // Render ke Dashboard (limit 6) dan ke Halaman Produk (semua)
+            renderProducts(allProducts, 'homeProductGrid', 6);
+            renderProducts(allProducts, 'productGrid');
+        } else {
+            showToast("Gagal mengambil data ikan", "error");
+        }
+    } catch(e) {
+        console.error("Error Koneksi:", e);
+        showToast("Error 403 atau Koneksi Terputus", "error");
+    } finally {
+        toggleLoader(false);
+    }
 }
+
+// 5. NAVIGASI & UTILITY
+function showPage(id) {
+    const pages = document.querySelectorAll('[id^="page-"]');
+    pages.forEach(p => p.style.display = 'none');
+    const target = document.getElementById('page-' + id);
+    if(target) target.style.display = 'block';
+    window.scrollTo(0,0);
+    toggleMenu(false);
+}
+
+function toggleMenu(show) {
+    const s = document.getElementById('menuSidebar');
+    const o = document.getElementById('menuOverlay');
+    if(show === false) { 
+        s.classList.remove('active'); 
+        o.classList.remove('active'); 
+    } else { 
+        s.classList.toggle('active'); 
+        o.classList.toggle('active'); 
+    }
+}
+
+function toggleLoader(sh) { 
+    const l = document.getElementById('loader');
+    if(l) l.style.display = sh ? 'flex' : 'none'; 
+}
+
+function showToast(m, t) {
+    const toast = document.getElementById('toast');
+    const msg = document.getElementById('toastMessage');
+    if(toast && msg) {
+        msg.innerText = m;
+        toast.className = `toast show ${t}`;
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+}
+
+// Jalankan saat web dibuka
+document.addEventListener('DOMContentLoaded', syncAllData);
 </script>
 </html>
 </body>
