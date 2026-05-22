@@ -3,135 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Branc Biip Flowerhorn Aquatic - Toko Louhan Terpercaya</title>
-    <!-- Tailwind CSS untuk Desain Mewah -->
+    <title>Branc Biip Flowerhorn Aquatic | Sejak 2020</title>
+    
+    <!-- Visual & Style -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js untuk Animasi Banner -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .gradient-blue { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .theme-blue { background-color: #0f172a; } /* Biru Laut Mewah */
+        .theme-gold { color: #d4af37; } /* Emas Indukan */
+        .banner-fade-enter-active, .banner-fade-leave-active { transition: opacity 1s ease; }
+        .banner-fade-enter-from, .banner-fade-leave-to { opacity: 0; }
+        [v-cloak] { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
 
-    <!-- HEADER / NAVBAR -->
-    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-blue-100">
+<div id="app" v-cloak>
+    <!-- 1. HEADER & NAVIGASI -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="https://i.ibb.co.com/6Sv1fKF/FB-IMG-1770226187752.jpg" alt="Logo" class="h-14 w-14 rounded-full border-2 border-orange-500 shadow-md">
+                <img src="https://i.ibb.co.com/6Sv1fKF/FB-IMG-1770226187752.jpg" class="h-12 w-12 rounded-full border-2 border-orange-500">
                 <div>
-                    <h1 class="font-extrabold text-blue-900 leading-none text-lg">BRANC BIIP</h1>
-                    <p class="text-[10px] text-orange-600 font-bold tracking-[0.2em]">FLOWERHORN AQUATIC</p>
-                    <p class="text-[9px] text-slate-400 italic font-medium">Sejak 2020</p>
+                    <h1 class="font-extrabold text-slate-900 leading-none">BRANC BIIP</h1>
+                    <p class="text-[10px] theme-gold font-bold tracking-widest uppercase">Flowerhorn Aquatic • Est 2020</p>
                 </div>
             </div>
-            <div class="hidden md:flex gap-8 font-semibold text-sm text-slate-600 uppercase tracking-widest">
-                <a href="#" class="hover:text-blue-700 transition">Koleksi</a>
-                <a href="#" class="hover:text-blue-700 transition">Perlengkapan</a>
-                <a href="#" class="hover:text-blue-700 transition">Tentang Kami</a>
+            
+            <div class="hidden md:flex gap-8 font-semibold text-sm uppercase">
+                <a href="#" @click="page='home'" class="hover:text-blue-600">Beranda</a>
+                <a href="#" @click="page='shop'" class="hover:text-blue-600">Koleksi Ikan</a>
+                <a href="#" @click="page='admin'" class="text-slate-400 hover:text-red-500">Admin</a>
             </div>
-            <a href="https://wa.me/6285716842806" class="bg-blue-700 text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-orange-600 transition shadow-lg">HUBUNGI KAMI</a>
+
+            <div class="flex items-center gap-5">
+                <div @click="page='cart'" class="relative cursor-pointer">
+                    <i class="fa-solid fa-cart-shopping text-xl text-slate-700"></i>
+                    <span class="absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] px-1.5 rounded-full">{{ cart.length }}</span>
+                </div>
+                <button v-if="!isLoggedIn" @click="page='login'" class="bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold">LOGIN</button>
+                <button v-else @click="logout" class="text-xs font-bold text-red-500 uppercase">{{ currentUser.name }} (Logout)</button>
+            </div>
         </div>
     </nav>
 
-    <!-- HERO BANNER (ANIMASI BERGERAK) -->
-    <section x-data="{ 
-        active: 0, 
-        images: [
-            'https://i.ibb.co.com/dsm7JfZH/1777975785797.png',
-            'https://i.ibb.co.com/1Y6W76dW/39703.jpg'
-        ] 
-    }" x-init="setInterval(() => active = (active === 0 ? 1 : 0), 5000)" class="relative h-[500px] bg-black overflow-hidden">
-        
-        <template x-for="(img, index) in images" :key="index">
-            <div x-show="active === index" 
-                 x-transition:enter="transition duration-1000" 
-                 x-transition:enter-start="opacity-0 scale-105" 
-                 x-transition:enter-end="opacity-60 scale-100"
-                 x-transition:leave="transition duration-1000"
-                 x-transition:leave-start="opacity-60"
-                 x-transition:leave-end="opacity-0"
-                 class="absolute inset-0">
-                <img :src="img" class="w-full h-full object-cover">
+    <!-- 2. HALAMAN UTAMA (HOME) -->
+    <div v-if="page === 'home'">
+        <!-- Hero Banner Bergerak -->
+        <div class="relative h-[400px] md:h-[550px] bg-black overflow-hidden flex items-center justify-center text-center">
+            <transition-group name="banner-fade">
+                <img v-if="bannerIndex === 0" key="b1" src="https://i.ibb.co.com/dsm7JfZH/1777975785797.png" class="absolute inset-0 w-full h-full object-cover opacity-50">
+                <img v-if="bannerIndex === 1" key="b2" src="https://i.ibb.co.com/1Y6W76dW/39703.jpg" class="absolute inset-0 w-full h-full object-cover opacity-50">
+            </transition-group>
+            
+            <div class="relative z-10 px-6">
+                <h2 class="text-white text-3xl md:text-6xl font-black mb-4">BELANJA ONLINE TIDAK PERLU CEMAS</h2>
+                <div class="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg font-black text-xl md:text-2xl shadow-xl">
+                    AMANAH DAN TERPERCAYA
+                </div>
             </div>
-        </template>
+        </div>
 
-        <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-            <h2 class="text-white text-3xl md:text-6xl font-black mb-4 drop-shadow-2xl">BELANJA ONLINE TIDAK PERLU CEMAS</h2>
-            <div class="bg-orange-500 text-white px-6 py-2 rounded-lg font-black text-xl md:text-3xl rotate-[-1deg] shadow-xl">
-                AMANAH DAN TERPERCAYA
-            </div>
-            <p class="mt-8 text-blue-100 font-medium max-w-xl text-sm md:text-base leading-relaxed">
-                Penyedia Ikan Louhan / Flowerhorn berkualitas sejak 2020. Ikan sehat, terawat, dan bergaransi sampai tujuan.
+        <!-- Tentang Kami Singkat -->
+        <section class="max-w-4xl mx-auto py-16 px-4 text-center">
+            <h3 class="text-2xl font-bold text-slate-800 mb-4 uppercase tracking-wider">Spesialis Louhan Berkualitas</h3>
+            <p class="text-slate-600 leading-relaxed italic">
+                "Berdiri sejak tahun 2020, Branc Biip Flowerhorn Aquatic berkomitmen menyediakan ikan Louhan pilihan, mulai dari anakan prospek hingga indukan premium. Kami menjamin kesehatan dan kualitas ikan dengan perawatan standar profesional."
             </p>
-        </div>
-    </section>
+        </section>
 
-    <!-- DAFTAR PRODUK (DUMMY DATA - BISA DIHUBUNGKAN KE SPREADSHEET) -->
-    <section id="products" class="max-w-7xl mx-auto py-20 px-4">
-        <div class="flex justify-between items-end mb-12">
-            <div>
-                <h2 class="text-3xl font-black text-blue-950 uppercase italic">Koleksi Unggulan</h2>
-                <div class="h-1.5 w-24 bg-orange-500 mt-2"></div>
-            </div>
-            <p class="text-slate-500 font-medium hidden md:block">Menampilkan produk kualitas premium</p>
-        </div>
-
-        <!-- Grid Produk -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Produk 1 -->
-            <div class="bg-white rounded-3xl p-4 shadow-xl shadow-blue-900/5 border border-slate-100 group">
-                <div class="relative h-72 overflow-hidden rounded-2xl bg-slate-200 mb-6">
-                    <img src="https://i.ibb.co.com/dsm7JfZH/1777975785797.png" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <span class="absolute top-4 left-4 bg-blue-700 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Premium Stock</span>
-                </div>
-                <h3 class="font-bold text-xl text-blue-900 mb-1">Kamfa F2 Red Dragon</h3>
-                <p class="text-slate-400 text-sm mb-4 italic">Size 10-12cm • Sehat • Jenong Boom</p>
-                <div class="flex justify-between items-center pt-4 border-t border-slate-50">
-                    <span class="text-2xl font-black text-blue-600">Rp 2.500.000</span>
-                    <a href="https://wa.me/6285716842806?text=Halo%20Branc%20Biip,%20saya%20tertarik%20dengan%20Louhan%20Kamfa%20F2" class="bg-green-500 p-3 rounded-xl hover:bg-green-600 transition shadow-lg shadow-green-200">
-                        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" class="w-6 h-6 invert">
-                    </a>
+        <!-- Kategori & Produk Terlaris -->
+        <section class="max-w-7xl mx-auto px-4 pb-20">
+            <h3 class="text-xl font-bold mb-8 flex items-center gap-2">
+                <span class="w-10 h-1 bg-orange-500"></span> KOLEKSI TERBARU
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div v-for="p in products.slice(0,4)" :key="p.id" class="bg-white p-3 rounded-2xl shadow-sm border group cursor-pointer" @click="viewProduct(p)">
+                    <div class="relative h-48 overflow-hidden rounded-xl mb-3">
+                        <img :src="p.image" class="w-full h-full object-cover group-hover:scale-110 transition">
+                        <span class="absolute top-2 left-2 bg-blue-600 text-white text-[9px] px-2 py-1 rounded-full font-bold uppercase">{{ p.tag }}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm truncate">{{ p.name }}</h4>
+                    <p class="text-blue-600 font-extrabold mt-1">Rp {{ formatPrice(p.price) }}</p>
                 </div>
             </div>
+            <div class="text-center mt-10">
+                <button @click="page='shop'" class="border-2 border-slate-900 px-8 py-3 font-bold rounded-full hover:bg-slate-900 hover:text-white transition uppercase text-xs">Lihat Semua Koleksi</button>
+            </div>
+        </section>
+    </div>
 
-            <!-- Anda bisa menambah produk lain di sini dengan struktur yang sama -->
+    <!-- 3. HALAMAN TOKO (SHOP) -->
+    <div v-if="page === 'shop'" class="max-w-7xl mx-auto px-4 py-10">
+        <div class="flex flex-col md:flex-row gap-10">
+            <!-- Sidebar Filter -->
+            <div class="w-full md:w-64">
+                <h4 class="font-bold mb-4 uppercase text-xs tracking-widest text-slate-400">Kategori</h4>
+                <div class="flex flex-col gap-2">
+                    <button v-for="cat in categories" @click="filterCategory = cat" :class="filterCategory === cat ? 'bg-blue-600 text-white' : 'bg-white'" class="text-left px-4 py-2 rounded-lg text-sm font-semibold border transition">{{ cat }}</button>
+                </div>
+            </div>
+            <!-- Grid Produk -->
+            <div class="flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div v-for="p in filteredProducts" :key="p.id" class="bg-white p-4 rounded-3xl shadow-md border border-slate-100 group transition hover:shadow-xl">
+                        <div class="relative h-64 overflow-hidden rounded-2xl mb-4">
+                            <img :src="p.image" class="w-full h-full object-cover">
+                            <div v-if="p.video_url" class="absolute bottom-2 right-2 bg-black/50 p-2 rounded-full text-white"><i class="fa-solid fa-video"></i></div>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900">{{ p.name }}</h3>
+                        <p class="text-xs text-slate-400 mb-4">{{ p.category }} | Kondisi: {{ p.condition }}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-black text-blue-700">Rp {{ formatPrice(p.price) }}</span>
+                            <button @click="addToCart(p)" class="bg-slate-900 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-orange-500 transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-blue-950 py-16 text-white">
+    <!-- 4. HALAMAN KERANJANG & CHECKOUT -->
+    <div v-if="page === 'cart'" class="max-w-3xl mx-auto px-4 py-16">
+        <h2 class="text-3xl font-black mb-8 text-center uppercase">Keranjang Belanja</h2>
+        <div v-if="cart.length === 0" class="text-center py-20 bg-white rounded-3xl shadow">
+            <i class="fa-solid fa-basket-shopping text-5xl text-slate-200 mb-4"></i>
+            <p class="text-slate-500">Keranjang masih kosong...</p>
+            <button @click="page='shop'" class="mt-5 text-blue-600 font-bold uppercase text-xs">Mulai Belanja</button>
+        </div>
+        <div v-else>
+            <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+                <div v-for="(item, index) in cart" :key="index" class="p-6 border-b flex justify-between items-center">
+                    <div class="flex gap-4 items-center">
+                        <img :src="item.image" class="w-16 h-16 rounded-lg object-cover">
+                        <div>
+                            <h4 class="font-bold text-slate-800">{{ item.name }}</h4>
+                            <p class="text-xs text-blue-600 font-bold tracking-wider">Rp {{ formatPrice(item.price) }}</p>
+                        </div>
+                    </div>
+                    <button @click="removeFromCart(index)" class="text-red-500 text-sm"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div class="p-8 bg-slate-50">
+                    <div class="flex justify-between font-bold text-xl mb-6 uppercase">
+                        <span>Total Pembayaran:</span>
+                        <span class="text-blue-700">Rp {{ formatPrice(cartTotal) }}</span>
+                    </div>
+                    <button @click="checkoutWhatsApp" class="w-full bg-green-500 text-white py-4 rounded-2xl font-black text-lg shadow-lg hover:bg-green-600 transition flex items-center justify-center gap-3">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i> CHECKOUT VIA WHATSAPP
+                    </button>
+                    <p class="text-[10px] text-slate-400 mt-4 text-center uppercase font-bold tracking-widest">Amanah & Terpercaya Sejak 2020</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. FOOTER -->
+    <footer class="theme-blue py-16 text-white">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
             <div>
-                <img src="https://i.ibb.co.com/6Sv1fKF/FB-IMG-1770226187752.jpg" class="h-16 w-16 rounded-full mb-6 grayscale brightness-200">
-                <h4 class="font-bold text-xl mb-2">BRANC BIIP FLOWERHORN</h4>
-                <p class="text-blue-300 text-sm leading-relaxed">Spesialis penyedia ikan Louhan kualitas kontes dan indukan sejak 2020. Kami mengutamakan kualitas dan kesehatan ikan di atas segalanya.</p>
+                <img src="https://i.ibb.co.com/6Sv1fKF/FB-IMG-1770226187752.jpg" class="h-16 w-16 rounded-full mb-4 border-2 border-orange-500">
+                <h4 class="font-black text-xl mb-2 italic uppercase">Branc Biip Flowerhorn</h4>
+                <p class="text-slate-400 text-sm leading-relaxed tracking-wide">Penyedia ikan Louhan kualitas terbaik dengan jaminan ikan sehat dan terawat sejak tahun 2020.</p>
             </div>
             <div>
-                <h4 class="font-bold text-lg mb-6">Layanan Kami</h4>
-                <ul class="space-y-3 text-blue-200 text-sm">
-                    <li>• Pengiriman Seluruh Indonesia</li>
-                    <li>• Garansi Ikan Hidup (D.O.A)</li>
-                    <li>• Konsultasi Perawatan Gratis</li>
-                    <li>• Pakan Racikan Khusus</li>
+                <h4 class="font-bold text-sm mb-6 uppercase tracking-[0.2em] theme-gold">Layanan Kami</h4>
+                <ul class="text-slate-300 text-sm space-y-3 font-semibold">
+                    <li><i class="fa-solid fa-circle-check text-[10px] mr-2 text-orange-500"></i> Pengiriman Hewan Hidup Aman</li>
+                    <li><i class="fa-solid fa-circle-check text-[10px] mr-2 text-orange-500"></i> Garansi Ikan Sampai Tujuan</li>
+                    <li><i class="fa-solid fa-circle-check text-[10px] mr-2 text-orange-500"></i> Konsultasi Perawatan Gratis</li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold text-lg mb-6">Hubungi Kami</h4>
-                <p class="text-blue-200 text-sm mb-4 italic">WhatsApp: 085716842806</p>
-                <p class="text-blue-200 text-sm mb-4">Lokasi: Jakarta, Indonesia</p>
+                <h4 class="font-bold text-sm mb-6 uppercase tracking-[0.2em] theme-gold">Kontak Langsung</h4>
+                <p class="text-2xl font-black mb-2">0857-1684-2806</p>
+                <p class="text-slate-400 text-xs">Jl. Lokasi Usaha Anda, Indonesia</p>
                 <div class="flex gap-4 mt-6">
-                    <div class="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center hover:bg-orange-500 cursor-pointer transition">FB</div>
-                    <div class="h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center hover:bg-orange-500 cursor-pointer transition">IG</div>
+                    <i class="fa-brands fa-facebook text-xl hover:theme-gold cursor-pointer"></i>
+                    <i class="fa-brands fa-instagram text-xl hover:theme-gold cursor-pointer"></i>
+                    <i class="fa-brands fa-tiktok text-xl hover:theme-gold cursor-pointer"></i>
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-blue-900 text-center text-[10px] text-blue-500 tracking-[0.3em] uppercase font-bold">
-            © 2024 BRANC BIIP FLOWERHORN AQUATIC • EST 2020
+        <div class="text-center mt-20 border-t border-slate-800 pt-8 text-[10px] font-bold text-slate-500 tracking-[0.5em] uppercase">
+            © 2024 Branc Biip Flowerhorn Aquatic
         </div>
     </footer>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const page = ref('home');
+            const bannerIndex = ref(0);
+            const products = ref([
+                { id: 1, name: 'Kamfa F2 Red Dragon Prospek', price: 1500000, category: 'Ikan Louhan Anakan', condition: 'Sehat/Aktif', image: 'https://i.ibb.co.com/dsm7JfZH/1777975785797.png', tag: 'Premium', description: 'Body kotak, mutiara full crosshead.' },
+                { id: 2, name: 'SRD Ori Thailand Indukan', price: 3500000, category: 'Ikan Louhan Indukan', condition: 'Siap Pijah', image: 'https://i.ibb.co.com/1Y6W76dW/39703.jpg', tag: 'Terlaris', description: 'Merah pekat, jenong boom.' }
+            ]);
+            const cart = ref([]);
+            const filterCategory = ref('All');
+            const categories = ['All', 'Ikan Louhan Anakan', 'Ikan Louhan Indukan', 'Pakan Ikan', 'Perlengkapan'];
+            
+            // Login System
+            const isLoggedIn = ref(false);
+            const currentUser = ref({ name: '' });
+
+            // Banner Loop
+            onMounted(() => {
+                setInterval(() => {
+                    bannerIndex.value = bannerIndex.value === 0 ? 1 : 0;
+                }, 5000);
+            });
+
+            const filteredProducts = computed(() => {
+                if (filterCategory.value === 'All') return products.value;
+                return products.value.filter(p => p.category === filterCategory.value);
+            });
+
+            const cartTotal = computed(() => {
+                return cart.value.reduce((sum, item) => sum + item.price, 0);
+            });
+
+            const formatPrice = (val) => {
+                return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            };
+
+            const addToCart = (p) => {
+                cart.value.push(p);
+                alert(`${p.name} ditambahkan ke keranjang!`);
+            };
+
+            const removeFromCart = (index) => {
+                cart.value.splice(index, 1);
+            };
+
+            const checkoutWhatsApp = () => {
+                const waNumber = "6285716842806";
+                let listProduct = cart.value.map(i => `- ${i.name} (Rp ${formatPrice(i.price)})`).join('%0A');
+                const text = `Halo Branc Biip Flowerhorn,%0ASaya ingin memesan:%0A${listProduct}%0A%0ATotal: Rp ${formatPrice(cartTotal.value)}%0A%0AMohon info ketersediaan dan ongkir aman. Terima kasih.`;
+                window.open(`https://wa.me/${waNumber}?text=${text}`, '_blank');
+            };
+
+            return {
+                page, bannerIndex, products, cart, categories, filterCategory, 
+                filteredProducts, cartTotal, isLoggedIn, currentUser,
+                formatPrice, addToCart, removeFromCart, checkoutWhatsApp
+            }
+        }
+    }).mount('#app');
+</script>
 
 </body>
 </html>
