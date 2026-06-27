@@ -1,17 +1,13 @@
-export default function Keranjang() {
+export default function TentangKami() {
   return (
-    <div className="max-w-4xl mx-auto p-6 min-h-screen">
-      <h2 className="text-3xl font-bold text-biip-blue mb-8">Keranjang Belanja</h2>
-      
-      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <p className="text-gray-600 mb-6">Keranjang Anda saat ini masih kosong.</p>
-        
-        <div className="flex gap-4">
-          <a href="/produk" className="bg-biip-blue text-white px-6 py-2 rounded-lg font-semibold hover:bg-biip-ocean transition">
-            Lanjut Belanja
-          </a>
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto p-8">
+      <h1 className="text-4xl font-bold text-biip-blue mb-6">Tentang Biip Flowerhorn</h1>
+      <p className="text-gray-700 leading-relaxed mb-4">
+        Biip Flowerhorn Aquatic didirikan pada tahun 2020 dengan satu visi: menyediakan genetik ikan Louhan berkualitas tinggi yang bisa dijangkau oleh semua pecinta hobi.
+      </p>
+      <p className="text-gray-700 leading-relaxed">
+        Kami percaya bahwa setiap ikan adalah mahakarya. Itulah sebabnya setiap ikan yang keluar dari farm kami telah melalui proses grooming dan seleksi yang ketat untuk memastikan kualitas mutiara, bentuk kepala (jenong), dan mental yang juara.
+      </p>
     </div>
   );
 }
