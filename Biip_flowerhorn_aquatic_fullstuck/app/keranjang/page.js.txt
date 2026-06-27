@@ -1,0 +1,17 @@
+export default function Keranjang() {
+  return (
+    <div className="max-w-4xl mx-auto p-6 min-h-screen">
+      <h2 className="text-3xl font-bold text-biip-blue mb-8">Keranjang Belanja</h2>
+      
+      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+        <p className="text-gray-600 mb-6">Keranjang Anda saat ini masih kosong.</p>
+        
+        <div className="flex gap-4">
+          <a href="/produk" className="bg-biip-blue text-white px-6 py-2 rounded-lg font-semibold hover:bg-biip-ocean transition">
+            Lanjut Belanja
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}

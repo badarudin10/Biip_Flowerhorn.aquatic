@@ -1,0 +1,13 @@
+export default function TentangKami() {
+  return (
+    <div className="max-w-4xl mx-auto p-8">
+      <h1 className="text-4xl font-bold text-biip-blue mb-6">Tentang Biip Flowerhorn</h1>
+      <p className="text-gray-700 leading-relaxed mb-4">
+        Biip Flowerhorn Aquatic didirikan pada tahun 2020 dengan satu visi: menyediakan genetik ikan Louhan berkualitas tinggi yang bisa dijangkau oleh semua pecinta hobi.
+      </p>
+      <p className="text-gray-700 leading-relaxed">
+        Kami percaya bahwa setiap ikan adalah mahakarya. Itulah sebabnya setiap ikan yang keluar dari farm kami telah melalui proses grooming dan seleksi yang ketat untuk memastikan kualitas mutiara, bentuk kepala (jenong), dan mental yang juara.
+      </p>
+    </div>
+  );
+}
