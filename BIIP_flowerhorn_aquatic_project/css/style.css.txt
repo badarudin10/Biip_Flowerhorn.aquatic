@@ -1,0 +1,4 @@
+body { margin: 0; font-family: sans-serif; background: #ffffff; }
+header { border-bottom: 3px solid #002D62; padding: 10px 20px; display: flex; align-items: center; }
+.floating-wa { position: fixed; bottom: 20px; right: 20px; }
+/* Tambahkan style untuk grid kategori dan layout lainnya di sini */
