@@ -35,6 +35,27 @@ function addToCart(product) {
     localStorage.setItem('biipCart', JSON.stringify(cart));
     alert(product.name + " berhasil ditambahkan ke keranjang!");
 }
+// Fungsi untuk memfilter dan menampilkan produk
+async function renderProduk(kategoriDipilih = 'semua') {
+    const container = document.getElementById('product-container');
+    container.innerHTML = "Memuat data..."; // Loading state
+
+    const products = await getProducts(); // Memanggil fungsi dari api.js
+
+    const filtered = kategoriDipilih === 'semua' 
+        ? products 
+        : products.filter(p => p.category === kategoriDipilih);
+
+    container.innerHTML = filtered.map(item => `
+        <div class="product-card">
+            <img src="${item.image_urls}" alt="${item.name}">
+            <h3>${item.name}</h3>
+            <p>Size: ${item.size}</p>
+            <p>Harga: Rp ${item.price.toLocaleString()}</p>
+            <button onclick='addToCart(${JSON.stringify(item)})'>Tambah ke Keranjang</button>
+        </div>
+    `).join('');
+}
 
 // Inisialisasi saat web pertama dibuka
 window.onload = () => showPage('home');
