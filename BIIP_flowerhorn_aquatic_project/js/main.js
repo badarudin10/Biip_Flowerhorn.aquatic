@@ -56,6 +56,20 @@ async function renderProduk(kategoriDipilih = 'semua') {
         </div>
     `).join('');
 }
+async function kirimUlasan() {
+    const ulasan = {
+        name: document.getElementById('userName').value,
+        rating: document.getElementById('userRating').value,
+        comment: document.getElementById('userComment').value,
+        targetSheet: "Reviews"
+    };
+    
+    await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(ulasan)
+    });
+    alert("Terima kasih atas ulasan Anda!");
+}
 
 // Inisialisasi saat web pertama dibuka
 window.onload = () => showPage('home');
