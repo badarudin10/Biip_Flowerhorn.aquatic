@@ -1,13 +1,14 @@
-const SCRIPT_URL = "URL_APPS_SCRIPT_ANDA_DISINI";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxo4Z1hR0BlGnieujK7VEFg5I2PWF1pJA8fqFgemVRUyKXeRY6vJwZQ6rkY5TEDRMOkfA/exec";
 
-async function fetchFromSheet(sheetName) {
-    const response = await fetch(`${SCRIPT_URL}?sheet=${sheetName}`);
-    return await response.json();
-}
-
-async function sendData(action, payload) {
-    await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: action, ...payload })
-    });
+async function loadProducts() {
+    const data = await fetchFromSheet('Products');
+    const container = document.getElementById('product-container');
+    container.innerHTML = data.map(item => `
+        <div class="card">
+            <img src="${item.image_urls}" alt="${item.name}">
+            <h4>${item.name}</h4>
+            <p>Harga: Rp ${item.price}</p>
+            <button onclick="addToCart(${JSON.stringify(item)})">Beli</button>
+        </div>
+    `).join('');
 }
