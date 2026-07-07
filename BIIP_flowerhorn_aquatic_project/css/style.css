@@ -1,9 +1,0 @@
-body { margin: 0; font-family: sans-serif; background-color: #ffffff; color: #333; }
-header { background: #ffffff; border-bottom: 4px solid #002D62; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; }
-.logo img { height: 50px; }
-nav button { margin: 0 10px; cursor: pointer; border: none; background: none; font-weight: bold; color: #002D62; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
-.product-card { border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: center; }
-.product-card img { width: 100%; height: 150px; object-fit: cover; }
-.floating-wa { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
-.floating-wa img { width: 60px; }
