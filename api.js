@@ -1,4 +1,4 @@
-const SCRIPT_URL = "URL_DEPLOY_ANDA";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwE0BO7Edo-k29UGSxxjNa2QtvXSp61TDwGs1lYTB9ItfNMBsC695l4LMxE-N2I4dHeQA/exec";
 
 async function fetchData(sheetName) {
     try {
