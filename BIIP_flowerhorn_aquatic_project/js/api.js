@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9dJEZXinPaGrAXv4PZpX0s5-RM1EGFn8eAHpD_nEDS4JmXnxFCwrlEIyAj35bdmo8rw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfBiMc0E1TTgailOt3cW5f_Ve3-PviB18vvvnjWatSwiviU2pHVXrI9gjyVEpH8Rcjdg/exec";
 
 async function loadProducts() {
     const data = await fetchFromSheet('Products');
