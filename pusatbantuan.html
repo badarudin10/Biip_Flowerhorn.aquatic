@@ -1,0 +1,16 @@
+<section x-show="page === 'help'" x-cloak class="container mx-auto px-4 py-16 max-w-4xl min-h-screen">
+  <div class="text-center mb-16"><h2 class="text-4xl font-black text-blue-900 uppercase tracking-tighter leading-none">Pusat Bantuan</h2></div>
+  <div class="flex justify-center gap-3 mb-12 overflow-x-auto no-scrollbar pb-2">
+    <template x-for="cat in ['Panduan', 'Kebijakan', 'Garansi']">
+      <button @click="helpCat = cat" :class="helpCat === cat ? 'bg-blue-900 text-white shadow-xl scale-110' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'" class="px-10 py-4 rounded-full font-black text-[10px] uppercase transition-all duration-300" x-text="cat"></button>
+    </template>
+  </div>
+  <div class="bg-white p-12 md:p-16 rounded-[60px] border border-gray-50 shadow-2xl min-h-[450px]">
+    <template x-for="h in helpData">
+      <div x-show="h.kategori === helpCat" x-transition:enter="transition duration-500" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+        <h3 class="text-3xl font-black text-blue-900 mb-10 uppercase border-b-4 border-blue-50 pb-6 inline-block" x-text="h.kategori"></h3>
+        <div class="whitespace-pre-line text-gray-700 leading-loose text-xl font-medium" x-text="h.konten"></div>
+      </div>
+    </template>
+  </div>
+</section>
