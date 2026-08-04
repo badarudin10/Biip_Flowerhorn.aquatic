@@ -1,0 +1,14 @@
+<section x-show="page === 'login'" x-cloak class="container mx-auto px-4 py-20 min-h-screen flex items-center justify-center">
+  <div class="max-w-md w-full bg-white p-12 rounded-[50px] shadow-2xl border-t-8 border-blue-900 text-center">
+    <div class="flex border-b-2 border-gray-50 mb-10 font-black">
+      <button @click="authMode = 'login'" :class="authMode === 'login' ? 'border-b-4 border-blue-900 text-blue-900' : 'text-gray-300'" class="flex-1 py-4 uppercase tracking-widest text-xs transition-all">Login</button>
+      <button @click="authMode = 'register'" :class="authMode === 'register' ? 'border-b-4 border-blue-900 text-blue-900' : 'text-gray-300'" class="flex-1 py-4 uppercase tracking-widest text-xs transition-all">Daftar</button>
+    </div>
+    <div class="space-y-6 text-left">
+      <template x-if="authMode === 'register'"><input type="text" x-model="authForm.nama" placeholder="Nama Lengkap" class="w-full p-5 border-none rounded-2xl bg-gray-100 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-900 transition"></template>
+      <input type="email" x-model="authForm.email" placeholder="Email Pembeli" class="w-full p-5 border-none rounded-2xl bg-gray-100 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-900 transition">
+      <input type="password" x-model="authForm.password" placeholder="Password Akun" class="w-full p-5 border-none rounded-2xl bg-gray-100 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-900 transition">
+      <button @click="handleAuth()" class="bg-blue-900 text-white w-full py-5 rounded-3xl font-black shadow-lg hover:bg-blue-800 transition active:scale-95 uppercase tracking-widest text-[10px] mt-4" x-text="authMode === 'login' ? 'Masuk Sekarang' : 'Buat Akun Baru'"></button>
+    </div>
+  </div>
+</section>
