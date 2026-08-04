@@ -1,0 +1,16 @@
+<nav class="bg-white shadow-md blue-lis sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <button @click="menuOpen = true" class="text-2xl text-blue-900"><i class="fas fa-bars"></i></button>
+      <img src="https://i.ibb.co.com/6Sv1fKF/FB-IMG-1770226187752.jpg" class="w-10 h-10 rounded-full border">
+      <span class="font-bold text-blue-900 hidden md:block">BIIP FLOWERHORN</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <template x-if="user"><span class="text-[10px] font-bold text-blue-800" x-text="'Halo, ' + user.nama"></span></template>
+      <button @click="page = 'cart'" class="relative text-blue-900">
+        <i class="fas fa-shopping-cart text-2xl"></i>
+        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-[9px] font-bold rounded-full px-1.5" x-text="cart.length"></span>
+      </button>
+    </div>
+  </div>
+</nav>
