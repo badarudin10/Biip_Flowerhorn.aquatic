@@ -1,0 +1,63 @@
+<section x-show="page === 'home'" x-cloak>
+  <!-- Hero Banner Slider -->
+  <div class="relative h-64 md:h-[450px] bg-black overflow-hidden shadow-2xl">
+    <div class="absolute inset-0 hero-slide" :class="activeSlide === 0 ? 'opacity-100' : 'opacity-0'">
+      <img src="https://i.ibb.co.com/dsm7JfZH/1777975785797.png" class="w-full h-full object-cover opacity-60">
+      <div class="absolute inset-0 flex items-center justify-center text-white font-black text-center p-4">
+        <h2 class="text-3xl md:text-6xl uppercase tracking-tighter">BELANJA ONLINE TIDAK PERLU CEMAS</h2>
+      </div>
+    </div>
+    <div class="absolute inset-0 hero-slide" :class="activeSlide === 1 ? 'opacity-100' : 'opacity-0'">
+      <img src="https://i.ibb.co.com/1Y6W76dW/39703.jpg" class="w-full h-full object-cover opacity-60">
+      <div class="absolute inset-0 flex items-center justify-center text-white font-black text-center p-4">
+        <h2 class="text-3xl md:text-6xl uppercase tracking-tighter">BELANJA IKAN HIAS SEMUDAH INI</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUK UNGGULAN (DASHBOARD) -->
+  <div class="container mx-auto px-4 py-16">
+    <h3 class="text-2xl font-black text-blue-900 uppercase mb-8 border-l-8 border-blue-900 pl-4">Produk Unggulan</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <template x-for="p in products.slice(0, 4)">
+        <div class="bg-white border rounded-[30px] overflow-hidden shadow-sm hover:shadow-xl transition group">
+          <img :src="p.foto" @click="detailItem = p; page='produk'" class="w-full aspect-square object-cover cursor-pointer">
+          <div class="p-4 text-center">
+            <h4 class="font-bold text-xs uppercase truncate" x-text="p.nama"></h4>
+            <p class="text-blue-700 font-black mt-1" x-text="formatPrice(p.harga)"></p>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- SLIDER ULASAN REAL-TIME -->
+  <div class="bg-blue-900 py-20 text-white" x-show="reviews.length > 0">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="font-black text-xl uppercase mb-12 tracking-widest">Suara Pelanggan</h3>
+      <div class="max-w-2xl mx-auto h-32 relative">
+        <template x-for="(rev, index) in reviews" :key="index">
+          <div x-show="activeReview === index" x-transition class="absolute inset-0">
+            <div class="flex justify-center gap-1 text-yellow-400 mb-4">
+              <template x-for="i in (parseInt(rev.rating) || 5)"><i class="fas fa-star"></i></template>
+            </div>
+            <p class="text-lg italic" x-text="'&ldquo;' + rev.komentar + '&rdquo;'"></p>
+            <h5 class="text-blue-300 font-black uppercase text-[10px] mt-4" x-text="rev.nama"></h5>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM ULASAN -->
+  <div class="container mx-auto px-4 py-16 text-center">
+    <div class="max-w-md mx-auto bg-gray-50 p-10 rounded-[50px] border shadow-sm">
+      <h3 class="font-black text-blue-900 uppercase mb-6">Berikan Rating</h3>
+      <div class="flex justify-center gap-2 mb-8">
+        <template x-for="i in 5"><i class="fas fa-star text-3xl cursor-pointer" :class="rating >= i ? 'text-yellow-400' : 'text-gray-200'" @click="rating = i"></i></template>
+      </div>
+      <textarea x-model="revMsg" class="w-full border-none rounded-3xl p-5 bg-white shadow-inner text-sm mb-6 outline-none" placeholder="Ceritakan kepuasan anda..."></textarea>
+      <button @click="sendReview()" class="bg-blue-900 text-white w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg">Kirim Review</button>
+    </div>
+  </div>
+</section>
