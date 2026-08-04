@@ -1,0 +1,35 @@
+<section x-show="page === 'produk'" x-cloak class="container mx-auto px-4 py-10 min-h-screen">
+  <div class="mb-10 text-center uppercase"><h2 class="text-3xl font-black text-blue-900">Koleksi Ikan Hias</h2></div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <template x-for="p in products">
+      <div x-show="p.nama && p.nama.toLowerCase().includes(search.toLowerCase())" class="bg-white border rounded-[30px] overflow-hidden shadow-sm hover:shadow-xl transition flex flex-col">
+        <img :src="p.foto" @click="detailItem = p" class="w-full aspect-square object-cover cursor-pointer">
+        <div class="p-4 flex flex-col flex-grow text-center">
+          <h4 class="font-bold text-xs h-8 line-clamp-2 uppercase" x-text="p.nama"></h4>
+          <p class="text-blue-700 font-black mt-1" x-text="formatPrice(p.harga)"></p>
+          <button @click="addToCart(p)" class="w-full bg-blue-900 text-white py-2 rounded-lg text-[9px] mt-auto font-bold uppercase tracking-widest">+ Keranjang</button>
+        </div>
+      </div>
+    </template>
+  </div>
+  <!-- Detail Modal -->
+  <div x-show="detailItem" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" x-cloak>
+    <div @click.away="detailItem = null" class="bg-white rounded-[40px] max-w-3xl w-full p-8 relative overflow-hidden shadow-2xl">
+      <button @click="detailItem = null" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-2xl"></i></button>
+      <div class="grid md:grid-cols-2 gap-10">
+        <img :src="detailItem?.foto" class="rounded-[30px] w-full aspect-square object-cover shadow-lg">
+        <div class="flex flex-col">
+          <h2 class="text-3xl font-black text-blue-900 uppercase leading-none" x-text="detailItem?.nama"></h2>
+          <p class="text-red-600 font-black text-3xl my-6" x-text="formatPrice(detailItem?.harga)"></p>
+          <div class="text-[11px] space-y-3 text-gray-500 font-bold uppercase tracking-widest border-t pt-6">
+            <p>Jenis: <span class="text-gray-900" x-text="detailItem?.jenis"></span></p>
+            <p>Size: <span class="text-gray-900" x-text="detailItem?.size"></span></p>
+            <p>Stok: <span class="text-green-600" x-text="detailItem?.stock"></span></p>
+          </div>
+          <p class="mt-6 text-sm text-gray-600 leading-relaxed italic" x-text="detailItem?.deskripsi"></p>
+          <button @click="addToCart(detailItem); detailItem=null" class="bg-blue-900 text-white w-full py-5 rounded-3xl mt-auto font-black shadow-xl uppercase tracking-widest text-xs">Tambah Keranjang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
