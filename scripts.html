@@ -1,0 +1,101 @@
+<script>
+function app() {
+  return {
+    page: 'home', menuOpen: false, authMode: 'login', filter: 'Semua', helpCat: 'Panduan',
+    user: null, products: [], articles: [], helpData: [], reviews: [], cart: [], 
+    activeSlide: 0, activeReview: 0, rating: 0, revMsg: '', search: '', 
+    detailItem: null, selectedArticle: null, selectedPayment: '', selectedShipping: '',
+    authForm: { email: '', password: '', nama: '' },
+    categories: ['Kamfa f2 Lokal Size 8 cm','Kamfa f2 Original Thailand Size 8 cm','Kamfa f2 Lokal pride Size 6 cm','Kamfa f2 Original Thailand Size 6 cm','Kamfa f2 Original Thailand Size 10 cm','Kamfa f2 Lokal pride Size 7 cm','Kamfa f2 Gb Size 4 cm','Kamfa f2 Lokal pride Size 4 cm'],
+
+    initApp() {
+      // Login Terintegrasi (Cek Sesi)
+      const saved = localStorage.getItem('biip_user');
+      if (saved) { try { this.user = JSON.parse(saved); } catch(e) { localStorage.removeItem('biip_user'); } }
+      
+      // Ambil Data dari Spreadsheet
+      google.script.run.withSuccessHandler(d => { this.products = d || []; }).getData('Products');
+      google.script.run.withSuccessHandler(d => { this.articles = d || []; }).getData('Articles');
+      google.script.run.withSuccessHandler(d => { this.helpData = d || []; }).getData('Help');
+      
+      // Muat Ulasan Pertama Kali
+      this.loadReviews();
+
+      // Interval Banner & Review (Bergeser Otomatis)
+      setInterval(() => { this.activeSlide = (this.activeSlide + 1) % 2 }, 5000);
+      setInterval(() => { if(this.reviews.length > 0) this.activeReview = (this.activeReview + 1) % this.reviews.length; }, 4000);
+    },
+
+    loadReviews() {
+      google.script.run.withSuccessHandler(d => { this.reviews = d || []; }).getData('Reviews');
+    },
+
+    // Pencarian Difungsikan (Global Search)
+    handleGlobalSearch() {
+      let q = this.search.toLowerCase().trim();
+      if (q.length < 2) return;
+      if ("produk ikan beli".includes(q)) { this.page = 'produk'; this.menuOpen = false; }
+      if ("kontak wa alamat".includes(q)) { this.page = 'kontak'; this.menuOpen = false; }
+      if ("edukasi tips informasi artikel".includes(q)) { this.page = 'artikel'; this.menuOpen = false; }
+      if ("bantuan garansi panduan".includes(q)) { this.page = 'help'; this.menuOpen = false; }
+      if (this.products.some(p => p.nama.toLowerCase().includes(q))) { this.page = 'produk'; this.menuOpen = false; }
+    },
+
+    formatPrice(val) {
+      if (!val) return "Rp 0";
+      let num = parseInt(val.toString().replace(/[^0-9]/g, '')) || 0;
+      return "Rp " + num.toLocaleString('id-ID');
+    },
+
+    // Keranjang dengan rincian lengkap
+    addToCart(p) {
+      if (!this.user) { this.page = 'login'; return alert('Silakan Login/Daftar Dahulu'); }
+      this.cart.push({ 
+        id: Date.now(), nama: p.nama, harga: p.harga, size: p.size, foto: p.foto, jenis: p.jenis 
+      });
+      alert(p.nama + " masuk keranjang!");
+    },
+
+    getTotal() {
+      return this.cart.reduce((s, i) => s + (parseInt(i.harga.toString().replace(/[^0-9]/g, '')) || 0), 0);
+    },
+
+    // Konfirmasi WhatsApp Detail (Metode Bayar, Kirim, S&K)
+    checkoutWA() {
+      if (this.cart.length === 0) return alert('Keranjang Kosong');
+      if (!this.selectedPayment || !this.selectedShipping) return alert('Pilih Metode Pembayaran & Pengiriman!');
+
+      let totalStr = this.formatPrice(this.getTotal());
+      let itemsText = this.cart.map((i, idx) => (idx+1) + ". " + i.nama + " [" + i.size + "]").join('\n');
+      
+      let payInfo = this.selectedPayment === 'BCA' ? "BCA: 1234567890 a/n Badarudin" : "DANA: 085716842806 a/n Badarudin";
+      let sk = "⚠️ SYARAT & KETENTUAN:\n- Harga belum termasuk ongkir.\n- Wajib Video Unboxing tanpa jeda untuk klaim garansi ikan mati (D.O.A).";
+
+      let pesan = `*KONFIRMASI PESANAN - BIIP FLOWERHORN*\n\n👤 Nama: ${this.user.nama}\n📦 Pengiriman: ${this.selectedShipping}\n💰 Pembayaran: ${this.selectedPayment}\n\n*DETAIL PRODUK:*\n${itemsText}\n\n*TOTAL TAGIHAN: ${totalStr}*\n\n--------------------------\n*PANDUAN BAYAR:*\n${payInfo}\n\n${sk}`;
+      
+      window.open("https://wa.me/6285716842806?text=" + encodeURIComponent(pesan), "_blank");
+    },
+
+    handleAuth() {
+      if(!this.authForm.email || !this.authForm.password) return alert('Lengkapi Form');
+      google.script.run.withSuccessHandler(res => {
+        if (res && res.status === 'success') {
+          this.user = res.user;
+          localStorage.setItem('biip_user', JSON.stringify(res.user));
+          this.page = 'home';
+          alert('Halo ' + res.user.nama + ', Anda berhasil masuk.');
+        } else { alert('Gagal Login/Daftar. Cek kembali data Anda.'); }
+      }).authUser(this.authMode, this.authForm);
+    },
+
+    logout() { localStorage.removeItem('biip_user'); this.user = null; this.page = 'home'; },
+
+    sendReview() {
+      if(!this.user) return alert('Login Dahulu');
+      google.script.run.withSuccessHandler(() => { 
+        alert('Ulasan Terkirim!'); this.rating = 0; this.revMsg = ''; this.loadReviews();
+      }).submitReview({ nama: this.user.nama, rating: this.rating, komentar: this.revMsg });
+    }
+  };
+}
+</script>
