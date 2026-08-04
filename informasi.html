@@ -1,0 +1,23 @@
+<section x-show="page === 'artikel'" x-cloak class="container mx-auto px-4 py-16 min-h-screen">
+  <h2 class="text-center text-3xl font-black text-blue-900 mb-12 uppercase tracking-tighter">Edukasi Perikanan</h2>
+  <div class="grid md:grid-cols-3 gap-10">
+    <template x-for="art in articles">
+      <div class="bg-white border rounded-[40px] overflow-hidden shadow-sm flex flex-col">
+        <img :src="art.gambar" class="w-full h-48 object-cover">
+        <div class="p-8 flex flex-grow flex-col">
+          <h3 class="font-black text-xl mb-4 text-gray-800 uppercase leading-tight" x-text="art.judul"></h3>
+          <p class="text-gray-500 text-sm line-clamp-3 leading-loose mb-6" x-text="art.konten"></p>
+          <button @click="selectedArticle = art" class="text-blue-900 font-black text-[10px] tracking-widest uppercase border-b-2 border-blue-900 pb-1 self-start">Selengkapnya</button>
+        </div>
+      </div>
+    </template>
+  </div>
+  <div x-show="selectedArticle" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95" x-cloak>
+    <div @click.away="selectedArticle = null" class="bg-white rounded-[50px] max-w-4xl w-full p-10 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      <button @click="selectedArticle = null" class="absolute top-8 right-8 bg-gray-50 p-3 rounded-full hover:bg-red-500 transition"><i class="fas fa-times text-xl"></i></button>
+      <img :src="selectedArticle?.gambar" class="w-full h-80 object-cover rounded-[30px] mb-10 shadow-md">
+      <h2 class="text-4xl font-black mb-8 uppercase text-blue-900 leading-none" x-text="selectedArticle?.judul"></h2>
+      <div class="whitespace-pre-line text-gray-700 leading-loose text-lg font-medium" x-text="selectedArticle?.konten"></div>
+    </div>
+  </div>
+</section>
